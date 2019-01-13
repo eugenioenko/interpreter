@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html ng-app="app">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Untiteled Interpreter</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/sdf.css">
+    <script src="./dist/bundle.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.2/ace.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.5/angular.min.js"></script>
+    <style>
+        #container {
+            max-width: 800px;
+            margin: auto;
+        }
+        #editor {
+            width: 100%;
+            height: 400px;
+        }
+        #console {
+            height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body ng-controller="controller">
+    <div class="sdf-wrapper sdf-default" id="container">
+        <div class="sdf-grid">
+            <div class="sdf-cell sdf-12 sdf-padding">
+                <h1>Untiteled Interpreter</h1>
+                <h3>A javascript like language interpreter<br><small>...writen in typescript for fun</small></h3>
+            </div>
+            <div class="sdf-cell sdf-12 sdf-padding">
+                <h3>Try it out!</h3>
+                <div id="editor"></div>
+            </div>
+            <div class="sdf-cell sdf-12 sdf-padding">
+                <button class="sdf-button sdf-danger" ng-click="run()">Run</button>
+            </div>
+            <div class="sdf-cell sdf-12 sdf-padding">
+                <h3>Output</h3>
+                <div id="console">
+                    <table class="sdf-table">
+                        <tr ng-repeat="message in console.messages">
+                            <td ng-class="{
+                                'sdf-light': message.type === 0,
+                                'sdf-danger': message.type === 1,
+                                'sdf-warning': message.type === 2,
+                                'sdf-info': message.type === 3
+                            }">{{ message.text }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var editor;
+        var app = angular.module('app', []);
+            app.factory('editor', [function(){
+                editor = ace.edit("editor");
+                editor.session.setMode("ace/mode/javascript");
+                editor.getSession().setUseWorker(false);
+                editor.setTheme('ace/theme/monokai');
+                editor.setFontSize(16);
+                editor.setValue(demoSourceCode);
+                return editor;
+            }]);
+
+            app.controller('controller', ['$scope', 'editor', function ($scope, editor) {
+
+                $scope.console = conzole;
+                execute(editor.getValue());
+
+                $scope.run = function() {
+                    var source = editor.getValue();
+                    conzole.clear();
+                    execute(source);
+
+
+                }
+
+            }]);
+    </script>
+</body>
+</html>
