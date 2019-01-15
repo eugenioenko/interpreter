@@ -89,4 +89,13 @@ test.prototype.method = function() {
     print "hello world";
 };
 print test.method();
+var d = {
+    firstname: "John",
+    lastname: "Doe",
+    records: {
+        prev: "previous",
+        next: "next"
+    }
+};
+echo(d);
 `;

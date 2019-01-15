@@ -80,15 +80,6 @@ export class CallableFunc extends CallableObject {
         return undefined;
     }
 
-    private inject(): void {
-        const bind = new CallableObject();
-        bind.arity = () => 1;
-        bind.toString = () => '<native function>';
-        bind.call = (interpreter, args) => {
-            this.closure.set('this', args[0]);
-        };
-        this.properties.set('bind', bind);
-    }
 }
 
 export class ObjectInstance extends RuntimeObject {
@@ -99,7 +90,6 @@ export class ObjectInstance extends RuntimeObject {
         this.properties = new Map();
         this.prototype = construct.prototype;
         this.properties.set('prototype', this.prototype);
-        this.properties.set('this', this);
     }
 
     public get(key: string): any {

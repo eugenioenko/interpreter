@@ -91,11 +91,11 @@ export class Call extends Expr {
 }
 
 export class Entity extends Expr {
-	public object: Expr;
+	public properties: Expr[];
 
-	constructor(object: Expr) {
+	constructor(properties: Expr[]) {
 		super();
-		this.object = object;
+		this.properties = properties;
 	}
 
     accept<R>(visitor: ExprVisitor<R>): R {

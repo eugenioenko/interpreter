@@ -472,8 +472,7 @@ export class Parser {
             return new Expr.Grouping(expr);
         }
         if (this.match(TokenType.leftBrace)) {
-            this.consume(TokenType.rightBrace, `Expected "}" after expression`);
-            return new Expr.Entity(null);
+            return this.entity();
         }
 
         if (this.match(TokenType.func, TokenType.function)) {
@@ -486,28 +485,26 @@ export class Parser {
         // unreacheable code
         return new Expr.Literal(null);
     }
-    /*
-    public object(): Expr.Expr {
-        if (this.match(TokenType.leftBrace)) {
-            if (this.match(TokenType.rightBrace)) {
-                return new Expr.Literal({});
-            }
-            const properties: Expr.Property[] = [];
-            do {
-                if (this.match(TokenType.string, TokenType.identifier)) {
-                    const key: Token = this.previous();
-                    this.consume(TokenType.colon, `Expected ":" colon after member`);
-                    const value = this.expression();
-                    properties.push(new Expr.Property(key, value));
-                } else {
-                    this.parseError(this.peek(), `String or identifier expected after Object {`);
-                }
-            } while (this.match(TokenType.comma));
-            this.consume(TokenType.rightBrace, `Expected "}" after object literal`);
-            return new Expr.ObjectLiteral(properties);
+
+    public entity(): Expr.Expr {
+        if (this.match(TokenType.rightBrace)) {
+            return new Expr.Entity(null);
         }
-        return this.primary();
-    }*/
+        const properties: Expr.Set[] = [];
+        do {
+            if (this.match(TokenType.string, TokenType.identifier)) {
+                const key: Token = this.previous();
+                this.consume(TokenType.colon, `Expected ":" colon after member`);
+                const value = this.expression();
+                properties.push(new Expr.Set(null, key, value));
+            } else {
+                this.parseError(this.peek(), `String or identifier expected after Object {`);
+            }
+        } while (this.match(TokenType.comma));
+        this.consume(TokenType.rightBrace, `Expected "}" after object literal`);
+        return new Expr.Entity(properties);
+    }
+
     /*
     public indexes(identifier: Token) {
         const indexes: Expr.Expr[] = [];

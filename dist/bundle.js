@@ -166,15 +166,6 @@ class CallableFunc extends CallableObject {
         }
         return undefined;
     }
-    inject() {
-        const bind = new CallableObject();
-        bind.arity = () => 1;
-        bind.toString = () => '<native function>';
-        bind.call = (interpreter, args) => {
-            this.closure.set('this', args[0]);
-        };
-        this.properties.set('bind', bind);
-    }
 }
 class ObjectInstance extends RuntimeObject {
     constructor(construct) {
@@ -183,7 +174,6 @@ class ObjectInstance extends RuntimeObject {
         this.properties = new Map();
         this.prototype = construct.prototype;
         this.properties.set('prototype', this.prototype);
-        this.properties.set('this', this);
     }
     get(key) {
         if (this.properties.has(key)) {
@@ -376,6 +366,15 @@ test.prototype.method = function() {
     print "hello world";
 };
 print test.method();
+var d = {
+    firstname: "John",
+    lastname: "Doe",
+    records: {
+        prev: "previous",
+        next: "next"
+    }
+};
+echo(d);
 `;
 
 
@@ -452,9 +451,9 @@ class Call extends Expr {
     }
 }
 class Entity extends Expr {
-    constructor(object) {
+    constructor(properties) {
         super();
-        this.object = object;
+        this.properties = properties;
     }
     accept(visitor) {
         return visitor.visitEntityExpr(this);
@@ -798,7 +797,13 @@ class Interpreter {
         return new _callable__WEBPACK_IMPORTED_MODULE_1__["ObjectInstance"](callee);
     }
     visitEntityExpr(expr) {
-        return new _callable__WEBPACK_IMPORTED_MODULE_1__["RuntimeObject"]();
+        const entity = new _callable__WEBPACK_IMPORTED_MODULE_1__["RuntimeObject"]();
+        for (const property of expr.properties) {
+            const key = property.name.lexeme;
+            const value = this.evaluate(property.value);
+            entity.set(key, value);
+        }
+        return entity;
     }
     visitClassStmt(stmt) {
         this.scope.define(stmt.name.lexeme, null);
@@ -811,9 +816,8 @@ class Interpreter {
         if (entity instanceof _callable__WEBPACK_IMPORTED_MODULE_1__["RuntimeObject"]) {
             return entity.get(expr.name.lexeme);
         }
-        // TODO: to javascript or not to javascript?
-        // throw new Error(`${expr.name} Only instances have properties`);
-        return undefined;
+        conzole.error(`${expr.name} Only instances have properties`);
+        throw new Error();
     }
     visitSetExpr(expr) {
         const entity = this.evaluate(expr.object);
@@ -1269,8 +1273,7 @@ class Parser {
             return new _expression__WEBPACK_IMPORTED_MODULE_1__["Grouping"](expr);
         }
         if (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].leftBrace)) {
-            this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].rightBrace, `Expected "}" after expression`);
-            return new _expression__WEBPACK_IMPORTED_MODULE_1__["Entity"](null);
+            return this.entity();
         }
         if (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].func, _token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].function)) {
             const token = new _token__WEBPACK_IMPORTED_MODULE_0__["Token"]('lambda', 'lambda', 'lambda', this.previous().line);
@@ -1280,6 +1283,25 @@ class Parser {
         throw this.parseError(this.peek(), `Expected expression`);
         // unreacheable code
         return new _expression__WEBPACK_IMPORTED_MODULE_1__["Literal"](null);
+    }
+    entity() {
+        if (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].rightBrace)) {
+            return new _expression__WEBPACK_IMPORTED_MODULE_1__["Entity"](null);
+        }
+        const properties = [];
+        do {
+            if (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].string, _token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].identifier)) {
+                const key = this.previous();
+                this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].colon, `Expected ":" colon after member`);
+                const value = this.expression();
+                properties.push(new _expression__WEBPACK_IMPORTED_MODULE_1__["Set"](null, key, value));
+            }
+            else {
+                this.parseError(this.peek(), `String or identifier expected after Object {`);
+            }
+        } while (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].comma));
+        this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].rightBrace, `Expected "}" after object literal`);
+        return new _expression__WEBPACK_IMPORTED_MODULE_1__["Entity"](properties);
     }
 }
 

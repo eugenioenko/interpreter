@@ -213,7 +213,7 @@ export class Interpreter implements
             conzole.error(`${callee} is not a function`);
             throw new Error();
         }
-        const func: CallableObject = <CallableObject> callee;
+        const func = callee as CallableObject;
         if (args.length !== func.arity()) {
             conzole.warn(`Warning at (${expr.paren.line}): ${callee} mismatched argument length`);
         }
@@ -228,7 +228,13 @@ export class Interpreter implements
     }
 
     public visitEntityExpr(expr: Expr.Entity) {
-        return new RuntimeObject();
+        const entity = new RuntimeObject();
+        for (const property of expr.properties) {
+            const key = (property as Expr.Set).name.lexeme;
+            const value = this.evaluate((property as Expr.Set).value);
+            entity.set(key, value);
+        }
+        return entity;
     }
 
     public visitClassStmt(stmt: Stmt.Class): any {
@@ -241,11 +247,10 @@ export class Interpreter implements
     public visitGetExpr(expr: Expr.Get): any {
         const entity = this.evaluate(expr.object);
         if (entity instanceof RuntimeObject) {
-            return (entity as RuntimeObject).get(expr.name.lexeme);
+            return entity.get(expr.name.lexeme);
         }
-        // TODO: to javascript or not to javascript?
-        // throw new Error(`${expr.name} Only instances have properties`);
-        return undefined;
+        conzole.error(`${expr.name} Only instances have properties`);
+        throw new Error();
     }
 
     public visitSetExpr(expr: Expr.Set): void {
