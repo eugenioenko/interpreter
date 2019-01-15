@@ -286,7 +286,20 @@ class Console {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DemoSourceCode", function() { return DemoSourceCode; });
-const DemoSourceCode = ``; /*`
+const DemoSourceCode = `
+// prototype
+function MyClass() {
+    print "my class";
+}
+MyClass.prototype.method = function(this) {
+    this.something = "anything";
+};
+
+let obj = new MyClass();
+obj.method();
+print obj.something;
+
+
 // recursivity
 function recursive(n, m) {
   if (n < m)
@@ -363,8 +376,7 @@ test.prototype.method = function() {
     print "hello world";
 };
 print test.method();
-`*/
-;
+`;
 
 
 /***/ }),

@@ -1,5 +1,18 @@
 export const DemoSourceCode =
-``;/*`
+`
+// prototype
+function MyClass() {
+    print "my class";
+}
+MyClass.prototype.method = function(this) {
+    this.something = "anything";
+};
+
+let obj = new MyClass();
+obj.method();
+print obj.something;
+
+
 // recursivity
 function recursive(n, m) {
   if (n < m)
@@ -76,4 +89,4 @@ test.prototype.method = function() {
     print "hello world";
 };
 print test.method();
-`*/;
+`;
