@@ -794,6 +794,7 @@ class Interpreter {
     visitNewExpr(expr) {
         const construct = expr.construct;
         const callee = this.evaluate(construct.callee);
+        this.evaluate(construct);
         return new _callable__WEBPACK_IMPORTED_MODULE_1__["ObjectInstance"](callee);
     }
     visitEntityExpr(expr) {

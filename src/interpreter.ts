@@ -223,6 +223,7 @@ export class Interpreter implements
     public visitNewExpr(expr: Expr.New): object {
         const construct = expr.construct as Expr.Call;
         const callee = this.evaluate(construct.callee);
+        this.evaluate(construct);
         return new ObjectInstance(callee);
     }
 
