@@ -39,7 +39,7 @@ export class CallableObject extends RuntimeObject {
     public arity(): number {
         return 0;
     }
-    public call(interpreter: Interpreter, args: any[], thiz: ClassInstance): any { return; }
+    public call(interpreter: Interpreter, args: any[]): any { return; }
     public toString(): string {
         return 'function';
     }
@@ -49,13 +49,11 @@ export class CallableFunc extends CallableObject {
     public name: string;
     private declaration: Stmt.Func;
     private closure: Scope;
-    private thiz: ClassInstance;
 
-    constructor(declaration: Stmt.Func, closure: Scope, thiz: ClassInstance) {
+    constructor(declaration: Stmt.Func, closure: Scope) {
         super();
         this.declaration = declaration;
         this.closure = closure;
-        this.thiz = thiz;
         this.name = this.declaration.name.lexeme;
     }
 
@@ -67,9 +65,8 @@ export class CallableFunc extends CallableObject {
         return this.declaration.params.length;
     }
 
-    public call(interpreter: Interpreter, args: any[], thiz: ClassInstance): any {
+    public call(interpreter: Interpreter, args: any[]): any {
         const scope = new Scope(this.closure);
-        scope.define('this', thiz);
         for (let i = 0; i < this.declaration.params.length; i++) {
             scope.define(this.declaration.params[i].lexeme, args[i]);
         }
@@ -81,6 +78,44 @@ export class CallableFunc extends CallableObject {
             }
         }
         return undefined;
+    }
+
+    private inject(): void {
+        const bind = new CallableObject();
+        bind.arity = () => 1;
+        bind.toString = () => '<native function>';
+        bind.call = (interpreter, args) => {
+            this.closure.set('this', args[0]);
+        };
+        this.properties.set('bind', bind);
+    }
+}
+
+export class ObjectInstance extends RuntimeObject {
+    private instanceof: string;
+    constructor(construct: CallableFunc) {
+        super();
+        this.instanceof = construct.name;
+        this.properties = new Map();
+        this.prototype = construct.prototype;
+        this.properties.set('prototype', this.prototype);
+        this.properties.set('this', this);
+    }
+
+    public get(key: string): any {
+        if (this.properties.has(key)) {
+            return this.properties.get(key);
+        }
+        return this.prototype.get(key);
+        throw new Error(`${this.instanceof} does not have ${key}`);
+    }
+
+    public set(key: string, value: any) {
+        this.prototype.set(key, value);
+    }
+
+    public toString(): string {
+        return this.instanceof + " instance";
     }
 }
 
@@ -103,7 +138,7 @@ export class ClassPrototype  extends CallableObject {
     }
 
     public call(interpreter: Interpreter, args: any[]): any {
-        const instance: ClassInstance  = new ClassInstance(null);
+        const instance: ObjectInstance  = new ObjectInstance(null);
         return instance;
     }
 
@@ -111,32 +146,4 @@ export class ClassPrototype  extends CallableObject {
         return this.name;
     }
 
-}
-
-export class ClassInstance extends RuntimeObject {
-    private instanceof: string;
-
-    constructor(construct: CallableFunc) {
-        super();
-        console.log(construct);
-        this.instanceof = construct.name;
-        this.properties = new Map();
-        this.prototype = construct.prototype;
-    }
-
-    public get(key: string): any {
-        if (this.properties.has(key)) {
-            return this.properties.get(key);
-        }
-        return this.prototype.get(key);
-        throw new Error(`${this.instanceof} does not have ${key}`);
-    }
-
-    public set(key: string, value: any) {
-        this.prototype.set(key, value);
-    }
-
-    public toString(): string {
-        return this.instanceof + " instance";
-    }
 }

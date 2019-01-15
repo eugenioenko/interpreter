@@ -1,6 +1,6 @@
 import * as Expr from './expression';
 import * as Stmt from './statement';
-import { CallableFunc, CallableObject, ClassPrototype, ClassInstance, RuntimeObject} from './callable';
+import { CallableFunc, CallableObject, ClassPrototype, ObjectInstance, RuntimeObject} from './callable';
 import { Console } from './console';
 import { Return } from './return';
 import { Scope } from './scope';
@@ -200,7 +200,11 @@ export class Interpreter implements
     public visitCallExpr(expr: Expr.Call): object {
         const callee = this.evaluate(expr.callee);
         const args = [];
-
+        if (expr.callee instanceof Expr.Get) {
+            args.push(
+                this.evaluate(expr.callee.object)
+            );
+        }
         for (const argument of expr.args) {
             args.push(this.evaluate(argument));
         }
@@ -213,13 +217,13 @@ export class Interpreter implements
         if (args.length !== func.arity()) {
             conzole.warn(`Warning at (${expr.paren.line}): ${callee} mismatched argument length`);
         }
-        return func.call(this, args, null);
+        return func.call(this, args);
     }
 
     public visitNewExpr(expr: Expr.New): object {
         const construct = expr.construct as Expr.Call;
         const callee = this.evaluate(construct.callee);
-        return new ClassInstance(callee);
+        return new ObjectInstance(callee);
     }
 
     public visitEntityExpr(expr: Expr.Entity) {
@@ -255,14 +259,14 @@ export class Interpreter implements
     }
 
     public visitFuncStmt(stmt: Stmt.Func): any {
-        const func: CallableFunc = new CallableFunc(stmt, this.scope, null);
+        const func: CallableFunc = new CallableFunc(stmt, this.scope);
         this.scope.define(stmt.name.lexeme, func);
         return null;
     }
 
     public visitLambdaExpr(expr: Expr.Lambda): object {
         const lambda: Stmt.Func = expr.lambda as Stmt.Func;
-        const func: CallableFunc = new CallableFunc(lambda, this.scope, null);
+        const func: CallableFunc = new CallableFunc(lambda, this.scope);
         return func;
     }
 

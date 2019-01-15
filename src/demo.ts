@@ -1,5 +1,5 @@
 export const DemoSourceCode =
-`
+``;/*`
 // recursivity
 function recursive(n, m) {
   if (n < m)
@@ -76,4 +76,4 @@ test.prototype.method = function() {
     print "hello world";
 };
 print test.method();
-`;
+`*/;

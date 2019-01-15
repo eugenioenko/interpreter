@@ -62,7 +62,6 @@ export enum TokenType {
     print,
     return,
     super,
-    this,
     true,
     var,
     let,

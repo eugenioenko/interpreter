@@ -90,7 +90,7 @@
 /*!*************************!*\
   !*** ./src/callable.ts ***!
   \*************************/
-/*! exports provided: RuntimeObject, CallableObject, CallableFunc, ClassPrototype, ClassInstance */
+/*! exports provided: RuntimeObject, CallableObject, CallableFunc, ObjectInstance, ClassPrototype */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -98,8 +98,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RuntimeObject", function() { return RuntimeObject; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CallableObject", function() { return CallableObject; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CallableFunc", function() { return CallableFunc; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ObjectInstance", function() { return ObjectInstance; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ClassPrototype", function() { return ClassPrototype; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ClassInstance", function() { return ClassInstance; });
 /* harmony import */ var _scope__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./scope */ "./src/scope.ts");
 /* harmony import */ var _return__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./return */ "./src/return.ts");
 /* harmony import */ var _prototype__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./prototype */ "./src/prototype.ts");
@@ -133,17 +133,16 @@ class CallableObject extends RuntimeObject {
     arity() {
         return 0;
     }
-    call(interpreter, args, thiz) { return; }
+    call(interpreter, args) { return; }
     toString() {
         return 'function';
     }
 }
 class CallableFunc extends CallableObject {
-    constructor(declaration, closure, thiz) {
+    constructor(declaration, closure) {
         super();
         this.declaration = declaration;
         this.closure = closure;
-        this.thiz = thiz;
         this.name = this.declaration.name.lexeme;
     }
     toString() {
@@ -152,9 +151,8 @@ class CallableFunc extends CallableObject {
     arity() {
         return this.declaration.params.length;
     }
-    call(interpreter, args, thiz) {
+    call(interpreter, args) {
         const scope = new _scope__WEBPACK_IMPORTED_MODULE_0__["Scope"](this.closure);
-        scope.define('this', thiz);
         for (let i = 0; i < this.declaration.params.length; i++) {
             scope.define(this.declaration.params[i].lexeme, args[i]);
         }
@@ -167,6 +165,38 @@ class CallableFunc extends CallableObject {
             }
         }
         return undefined;
+    }
+    inject() {
+        const bind = new CallableObject();
+        bind.arity = () => 1;
+        bind.toString = () => '<native function>';
+        bind.call = (interpreter, args) => {
+            this.closure.set('this', args[0]);
+        };
+        this.properties.set('bind', bind);
+    }
+}
+class ObjectInstance extends RuntimeObject {
+    constructor(construct) {
+        super();
+        this.instanceof = construct.name;
+        this.properties = new Map();
+        this.prototype = construct.prototype;
+        this.properties.set('prototype', this.prototype);
+        this.properties.set('this', this);
+    }
+    get(key) {
+        if (this.properties.has(key)) {
+            return this.properties.get(key);
+        }
+        return this.prototype.get(key);
+        throw new Error(`${this.instanceof} does not have ${key}`);
+    }
+    set(key, value) {
+        this.prototype.set(key, value);
+    }
+    toString() {
+        return this.instanceof + " instance";
     }
 }
 class ClassPrototype extends CallableObject {
@@ -182,33 +212,11 @@ class ClassPrototype extends CallableObject {
         return 0;
     }
     call(interpreter, args) {
-        const instance = new ClassInstance(null);
+        const instance = new ObjectInstance(null);
         return instance;
     }
     toString() {
         return this.name;
-    }
-}
-class ClassInstance extends RuntimeObject {
-    constructor(construct) {
-        super();
-        console.log(construct);
-        this.instanceof = construct.name;
-        this.properties = new Map();
-        this.prototype = construct.prototype;
-    }
-    get(key) {
-        if (this.properties.has(key)) {
-            return this.properties.get(key);
-        }
-        return this.prototype.get(key);
-        throw new Error(`${this.instanceof} does not have ${key}`);
-    }
-    set(key, value) {
-        this.prototype.set(key, value);
-    }
-    toString() {
-        return this.instanceof + " instance";
     }
 }
 
@@ -278,7 +286,7 @@ class Console {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DemoSourceCode", function() { return DemoSourceCode; });
-const DemoSourceCode = `
+const DemoSourceCode = ``; /*`
 // recursivity
 function recursive(n, m) {
   if (n < m)
@@ -355,7 +363,8 @@ test.prototype.method = function() {
     print "hello world";
 };
 print test.method();
-`;
+`*/
+;
 
 
 /***/ }),
@@ -576,23 +585,25 @@ window.execute = function (source) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Interpreter", function() { return Interpreter; });
-/* harmony import */ var _callable__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./callable */ "./src/callable.ts");
-/* harmony import */ var _return__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./return */ "./src/return.ts");
-/* harmony import */ var _scope__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./scope */ "./src/scope.ts");
-/* harmony import */ var _token__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./token */ "./src/token.ts");
+/* harmony import */ var _expression__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./expression */ "./src/expression.ts");
+/* harmony import */ var _callable__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./callable */ "./src/callable.ts");
+/* harmony import */ var _return__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./return */ "./src/return.ts");
+/* harmony import */ var _scope__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./scope */ "./src/scope.ts");
+/* harmony import */ var _token__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./token */ "./src/token.ts");
+
 
 
 
 
 class Interpreter {
     constructor() {
-        this.global = new _scope__WEBPACK_IMPORTED_MODULE_2__["Scope"]();
+        this.global = new _scope__WEBPACK_IMPORTED_MODULE_3__["Scope"]();
         this.scope = this.global;
-        const rand = new _callable__WEBPACK_IMPORTED_MODULE_0__["CallableObject"]();
+        const rand = new _callable__WEBPACK_IMPORTED_MODULE_1__["CallableObject"]();
         rand.call = () => Math.random();
         rand.toString = () => '<native function>';
         this.global.define('rand', rand);
-        const echo = new _callable__WEBPACK_IMPORTED_MODULE_0__["CallableObject"]();
+        const echo = new _callable__WEBPACK_IMPORTED_MODULE_1__["CallableObject"]();
         echo.arity = () => 1;
         echo.toString = () => '<native function>';
         echo.call = (interpreter, args) => console.log(args[0]);
@@ -622,7 +633,7 @@ class Interpreter {
         if (stmt.initializer !== null) {
             value = this.evaluate(stmt.initializer);
         }
-        if (stmt.type.type === _token__WEBPACK_IMPORTED_MODULE_3__["TokenType"].var) {
+        if (stmt.type.type === _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].var) {
             this.scope.set(stmt.name.lexeme, value);
         }
         else {
@@ -647,42 +658,42 @@ class Interpreter {
         const left = this.evaluate(expr.left);
         const right = this.evaluate(expr.right);
         switch (expr.operator.type) {
-            case _token__WEBPACK_IMPORTED_MODULE_3__["TokenType"].minus:
+            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].minus:
                 return left - right;
-            case _token__WEBPACK_IMPORTED_MODULE_3__["TokenType"].slash:
+            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].slash:
                 return left / right;
-            case _token__WEBPACK_IMPORTED_MODULE_3__["TokenType"].star:
+            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].star:
                 return left * right;
-            case _token__WEBPACK_IMPORTED_MODULE_3__["TokenType"].percent:
+            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].percent:
                 return left % right;
-            case _token__WEBPACK_IMPORTED_MODULE_3__["TokenType"].plus:
+            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].plus:
                 if (typeof left === 'number' && typeof right === 'number') {
                     return (left + right);
                 }
                 else {
                     return left + right;
                 }
-            case _token__WEBPACK_IMPORTED_MODULE_3__["TokenType"].pipe:
+            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].pipe:
                 return left | right;
-            case _token__WEBPACK_IMPORTED_MODULE_3__["TokenType"].caret:
+            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].caret:
                 return left ^ right;
-            case _token__WEBPACK_IMPORTED_MODULE_3__["TokenType"].greater:
+            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].greater:
                 return left > right;
-            case _token__WEBPACK_IMPORTED_MODULE_3__["TokenType"].greaterEqual:
+            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].greaterEqual:
                 return left >= right;
-            case _token__WEBPACK_IMPORTED_MODULE_3__["TokenType"].less:
+            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].less:
                 return left < right;
-            case _token__WEBPACK_IMPORTED_MODULE_3__["TokenType"].lessEqual:
+            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].lessEqual:
                 return left <= right;
-            case _token__WEBPACK_IMPORTED_MODULE_3__["TokenType"].equalEqual:
+            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].equalEqual:
                 // tslint:disable-next-line
                 return left == right;
-            case _token__WEBPACK_IMPORTED_MODULE_3__["TokenType"].equalEqualEqual:
+            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].equalEqualEqual:
                 return left === right;
-            case _token__WEBPACK_IMPORTED_MODULE_3__["TokenType"].bangEqual:
+            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].bangEqual:
                 // tslint:disable-next-line
                 return left != right;
-            case _token__WEBPACK_IMPORTED_MODULE_3__["TokenType"].bangEqualEqual:
+            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].bangEqualEqual:
                 return left !== right;
             default:
                 conzole.warn(expr);
@@ -702,17 +713,17 @@ class Interpreter {
     visitUnaryExpr(expr) {
         const right = this.evaluate(expr.right);
         switch (expr.operator.type) {
-            case _token__WEBPACK_IMPORTED_MODULE_3__["TokenType"].minus:
+            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].minus:
                 return -Number(right);
-            case _token__WEBPACK_IMPORTED_MODULE_3__["TokenType"].bang:
+            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].bang:
                 return !Boolean(right);
-            case _token__WEBPACK_IMPORTED_MODULE_3__["TokenType"].dollar:
+            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].dollar:
                 return right.length;
-            case _token__WEBPACK_IMPORTED_MODULE_3__["TokenType"].plusPlus:
+            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].plusPlus:
                 const incValue = Number(right) + 1;
                 this.scope.assign(expr.right.name.lexeme, incValue);
                 return incValue;
-            case _token__WEBPACK_IMPORTED_MODULE_3__["TokenType"].minusMinus:
+            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].minusMinus:
                 const decValue = Number(right) - 1;
                 this.scope.assign(expr.right.name.lexeme, decValue);
                 return decValue;
@@ -729,7 +740,7 @@ class Interpreter {
         this.scope = currentScope;
     }
     visitBlockStmt(stmt) {
-        this.executeBlock(stmt.statements, new _scope__WEBPACK_IMPORTED_MODULE_2__["Scope"](this.scope));
+        this.executeBlock(stmt.statements, new _scope__WEBPACK_IMPORTED_MODULE_3__["Scope"](this.scope));
     }
     visitIfStmt(stmt) {
         if (this.evaluate(stmt.condition)) {
@@ -752,10 +763,13 @@ class Interpreter {
     visitCallExpr(expr) {
         const callee = this.evaluate(expr.callee);
         const args = [];
+        if (expr.callee instanceof _expression__WEBPACK_IMPORTED_MODULE_0__["Get"]) {
+            args.push(this.evaluate(expr.callee.object));
+        }
         for (const argument of expr.args) {
             args.push(this.evaluate(argument));
         }
-        if (!(callee instanceof _callable__WEBPACK_IMPORTED_MODULE_0__["CallableObject"])) {
+        if (!(callee instanceof _callable__WEBPACK_IMPORTED_MODULE_1__["CallableObject"])) {
             conzole.error(`${callee} is not a function`);
             throw new Error();
         }
@@ -763,25 +777,25 @@ class Interpreter {
         if (args.length !== func.arity()) {
             conzole.warn(`Warning at (${expr.paren.line}): ${callee} mismatched argument length`);
         }
-        return func.call(this, args, null);
+        return func.call(this, args);
     }
     visitNewExpr(expr) {
         const construct = expr.construct;
         const callee = this.evaluate(construct.callee);
-        return new _callable__WEBPACK_IMPORTED_MODULE_0__["ClassInstance"](callee);
+        return new _callable__WEBPACK_IMPORTED_MODULE_1__["ObjectInstance"](callee);
     }
     visitEntityExpr(expr) {
-        return new _callable__WEBPACK_IMPORTED_MODULE_0__["RuntimeObject"]();
+        return new _callable__WEBPACK_IMPORTED_MODULE_1__["RuntimeObject"]();
     }
     visitClassStmt(stmt) {
         this.scope.define(stmt.name.lexeme, null);
-        const classDef = new _callable__WEBPACK_IMPORTED_MODULE_0__["ClassPrototype"](stmt.name.lexeme, stmt.methods);
+        const classDef = new _callable__WEBPACK_IMPORTED_MODULE_1__["ClassPrototype"](stmt.name.lexeme, stmt.methods);
         this.scope.set(stmt.name.lexeme, classDef);
         return null;
     }
     visitGetExpr(expr) {
         const entity = this.evaluate(expr.object);
-        if (entity instanceof _callable__WEBPACK_IMPORTED_MODULE_0__["RuntimeObject"]) {
+        if (entity instanceof _callable__WEBPACK_IMPORTED_MODULE_1__["RuntimeObject"]) {
             return entity.get(expr.name.lexeme);
         }
         // TODO: to javascript or not to javascript?
@@ -799,13 +813,13 @@ class Interpreter {
         return value;
     }
     visitFuncStmt(stmt) {
-        const func = new _callable__WEBPACK_IMPORTED_MODULE_0__["CallableFunc"](stmt, this.scope, null);
+        const func = new _callable__WEBPACK_IMPORTED_MODULE_1__["CallableFunc"](stmt, this.scope);
         this.scope.define(stmt.name.lexeme, func);
         return null;
     }
     visitLambdaExpr(expr) {
         const lambda = expr.lambda;
-        const func = new _callable__WEBPACK_IMPORTED_MODULE_0__["CallableFunc"](lambda, this.scope, null);
+        const func = new _callable__WEBPACK_IMPORTED_MODULE_1__["CallableFunc"](lambda, this.scope);
         return func;
     }
     visitReturnStmt(stmt) {
@@ -813,7 +827,7 @@ class Interpreter {
         if (stmt.value) {
             value = this.evaluate(stmt.value);
         }
-        throw new _return__WEBPACK_IMPORTED_MODULE_1__["Return"](value);
+        throw new _return__WEBPACK_IMPORTED_MODULE_2__["Return"](value);
     }
 }
 
@@ -1185,7 +1199,15 @@ class Parser {
         let expr = this.primary();
         while (true) {
             if (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].leftParen)) {
-                expr = this.doCall(expr);
+                const args = [];
+                const callee = expr;
+                if (!this.check(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].rightParen)) {
+                    do {
+                        args.push(this.expression());
+                    } while (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].comma));
+                }
+                const paren = this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].rightParen, `Expected ")" after arguments`);
+                return new _expression__WEBPACK_IMPORTED_MODULE_1__["Call"](callee, paren, args);
             }
             else if (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].dot)) {
                 const name = this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].identifier, `Expect property name after '.'`);
@@ -1196,19 +1218,6 @@ class Parser {
             }
         }
         return expr;
-    }
-    doCall(callee) {
-        const args = [];
-        if (!this.check(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].rightParen)) {
-            do {
-                if (args.length > 255) {
-                    this.parseError(this.peek(), `Exceeds argument count`);
-                }
-                args.push(this.expression());
-            } while (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].comma));
-        }
-        const paren = this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].rightParen, `Expected ")" after arguments`);
-        return new _expression__WEBPACK_IMPORTED_MODULE_1__["Call"](callee, paren, args);
     }
     array() {
         if (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].leftBracket)) {
@@ -1804,11 +1813,10 @@ var TokenType;
     TokenType[TokenType["print"] = 49] = "print";
     TokenType[TokenType["return"] = 50] = "return";
     TokenType[TokenType["super"] = 51] = "super";
-    TokenType[TokenType["this"] = 52] = "this";
-    TokenType[TokenType["true"] = 53] = "true";
-    TokenType[TokenType["var"] = 54] = "var";
-    TokenType[TokenType["let"] = 55] = "let";
-    TokenType[TokenType["while"] = 56] = "while";
+    TokenType[TokenType["true"] = 52] = "true";
+    TokenType[TokenType["var"] = 53] = "var";
+    TokenType[TokenType["let"] = 54] = "let";
+    TokenType[TokenType["while"] = 55] = "while";
 })(TokenType || (TokenType = {}));
 class Token {
     constructor(name, lexeme, literal, line) {

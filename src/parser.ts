@@ -414,7 +414,15 @@ export class Parser {
 
         while (true) {
             if (this.match(TokenType.leftParen)) {
-                expr = this.doCall(expr);
+                const args: Expr.Expr[] = [];
+                const callee = expr;
+                if (!this.check(TokenType.rightParen)) {
+                    do {
+                        args.push(this.expression());
+                    } while (this.match(TokenType.comma));
+                }
+                const paren: Token = this.consume(TokenType.rightParen, `Expected ")" after arguments`);
+                return new Expr.Call(callee, paren, args);
             } else if (this.match(TokenType.dot)) {
                 const name: Token = this.consume(TokenType.identifier, `Expect property name after '.'`);
                 expr = new Expr.Get(expr, name);
@@ -424,22 +432,6 @@ export class Parser {
         }
 
         return expr;
-    }
-
-    private doCall(callee: Expr.Expr): Expr.Expr {
-        const args: Expr.Expr[] = [];
-
-        if (!this.check(TokenType.rightParen)) {
-            do {
-                if (args.length > 255) {
-                    this.parseError(this.peek(), `Exceeds argument count`);
-                }
-                args.push(this.expression());
-            } while (this.match(TokenType.comma));
-        }
-
-        const paren: Token = this.consume(TokenType.rightParen, `Expected ")" after arguments`);
-        return new Expr.Call(callee, paren, args);
     }
 
     private array(): Expr.Expr {
