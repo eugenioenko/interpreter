@@ -1,6 +1,6 @@
 import * as Expr from './expression';
 import * as Stmt from './statement';
-import { CallableFunc, CallableObject, ClassPrototype, ObjectInstance, RuntimeObject} from './callable';
+import { FunctionEntity, CallableEntity, ClassPrototype, InternalEntity, InstanceEntity, PrototypeEntity } from './callable';
 import { Console } from './console';
 import { Return } from './return';
 import { Scope } from './scope';
@@ -15,12 +15,12 @@ export class Interpreter implements
     private scope = this.global;
 
     constructor( ) {
-        const rand = new CallableObject();
+        const rand = new CallableEntity();
         rand.call = () => Math.random();
         rand.toString = () => '<native function>';
         this.global.define('rand', rand);
 
-        const echo = new CallableObject();
+        const echo = new InternalEntity();
         echo.arity = () => 1;
         echo.toString = () => '<native function>';
         echo.call = (interpreter, args) => console.log(args[0]);
@@ -209,13 +209,15 @@ export class Interpreter implements
             args.push(this.evaluate(argument));
         }
 
-        if ( !(callee instanceof CallableObject)) {
+        if (!(callee instanceof CallableEntity) &&
+            !(callee instanceof InternalEntity)
+        ) {
             conzole.error(`${callee} is not a function`);
             throw new Error();
         }
-        const func = callee as CallableObject;
+        const func = callee as CallableEntity;
         if (args.length !== func.arity()) {
-            conzole.warn(`Warning at (${expr.paren.line}): ${callee} mismatched argument length`);
+            conzole.warn(`Warning at (${expr.paren.line}): ${callee} mismatched argument length; \n Expected ${func.arity()} but got ${args.length} `);
         }
         return func.call(this, args);
     }
@@ -224,11 +226,11 @@ export class Interpreter implements
         const construct = expr.construct as Expr.Call;
         const callee = this.evaluate(construct.callee);
         this.evaluate(construct);
-        return new ObjectInstance(callee);
+        return new InstanceEntity(callee);
     }
 
     public visitEntityExpr(expr: Expr.Entity) {
-        const entity = new RuntimeObject();
+        const entity = new CallableEntity();
         for (const property of expr.properties) {
             const key = (property as Expr.Set).name.lexeme;
             const value = this.evaluate((property as Expr.Set).value);
@@ -246,7 +248,7 @@ export class Interpreter implements
 
     public visitGetExpr(expr: Expr.Get): any {
         const entity = this.evaluate(expr.object);
-        if (entity instanceof RuntimeObject) {
+        if (entity instanceof PrototypeEntity) {
             return entity.get(expr.name.lexeme);
         }
         conzole.error(`${expr.name} Only instances have properties`);
@@ -255,24 +257,24 @@ export class Interpreter implements
 
     public visitSetExpr(expr: Expr.Set): void {
         const entity = this.evaluate(expr.object);
-        // TODO: check type of entity properly: CallableObject/Prototype
+        // TODO: check type of entity properly: CallableEntity/Prototype
         if (typeof entity.set === "undefined") {
             conzole.warn(`${expr.name.lexeme} is not a runtime Object`);
         }
         const value = this.evaluate(expr.value);
-        (entity as RuntimeObject).set(expr.name.lexeme, value);
+        (entity as PrototypeEntity).set(expr.name.lexeme, value);
         return value;
     }
 
     public visitFuncStmt(stmt: Stmt.Func): any {
-        const func: CallableFunc = new CallableFunc(stmt, this.scope);
+        const func: FunctionEntity = new FunctionEntity(stmt, this.scope);
         this.scope.define(stmt.name.lexeme, func);
         return null;
     }
 
     public visitLambdaExpr(expr: Expr.Lambda): object {
         const lambda: Stmt.Func = expr.lambda as Stmt.Func;
-        const func: CallableFunc = new CallableFunc(lambda, this.scope);
+        const func: FunctionEntity = new FunctionEntity(lambda, this.scope);
         return func;
     }
 

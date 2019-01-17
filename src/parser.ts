@@ -488,7 +488,7 @@ export class Parser {
 
     public entity(): Expr.Expr {
         if (this.match(TokenType.rightBrace)) {
-            return new Expr.Entity(null);
+            return new Expr.Entity([]);
         }
         const properties: Expr.Set[] = [];
         do {

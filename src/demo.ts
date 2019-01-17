@@ -82,13 +82,6 @@ echo(a);
 echo(b);
 echo(c);
 
-function test() {
-
-}
-test.prototype.method = function() {
-    print "hello world";
-};
-print test.method();
 var d = {
     firstname: "John",
     lastname: "Doe",

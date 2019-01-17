@@ -3,7 +3,7 @@ declare var conzole: Console;
 
 export class Prototype {
 
-    private values: Map<string, any>;
+    public values: Map<string, any>;
     private parent: Prototype;
 
     constructor(parent: Prototype = null) {

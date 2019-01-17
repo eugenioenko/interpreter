@@ -90,15 +90,16 @@
 /*!*************************!*\
   !*** ./src/callable.ts ***!
   \*************************/
-/*! exports provided: RuntimeObject, CallableObject, CallableFunc, ObjectInstance, ClassPrototype */
+/*! exports provided: InternalEntity, PrototypeEntity, CallableEntity, FunctionEntity, InstanceEntity, ClassPrototype */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RuntimeObject", function() { return RuntimeObject; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CallableObject", function() { return CallableObject; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CallableFunc", function() { return CallableFunc; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ObjectInstance", function() { return ObjectInstance; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "InternalEntity", function() { return InternalEntity; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PrototypeEntity", function() { return PrototypeEntity; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CallableEntity", function() { return CallableEntity; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FunctionEntity", function() { return FunctionEntity; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "InstanceEntity", function() { return InstanceEntity; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ClassPrototype", function() { return ClassPrototype; });
 /* harmony import */ var _scope__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./scope */ "./src/scope.ts");
 /* harmony import */ var _return__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./return */ "./src/return.ts");
@@ -106,10 +107,26 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-class RuntimeObject {
+class InternalEntity {
+    constructor() {
+        this.toString = () => '<native function>';
+    }
+}
+class PrototypeEntity {
     constructor() {
         this.prototype = new _prototype__WEBPACK_IMPORTED_MODULE_2__["Prototype"](null);
         this.properties = new Map();
+        this.properties.set('test', 'test');
+        const hasOwnProperty = new InternalEntity();
+        hasOwnProperty.call = (int, args) => this.properties.has(args[1]);
+        hasOwnProperty.toString = () => 'hasOwnProperty';
+        hasOwnProperty.arity = () => 2;
+        this.prototype.values.set('hasOwnProperty', hasOwnProperty);
+        const lengthProperty = new InternalEntity();
+        lengthProperty.call = (int, args) => this.properties.size;
+        lengthProperty.toString = () => 'lengthProperty';
+        lengthProperty.arity = () => 1;
+        this.prototype.values.set('length', lengthProperty);
     }
     get(key) {
         if (this.properties.has(key)) {
@@ -124,11 +141,9 @@ class RuntimeObject {
         return 'object';
     }
 }
-class CallableObject extends RuntimeObject {
+class CallableEntity extends PrototypeEntity {
     constructor() {
         super();
-        // TODO: inheritance place
-        this.properties.set('prototype', this.prototype);
     }
     arity() {
         return 0;
@@ -138,12 +153,13 @@ class CallableObject extends RuntimeObject {
         return 'function';
     }
 }
-class CallableFunc extends CallableObject {
+class FunctionEntity extends CallableEntity {
     constructor(declaration, closure) {
         super();
         this.declaration = declaration;
         this.closure = closure;
         this.name = this.declaration.name.lexeme;
+        this.properties.set('prototype', this.prototype);
     }
     toString() {
         return this.declaration.name.lexeme;
@@ -167,7 +183,7 @@ class CallableFunc extends CallableObject {
         return undefined;
     }
 }
-class ObjectInstance extends RuntimeObject {
+class InstanceEntity extends CallableEntity {
     constructor(construct) {
         super();
         this.instanceof = construct.name;
@@ -189,7 +205,7 @@ class ObjectInstance extends RuntimeObject {
         return this.instanceof + " instance";
     }
 }
-class ClassPrototype extends CallableObject {
+class ClassPrototype extends CallableEntity {
     constructor(name, methods) {
         super();
         this.name = name;
@@ -202,7 +218,7 @@ class ClassPrototype extends CallableObject {
         return 0;
     }
     call(interpreter, args) {
-        const instance = new ObjectInstance(null);
+        const instance = new InstanceEntity(null);
         return instance;
     }
     toString() {
@@ -359,13 +375,6 @@ echo(a);
 echo(b);
 echo(c);
 
-function test() {
-
-}
-test.prototype.method = function() {
-    print "hello world";
-};
-print test.method();
 var d = {
     firstname: "John",
     lastname: "Doe",
@@ -610,11 +619,11 @@ class Interpreter {
     constructor() {
         this.global = new _scope__WEBPACK_IMPORTED_MODULE_3__["Scope"]();
         this.scope = this.global;
-        const rand = new _callable__WEBPACK_IMPORTED_MODULE_1__["CallableObject"]();
+        const rand = new _callable__WEBPACK_IMPORTED_MODULE_1__["CallableEntity"]();
         rand.call = () => Math.random();
         rand.toString = () => '<native function>';
         this.global.define('rand', rand);
-        const echo = new _callable__WEBPACK_IMPORTED_MODULE_1__["CallableObject"]();
+        const echo = new _callable__WEBPACK_IMPORTED_MODULE_1__["InternalEntity"]();
         echo.arity = () => 1;
         echo.toString = () => '<native function>';
         echo.call = (interpreter, args) => console.log(args[0]);
@@ -780,13 +789,14 @@ class Interpreter {
         for (const argument of expr.args) {
             args.push(this.evaluate(argument));
         }
-        if (!(callee instanceof _callable__WEBPACK_IMPORTED_MODULE_1__["CallableObject"])) {
+        if (!(callee instanceof _callable__WEBPACK_IMPORTED_MODULE_1__["CallableEntity"]) &&
+            !(callee instanceof _callable__WEBPACK_IMPORTED_MODULE_1__["InternalEntity"])) {
             conzole.error(`${callee} is not a function`);
             throw new Error();
         }
         const func = callee;
         if (args.length !== func.arity()) {
-            conzole.warn(`Warning at (${expr.paren.line}): ${callee} mismatched argument length`);
+            conzole.warn(`Warning at (${expr.paren.line}): ${callee} mismatched argument length; \n Expected ${func.arity()} but got ${args.length} `);
         }
         return func.call(this, args);
     }
@@ -794,10 +804,10 @@ class Interpreter {
         const construct = expr.construct;
         const callee = this.evaluate(construct.callee);
         this.evaluate(construct);
-        return new _callable__WEBPACK_IMPORTED_MODULE_1__["ObjectInstance"](callee);
+        return new _callable__WEBPACK_IMPORTED_MODULE_1__["InstanceEntity"](callee);
     }
     visitEntityExpr(expr) {
-        const entity = new _callable__WEBPACK_IMPORTED_MODULE_1__["RuntimeObject"]();
+        const entity = new _callable__WEBPACK_IMPORTED_MODULE_1__["CallableEntity"]();
         for (const property of expr.properties) {
             const key = property.name.lexeme;
             const value = this.evaluate(property.value);
@@ -813,7 +823,7 @@ class Interpreter {
     }
     visitGetExpr(expr) {
         const entity = this.evaluate(expr.object);
-        if (entity instanceof _callable__WEBPACK_IMPORTED_MODULE_1__["RuntimeObject"]) {
+        if (entity instanceof _callable__WEBPACK_IMPORTED_MODULE_1__["PrototypeEntity"]) {
             return entity.get(expr.name.lexeme);
         }
         conzole.error(`${expr.name} Only instances have properties`);
@@ -821,7 +831,7 @@ class Interpreter {
     }
     visitSetExpr(expr) {
         const entity = this.evaluate(expr.object);
-        // TODO: check type of entity properly: CallableObject/Prototype
+        // TODO: check type of entity properly: CallableEntity/Prototype
         if (typeof entity.set === "undefined") {
             conzole.warn(`${expr.name.lexeme} is not a runtime Object`);
         }
@@ -830,13 +840,13 @@ class Interpreter {
         return value;
     }
     visitFuncStmt(stmt) {
-        const func = new _callable__WEBPACK_IMPORTED_MODULE_1__["CallableFunc"](stmt, this.scope);
+        const func = new _callable__WEBPACK_IMPORTED_MODULE_1__["FunctionEntity"](stmt, this.scope);
         this.scope.define(stmt.name.lexeme, func);
         return null;
     }
     visitLambdaExpr(expr) {
         const lambda = expr.lambda;
-        const func = new _callable__WEBPACK_IMPORTED_MODULE_1__["CallableFunc"](lambda, this.scope);
+        const func = new _callable__WEBPACK_IMPORTED_MODULE_1__["FunctionEntity"](lambda, this.scope);
         return func;
     }
     visitReturnStmt(stmt) {
@@ -1286,7 +1296,7 @@ class Parser {
     }
     entity() {
         if (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].rightBrace)) {
-            return new _expression__WEBPACK_IMPORTED_MODULE_1__["Entity"](null);
+            return new _expression__WEBPACK_IMPORTED_MODULE_1__["Entity"]([]);
         }
         const properties = [];
         do {
