@@ -233,7 +233,7 @@ export class Interpreter implements
     }
 
     public visitEntityExpr(expr: Expr.Entity) {
-        const entity = new CallableEntity();
+        const entity = new PrototypeEntity();
         for (const property of expr.properties) {
             const key = (property as Expr.Set).name.lexeme;
             const value = this.evaluate((property as Expr.Set).value);
