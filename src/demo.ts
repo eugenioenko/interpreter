@@ -4,7 +4,7 @@ export const DemoSourceCode =
 function MyClass() {
     print "my class";
 }
-MyClass.prototype.method = function(this) {
+MyClass.method = function() {
     this.something = "anything";
 };
 

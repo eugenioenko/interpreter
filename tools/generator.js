@@ -4,7 +4,7 @@ const ExpressionAST = {
     Assign: ['name: Token', 'value: Expr'],
     Binary: ['left: Expr', 'operator: Token', 'right: Expr'],
     Ternary: ['condition: Expr', 'thenExpr: Expr', 'elseExpr: Expr'],
-    Call: ['callee: Expr', 'paren: Token', 'args: Expr[]'],
+    Call: ['callee: Expr', 'paren: Token', 'args: Expr[]', 'thiz: any'],
     Entity: ['properties: Expr[]'],
     Get: ['object: Expr', 'name: Token'],
     Set: ['object: Expr', 'name: Token', 'value: Expr'],
@@ -58,6 +58,10 @@ function generateAST(baseClass, AST, filename, imports = '') {
         file += `
     accept<R>(visitor: ${baseClass}Visitor<R>): R {
       return visitor.visit${name}${baseClass}(this);
+    }\n`;
+        file += `
+    toString(): string {
+      return '${baseClass}.${name}';
     }\n`;
         file += '}\n\n'
     });

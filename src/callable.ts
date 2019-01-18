@@ -5,7 +5,7 @@ import { Prototype } from './prototype';
 import * as Stmt from './statement';
 
 export class InternalEntity {
-    public call: (interpreter: Interpreter, args: any[], thiz: any) => any;
+    public call: (interpreter: Interpreter, thiz: any, args: any[]) => any;
     public toString: () => string = () => '<native function>';
     public arity: () => number;
 }
@@ -15,18 +15,17 @@ export class PrototypeEntity {
     public properties: Map<string, any>;
 
     constructor() {
-        this.prototype = new Prototype(null);
+        this.prototype = new Prototype(null, null, this);
         this.properties = new Map();
-        this.properties.set('test', 'test');
 
         const hasOwnProperty = new InternalEntity();
-        hasOwnProperty.call = (int, args) => this.properties.has(args[1]);
+        hasOwnProperty.call = (int, thiz, args) => this.properties.has(args[1]);
         hasOwnProperty.toString = () => 'hasOwnProperty';
         hasOwnProperty.arity = () => 2;
         this.prototype.values.set('hasOwnProperty', hasOwnProperty);
 
         const lengthProperty = new InternalEntity();
-        lengthProperty.call = (int, args) => this.properties.size;
+        lengthProperty.call = (int, thiz, args) => this.properties.size;
         lengthProperty.toString = () => 'lengthProperty';
         lengthProperty.arity = () => 1;
         this.prototype.values.set('length', lengthProperty);
@@ -58,9 +57,9 @@ export class CallableEntity extends PrototypeEntity {
         return 0;
     }
 
-    public call(interpreter: Interpreter, args: any[]): any { return; }
+    public call(interpreter: Interpreter, thiz: any, args: any[]): any { return; }
     public toString(): string {
-        return 'function';
+        return '<internal function>';
     }
 
 }
@@ -75,22 +74,22 @@ export class FunctionEntity extends CallableEntity {
         this.declaration = declaration;
         this.closure = closure;
         this.name = this.declaration.name.lexeme;
-        this.properties.set('prototype', this.prototype);
     }
 
     public toString(): string {
-        return this.declaration.name.lexeme;
+        return '<' + this.declaration.name.lexeme + ' function>';
     }
 
     public arity(): number {
         return this.declaration.params.length;
     }
 
-    public call(interpreter: Interpreter, args: any[]): any {
+    public call(interpreter: Interpreter, thiz: any, args: any[]): any {
         const scope = new Scope(this.closure);
         for (let i = 0; i < this.declaration.params.length; i++) {
             scope.define(this.declaration.params[i].lexeme, args[i]);
         }
+        scope.set('this', thiz);
         try {
             interpreter.executeBlock(this.declaration.body, scope);
         } catch (e) {
@@ -109,8 +108,7 @@ export class InstanceEntity extends CallableEntity {
         super();
         this.instanceof = construct.name;
         this.properties = new Map();
-        this.prototype = construct.prototype;
-        this.properties.set('prototype', this.prototype);
+        this.prototype = new Prototype(construct.properties, construct.prototype, this);
     }
 
     public get(key: string): any {
@@ -126,7 +124,7 @@ export class InstanceEntity extends CallableEntity {
     }
 
     public toString(): string {
-        return this.instanceof + " instance";
+        return '<' + this.instanceof + " instance>";
     }
 }
 
@@ -138,7 +136,7 @@ export class ClassPrototype  extends CallableEntity {
     constructor(name: string, methods: Stmt.Func[]) {
         super();
         this.name = name;
-        this.prototype = new Prototype(null);
+        this.prototype = new Prototype(null,null, this);
         for (const method of methods) {
             this.prototype.set(method.name.lexeme, method);
         }
@@ -154,7 +152,7 @@ export class ClassPrototype  extends CallableEntity {
     }
 
     public toString(): string {
-        return this.name;
+        return '<' + this.name + ' class>';
     }
 
 }

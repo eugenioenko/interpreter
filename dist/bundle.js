@@ -114,16 +114,15 @@ class InternalEntity {
 }
 class PrototypeEntity {
     constructor() {
-        this.prototype = new _prototype__WEBPACK_IMPORTED_MODULE_2__["Prototype"](null);
+        this.prototype = new _prototype__WEBPACK_IMPORTED_MODULE_2__["Prototype"](null, null, this);
         this.properties = new Map();
-        this.properties.set('test', 'test');
         const hasOwnProperty = new InternalEntity();
-        hasOwnProperty.call = (int, args) => this.properties.has(args[1]);
+        hasOwnProperty.call = (int, thiz, args) => this.properties.has(args[1]);
         hasOwnProperty.toString = () => 'hasOwnProperty';
         hasOwnProperty.arity = () => 2;
         this.prototype.values.set('hasOwnProperty', hasOwnProperty);
         const lengthProperty = new InternalEntity();
-        lengthProperty.call = (int, args) => this.properties.size;
+        lengthProperty.call = (int, thiz, args) => this.properties.size;
         lengthProperty.toString = () => 'lengthProperty';
         lengthProperty.arity = () => 1;
         this.prototype.values.set('length', lengthProperty);
@@ -148,9 +147,9 @@ class CallableEntity extends PrototypeEntity {
     arity() {
         return 0;
     }
-    call(interpreter, args) { return; }
+    call(interpreter, thiz, args) { return; }
     toString() {
-        return 'function';
+        return '<internal function>';
     }
 }
 class FunctionEntity extends CallableEntity {
@@ -159,19 +158,19 @@ class FunctionEntity extends CallableEntity {
         this.declaration = declaration;
         this.closure = closure;
         this.name = this.declaration.name.lexeme;
-        this.properties.set('prototype', this.prototype);
     }
     toString() {
-        return this.declaration.name.lexeme;
+        return '<' + this.declaration.name.lexeme + ' function>';
     }
     arity() {
         return this.declaration.params.length;
     }
-    call(interpreter, args) {
+    call(interpreter, thiz, args) {
         const scope = new _scope__WEBPACK_IMPORTED_MODULE_0__["Scope"](this.closure);
         for (let i = 0; i < this.declaration.params.length; i++) {
             scope.define(this.declaration.params[i].lexeme, args[i]);
         }
+        scope.set('this', thiz);
         try {
             interpreter.executeBlock(this.declaration.body, scope);
         }
@@ -188,8 +187,7 @@ class InstanceEntity extends CallableEntity {
         super();
         this.instanceof = construct.name;
         this.properties = new Map();
-        this.prototype = construct.prototype;
-        this.properties.set('prototype', this.prototype);
+        this.prototype = new _prototype__WEBPACK_IMPORTED_MODULE_2__["Prototype"](construct.properties, construct.prototype, this);
     }
     get(key) {
         if (this.properties.has(key)) {
@@ -202,14 +200,14 @@ class InstanceEntity extends CallableEntity {
         this.prototype.set(key, value);
     }
     toString() {
-        return this.instanceof + " instance";
+        return '<' + this.instanceof + " instance>";
     }
 }
 class ClassPrototype extends CallableEntity {
     constructor(name, methods) {
         super();
         this.name = name;
-        this.prototype = new _prototype__WEBPACK_IMPORTED_MODULE_2__["Prototype"](null);
+        this.prototype = new _prototype__WEBPACK_IMPORTED_MODULE_2__["Prototype"](null, null, this);
         for (const method of methods) {
             this.prototype.set(method.name.lexeme, method);
         }
@@ -222,7 +220,7 @@ class ClassPrototype extends CallableEntity {
         return instance;
     }
     toString() {
-        return this.name;
+        return '<' + this.name + ' class>';
     }
 }
 
@@ -297,7 +295,7 @@ const DemoSourceCode = `
 function MyClass() {
     print "my class";
 }
-MyClass.prototype.method = function(this) {
+MyClass.method = function() {
     this.something = "anything";
 };
 
@@ -425,6 +423,9 @@ class Assign extends Expr {
     accept(visitor) {
         return visitor.visitAssignExpr(this);
     }
+    toString() {
+        return 'Expr.Assign';
+    }
 }
 class Binary extends Expr {
     constructor(left, operator, right) {
@@ -435,6 +436,9 @@ class Binary extends Expr {
     }
     accept(visitor) {
         return visitor.visitBinaryExpr(this);
+    }
+    toString() {
+        return 'Expr.Binary';
     }
 }
 class Ternary extends Expr {
@@ -447,16 +451,23 @@ class Ternary extends Expr {
     accept(visitor) {
         return visitor.visitTernaryExpr(this);
     }
+    toString() {
+        return 'Expr.Ternary';
+    }
 }
 class Call extends Expr {
-    constructor(callee, paren, args) {
+    constructor(callee, paren, args, thiz) {
         super();
         this.callee = callee;
         this.paren = paren;
         this.args = args;
+        this.thiz = thiz;
     }
     accept(visitor) {
         return visitor.visitCallExpr(this);
+    }
+    toString() {
+        return 'Expr.Call';
     }
 }
 class Entity extends Expr {
@@ -467,6 +478,9 @@ class Entity extends Expr {
     accept(visitor) {
         return visitor.visitEntityExpr(this);
     }
+    toString() {
+        return 'Expr.Entity';
+    }
 }
 class Get extends Expr {
     constructor(object, name) {
@@ -476,6 +490,9 @@ class Get extends Expr {
     }
     accept(visitor) {
         return visitor.visitGetExpr(this);
+    }
+    toString() {
+        return 'Expr.Get';
     }
 }
 class Set extends Expr {
@@ -488,6 +505,9 @@ class Set extends Expr {
     accept(visitor) {
         return visitor.visitSetExpr(this);
     }
+    toString() {
+        return 'Expr.Set';
+    }
 }
 class New extends Expr {
     constructor(construct) {
@@ -496,6 +516,9 @@ class New extends Expr {
     }
     accept(visitor) {
         return visitor.visitNewExpr(this);
+    }
+    toString() {
+        return 'Expr.New';
     }
 }
 class Grouping extends Expr {
@@ -506,6 +529,9 @@ class Grouping extends Expr {
     accept(visitor) {
         return visitor.visitGroupingExpr(this);
     }
+    toString() {
+        return 'Expr.Grouping';
+    }
 }
 class Literal extends Expr {
     constructor(value) {
@@ -514,6 +540,9 @@ class Literal extends Expr {
     }
     accept(visitor) {
         return visitor.visitLiteralExpr(this);
+    }
+    toString() {
+        return 'Expr.Literal';
     }
 }
 class Unary extends Expr {
@@ -525,6 +554,9 @@ class Unary extends Expr {
     accept(visitor) {
         return visitor.visitUnaryExpr(this);
     }
+    toString() {
+        return 'Expr.Unary';
+    }
 }
 class Variable extends Expr {
     constructor(name) {
@@ -533,6 +565,9 @@ class Variable extends Expr {
     }
     accept(visitor) {
         return visitor.visitVariableExpr(this);
+    }
+    toString() {
+        return 'Expr.Variable';
     }
 }
 class Lambda extends Expr {
@@ -543,6 +578,9 @@ class Lambda extends Expr {
     accept(visitor) {
         return visitor.visitLambdaExpr(this);
     }
+    toString() {
+        return 'Expr.Lambda';
+    }
 }
 class Array extends Expr {
     constructor(value) {
@@ -551,6 +589,9 @@ class Array extends Expr {
     }
     accept(visitor) {
         return visitor.visitArrayExpr(this);
+    }
+    toString() {
+        return 'Expr.Array';
     }
 }
 
@@ -626,7 +667,7 @@ class Interpreter {
         const echo = new _callable__WEBPACK_IMPORTED_MODULE_1__["InternalEntity"]();
         echo.arity = () => 1;
         echo.toString = () => '<native function>';
-        echo.call = (interpreter, args) => console.log(args[0]);
+        echo.call = (interpreter, thiz, args) => console.log(args[0]);
         this.global.define('echo', echo);
         this.global.define('months', ["Jan", "Feb", "Mar", "Apr"]);
     }
@@ -783,8 +824,12 @@ class Interpreter {
     visitCallExpr(expr) {
         const callee = this.evaluate(expr.callee);
         const args = [];
+        let thiz = null;
         if (expr.callee instanceof _expression__WEBPACK_IMPORTED_MODULE_0__["Get"]) {
-            args.push(this.evaluate(expr.callee.object));
+            thiz = this.evaluate(expr.callee.object);
+        }
+        else if (expr.thiz !== null) {
+            thiz = expr.thiz;
         }
         for (const argument of expr.args) {
             args.push(this.evaluate(argument));
@@ -798,13 +843,15 @@ class Interpreter {
         if (args.length !== func.arity()) {
             conzole.warn(`Warning at (${expr.paren.line}): ${callee} mismatched argument length; \n Expected ${func.arity()} but got ${args.length} `);
         }
-        return func.call(this, args);
+        return func.call(this, thiz, args);
     }
     visitNewExpr(expr) {
         const construct = expr.construct;
         const callee = this.evaluate(construct.callee);
+        const newInstance = new _callable__WEBPACK_IMPORTED_MODULE_1__["InstanceEntity"](callee);
+        construct.thiz = newInstance;
         this.evaluate(construct);
-        return new _callable__WEBPACK_IMPORTED_MODULE_1__["InstanceEntity"](callee);
+        return newInstance;
     }
     visitEntityExpr(expr) {
         const entity = new _callable__WEBPACK_IMPORTED_MODULE_1__["CallableEntity"]();
@@ -1129,7 +1176,7 @@ class Parser {
     }
     expressionStatement() {
         const expression = this.expression();
-        this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].semicolon, `Expected semicolon ";" after an expression`);
+        this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].semicolon, `Expected semicolon ";" after ${expression} expression`);
         return new _statement__WEBPACK_IMPORTED_MODULE_2__["Expression"](expression);
     }
     expression() {
@@ -1234,7 +1281,7 @@ class Parser {
                     } while (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].comma));
                 }
                 const paren = this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].rightParen, `Expected ")" after arguments`);
-                return new _expression__WEBPACK_IMPORTED_MODULE_1__["Call"](callee, paren, args);
+                return new _expression__WEBPACK_IMPORTED_MODULE_1__["Call"](callee, paren, args, null);
             }
             else if (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].dot)) {
                 const name = this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].identifier, `Expect property name after '.'`);
@@ -1329,9 +1376,10 @@ class Parser {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Prototype", function() { return Prototype; });
 class Prototype {
-    constructor(parent = null) {
-        this.values = new Map();
+    constructor(values, parent = null, owner) {
+        this.values = new Map(values);
         this.parent = parent;
+        this.owner = owner;
     }
     set(name, value) {
         this.values.set(name, value);
@@ -1341,9 +1389,9 @@ class Prototype {
             return this.values.get(key);
         }
         if (this.parent !== null) {
-            return this.parent.get(name);
+            return this.parent.get(key);
         }
-        conzole.error(`${key} is not defined in prototype`);
+        conzole.error(`${key} is not defined in ${this.owner}`);
     }
 }
 
@@ -1691,6 +1739,9 @@ class Block extends Stmt {
     accept(visitor) {
         return visitor.visitBlockStmt(this);
     }
+    toString() {
+        return 'Stmt.Block';
+    }
 }
 class Expression extends Stmt {
     constructor(expression) {
@@ -1699,6 +1750,9 @@ class Expression extends Stmt {
     }
     accept(visitor) {
         return visitor.visitExpressionStmt(this);
+    }
+    toString() {
+        return 'Stmt.Expression';
     }
 }
 class If extends Stmt {
@@ -1711,6 +1765,9 @@ class If extends Stmt {
     accept(visitor) {
         return visitor.visitIfStmt(this);
     }
+    toString() {
+        return 'Stmt.If';
+    }
 }
 class Func extends Stmt {
     constructor(name, params, body) {
@@ -1722,6 +1779,9 @@ class Func extends Stmt {
     accept(visitor) {
         return visitor.visitFuncStmt(this);
     }
+    toString() {
+        return 'Stmt.Func';
+    }
 }
 class Class extends Stmt {
     constructor(name, methods) {
@@ -1731,6 +1791,9 @@ class Class extends Stmt {
     }
     accept(visitor) {
         return visitor.visitClassStmt(this);
+    }
+    toString() {
+        return 'Stmt.Class';
     }
 }
 class Return extends Stmt {
@@ -1742,6 +1805,9 @@ class Return extends Stmt {
     accept(visitor) {
         return visitor.visitReturnStmt(this);
     }
+    toString() {
+        return 'Stmt.Return';
+    }
 }
 class While extends Stmt {
     constructor(condition, loop) {
@@ -1751,6 +1817,9 @@ class While extends Stmt {
     }
     accept(visitor) {
         return visitor.visitWhileStmt(this);
+    }
+    toString() {
+        return 'Stmt.While';
     }
 }
 class DoWhile extends Stmt {
@@ -1762,6 +1831,9 @@ class DoWhile extends Stmt {
     accept(visitor) {
         return visitor.visitDoWhileStmt(this);
     }
+    toString() {
+        return 'Stmt.DoWhile';
+    }
 }
 class Print extends Stmt {
     constructor(expression) {
@@ -1770,6 +1842,9 @@ class Print extends Stmt {
     }
     accept(visitor) {
         return visitor.visitPrintStmt(this);
+    }
+    toString() {
+        return 'Stmt.Print';
     }
 }
 class Var extends Stmt {
@@ -1781,6 +1856,9 @@ class Var extends Stmt {
     }
     accept(visitor) {
         return visitor.visitVarStmt(this);
+    }
+    toString() {
+        return 'Stmt.Var';
     }
 }
 

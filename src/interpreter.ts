@@ -23,7 +23,7 @@ export class Interpreter implements
         const echo = new InternalEntity();
         echo.arity = () => 1;
         echo.toString = () => '<native function>';
-        echo.call = (interpreter, args) => console.log(args[0]);
+        echo.call = (interpreter, thiz, args) => console.log(args[0]);
         this.global.define('echo', echo);
 
         this.global.define('months', ["Jan", "Feb", "Mar", "Apr"]);
@@ -200,10 +200,11 @@ export class Interpreter implements
     public visitCallExpr(expr: Expr.Call): object {
         const callee = this.evaluate(expr.callee);
         const args = [];
+        let thiz: any = null;
         if (expr.callee instanceof Expr.Get) {
-            args.push(
-                this.evaluate(expr.callee.object)
-            );
+            thiz = this.evaluate(expr.callee.object);
+        } else if (expr.thiz !== null) {
+            thiz = expr.thiz;
         }
         for (const argument of expr.args) {
             args.push(this.evaluate(argument));
@@ -219,14 +220,16 @@ export class Interpreter implements
         if (args.length !== func.arity()) {
             conzole.warn(`Warning at (${expr.paren.line}): ${callee} mismatched argument length; \n Expected ${func.arity()} but got ${args.length} `);
         }
-        return func.call(this, args);
+        return func.call(this, thiz, args);
     }
 
     public visitNewExpr(expr: Expr.New): object {
         const construct = expr.construct as Expr.Call;
         const callee = this.evaluate(construct.callee);
+        const newInstance = new InstanceEntity(callee);
+        construct.thiz = newInstance;
         this.evaluate(construct);
-        return new InstanceEntity(callee);
+        return newInstance;
     }
 
     public visitEntityExpr(expr: Expr.Entity) {
