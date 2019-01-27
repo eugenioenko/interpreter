@@ -384,7 +384,7 @@ echo(d);
 /*!***************************!*\
   !*** ./src/expression.ts ***!
   \***************************/
-/*! exports provided: Expr, Assign, Binary, Ternary, Call, Entity, Get, Set, New, Grouping, Literal, Unary, Variable, Lambda, Array */
+/*! exports provided: Expr, Assign, Binary, Ternary, Call, Entity, Get, Set, New, Grouping, Literal, Unary, Variable, Key, Lambda, Array */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -402,6 +402,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Literal", function() { return Literal; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Unary", function() { return Unary; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Variable", function() { return Variable; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Key", function() { return Key; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Lambda", function() { return Lambda; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Array", function() { return Array; });
 class Expr {
@@ -460,20 +461,20 @@ class Entity extends Expr {
     }
 }
 class Get extends Expr {
-    constructor(object, name) {
+    constructor(entity, key) {
         super();
-        this.object = object;
-        this.name = name;
+        this.entity = entity;
+        this.key = key;
     }
     accept(visitor) {
         return visitor.visitGetExpr(this);
     }
 }
 class Set extends Expr {
-    constructor(object, name, value) {
+    constructor(entity, key, value) {
         super();
-        this.object = object;
-        this.name = name;
+        this.entity = entity;
+        this.key = key;
         this.value = value;
     }
     accept(visitor) {
@@ -524,6 +525,15 @@ class Variable extends Expr {
     }
     accept(visitor) {
         return visitor.visitVariableExpr(this);
+    }
+}
+class Key extends Expr {
+    constructor(name) {
+        super();
+        this.name = name;
+    }
+    accept(visitor) {
+        return visitor.visitKeyExpr(this);
     }
 }
 class Lambda extends Expr {
@@ -775,7 +785,7 @@ class Interpreter {
         const callee = this.evaluate(expr.callee);
         const args = [];
         if (expr.callee instanceof _expression__WEBPACK_IMPORTED_MODULE_0__["Get"]) {
-            args.push(this.evaluate(expr.callee.object));
+            args.push(this.evaluate(expr.callee.entity));
         }
         for (const argument of expr.args) {
             args.push(this.evaluate(argument));
@@ -799,7 +809,7 @@ class Interpreter {
     visitEntityExpr(expr) {
         const entity = new _callable__WEBPACK_IMPORTED_MODULE_1__["RuntimeObject"]();
         for (const property of expr.properties) {
-            const key = property.name.lexeme;
+            const key = this.evaluate(property.key);
             const value = this.evaluate(property.value);
             entity.set(key, value);
         }
@@ -811,22 +821,27 @@ class Interpreter {
         this.scope.set(stmt.name.lexeme, classDef);
         return null;
     }
+    visitKeyExpr(expr) {
+        return expr.name.lexeme;
+    }
     visitGetExpr(expr) {
-        const entity = this.evaluate(expr.object);
+        const entity = this.evaluate(expr.entity);
+        const key = this.evaluate(expr.key);
         if (entity instanceof _callable__WEBPACK_IMPORTED_MODULE_1__["RuntimeObject"]) {
-            return entity.get(expr.name.lexeme);
+            return entity.get(key);
         }
-        conzole.error(`${expr.name} Only instances have properties`);
+        conzole.error(`${entity}.${key}: only instances have properties`);
         throw new Error();
     }
     visitSetExpr(expr) {
-        const entity = this.evaluate(expr.object);
+        const entity = this.evaluate(expr.entity);
+        const key = this.evaluate(expr.key);
         // TODO: check type of entity properly: CallableObject/Prototype
         if (typeof entity.set === "undefined") {
-            conzole.warn(`${expr.name.lexeme} is not a runtime Object`);
+            conzole.warn(`${entity} is not a runtime Object`);
         }
         const value = this.evaluate(expr.value);
-        entity.set(expr.name.lexeme, value);
+        entity.set(key, value);
         return value;
     }
     visitFuncStmt(stmt) {
@@ -1135,8 +1150,7 @@ class Parser {
                 return new _expression__WEBPACK_IMPORTED_MODULE_1__["Assign"](name, value);
             }
             else if (expr instanceof _expression__WEBPACK_IMPORTED_MODULE_1__["Get"]) {
-                const get = expr;
-                return new _expression__WEBPACK_IMPORTED_MODULE_1__["Set"](get.object, get.name, value);
+                return new _expression__WEBPACK_IMPORTED_MODULE_1__["Set"](expr.entity, expr.key, value);
             }
             this.parseError(equals, `Invalid l-value, is not an assigning target.`);
         }
@@ -1228,7 +1242,11 @@ class Parser {
             }
             else if (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].dot)) {
                 const name = this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].identifier, `Expect property name after '.'`);
-                expr = new _expression__WEBPACK_IMPORTED_MODULE_1__["Get"](expr, name);
+                const key = new _expression__WEBPACK_IMPORTED_MODULE_1__["Key"](name);
+                expr = new _expression__WEBPACK_IMPORTED_MODULE_1__["Get"](expr, key);
+            }
+            else if (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].leftBracket)) {
+                // TODO: add array der
             }
             else {
                 break;
@@ -1294,7 +1312,7 @@ class Parser {
                 const key = this.previous();
                 this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].colon, `Expected ":" colon after member`);
                 const value = this.expression();
-                properties.push(new _expression__WEBPACK_IMPORTED_MODULE_1__["Set"](null, key, value));
+                properties.push(new _expression__WEBPACK_IMPORTED_MODULE_1__["Set"](null, new _expression__WEBPACK_IMPORTED_MODULE_1__["Key"](key), value));
             }
             else {
                 this.parseError(this.peek(), `String or identifier expected after Object {`);

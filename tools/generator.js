@@ -6,13 +6,14 @@ const ExpressionAST = {
     Ternary: ['condition: Expr', 'thenExpr: Expr', 'elseExpr: Expr'],
     Call: ['callee: Expr', 'paren: Token', 'args: Expr[]'],
     Entity: ['properties: Expr[]'],
-    Get: ['object: Expr', 'name: Token'],
-    Set: ['object: Expr', 'name: Token', 'value: Expr'],
+    Get: ['entity: Expr', 'key: Expr'],
+    Set: ['entity: Expr', 'key: Expr', 'value: Expr'],
     New: ['construct: Expr'],
     Grouping: ['expression: Expr'],
     Literal: ['value: any'],
     Unary: ['operator: Token', 'right: Expr'],
     Variable: ['name: Token'],
+    Key: ['name: Token'],
     Lambda: ['lambda: Stmt'],
     Array: ['value: Expr[]']
 };

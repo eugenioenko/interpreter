@@ -20,6 +20,7 @@ export interface ExprVisitor<R> {
 	visitLiteralExpr(expr: Literal): R;
 	visitUnaryExpr(expr: Unary): R;
 	visitVariableExpr(expr: Variable): R;
+	visitKeyExpr(expr: Key): R;
 	visitLambdaExpr(expr: Lambda): R;
 	visitArrayExpr(expr: Array): R;
 }
@@ -104,13 +105,13 @@ export class Entity extends Expr {
 }
 
 export class Get extends Expr {
-	public object: Expr;
-	public name: Token;
+	public entity: Expr;
+	public key: Expr;
 
-	constructor(object: Expr, name: Token) {
+	constructor(entity: Expr, key: Expr) {
 		super();
-		this.object = object;
-		this.name = name;
+		this.entity = entity;
+		this.key = key;
 	}
 
     accept<R>(visitor: ExprVisitor<R>): R {
@@ -119,14 +120,14 @@ export class Get extends Expr {
 }
 
 export class Set extends Expr {
-	public object: Expr;
-	public name: Token;
+	public entity: Expr;
+	public key: Expr;
 	public value: Expr;
 
-	constructor(object: Expr, name: Token, value: Expr) {
+	constructor(entity: Expr, key: Expr, value: Expr) {
 		super();
-		this.object = object;
-		this.name = name;
+		this.entity = entity;
+		this.key = key;
 		this.value = value;
 	}
 
@@ -199,6 +200,19 @@ export class Variable extends Expr {
 
     accept<R>(visitor: ExprVisitor<R>): R {
       return visitor.visitVariableExpr(this);
+    }
+}
+
+export class Key extends Expr {
+	public name: Token;
+
+	constructor(name: Token) {
+		super();
+		this.name = name;
+	}
+
+    accept<R>(visitor: ExprVisitor<R>): R {
+      return visitor.visitKeyExpr(this);
     }
 }
 

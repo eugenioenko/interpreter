@@ -202,7 +202,7 @@ export class Interpreter implements
         const args = [];
         if (expr.callee instanceof Expr.Get) {
             args.push(
-                this.evaluate(expr.callee.object)
+                this.evaluate(expr.callee.entity)
             );
         }
         for (const argument of expr.args) {
@@ -230,7 +230,7 @@ export class Interpreter implements
     public visitEntityExpr(expr: Expr.Entity) {
         const entity = new RuntimeObject();
         for (const property of expr.properties) {
-            const key = (property as Expr.Set).name.lexeme;
+            const key  = this.evaluate((property as Expr.Set).key);
             const value = this.evaluate((property as Expr.Set).value);
             entity.set(key, value);
         }
@@ -244,23 +244,29 @@ export class Interpreter implements
         return null;
     }
 
+    public visitKeyExpr(expr: Expr.Key): string {
+        return expr.name.lexeme;
+    }
+
     public visitGetExpr(expr: Expr.Get): any {
-        const entity = this.evaluate(expr.object);
+        const entity = this.evaluate(expr.entity);
+        const key = this.evaluate(expr.key);
         if (entity instanceof RuntimeObject) {
-            return entity.get(expr.name.lexeme);
+            return entity.get(key);
         }
-        conzole.error(`${expr.name} Only instances have properties`);
+        conzole.error(`${entity}.${key}: only instances have properties`);
         throw new Error();
     }
 
     public visitSetExpr(expr: Expr.Set): void {
-        const entity = this.evaluate(expr.object);
+        const entity = this.evaluate(expr.entity);
+        const key = this.evaluate(expr.key);
         // TODO: check type of entity properly: CallableObject/Prototype
         if (typeof entity.set === "undefined") {
-            conzole.warn(`${expr.name.lexeme} is not a runtime Object`);
+            conzole.warn(`${entity} is not a runtime Object`);
         }
         const value = this.evaluate(expr.value);
-        (entity as RuntimeObject).set(expr.name.lexeme, value);
+        (entity as RuntimeObject).set(key, value);
         return value;
     }
 

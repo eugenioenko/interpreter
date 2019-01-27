@@ -306,8 +306,7 @@ export class Parser {
                 const name: Token = expr.name;
                 return new Expr.Assign(name, value);
             } else if (expr instanceof Expr.Get) {
-                const get: Expr.Get = expr as Expr.Get;
-                return new Expr.Set(get.object, get.name, value);
+                return new Expr.Set(expr.entity, expr.key, value);
             }
 
             this.parseError(equals, `Invalid l-value, is not an assigning target.`);
@@ -425,7 +424,10 @@ export class Parser {
                 return new Expr.Call(callee, paren, args);
             } else if (this.match(TokenType.dot)) {
                 const name: Token = this.consume(TokenType.identifier, `Expect property name after '.'`);
-                expr = new Expr.Get(expr, name);
+                const key: Expr.Key = new Expr.Key(name);
+                expr = new Expr.Get(expr, key);
+            } else if (this.match(TokenType.leftBracket)) {
+                // TODO: add array der
             } else {
                 break;
             }
@@ -496,7 +498,7 @@ export class Parser {
                 const key: Token = this.previous();
                 this.consume(TokenType.colon, `Expected ":" colon after member`);
                 const value = this.expression();
-                properties.push(new Expr.Set(null, key, value));
+                properties.push(new Expr.Set(null, new Expr.Key(key), value));
             } else {
                 this.parseError(this.peek(), `String or identifier expected after Object {`);
             }
