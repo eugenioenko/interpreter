@@ -15,7 +15,7 @@ const ExpressionAST = {
     Variable: ['name: Token'],
     Key: ['name: Token'],
     Lambda: ['lambda: Stmt'],
-    Array: ['value: Expr[]']
+    List: ['value: Expr[]']
 };
 
 const StatementAST = {
@@ -34,13 +34,14 @@ const StatementAST = {
 function generateAST(baseClass, AST, filename, imports = '') {
     let file = imports +
 `export abstract class ${baseClass} {
+    // tslint:disable-next-line
     constructor() {}
-    abstract accept<R>(visitor: ${baseClass}Visitor<R>): R;
+    public abstract accept<R>(visitor: ${baseClass}Visitor<R>): R;
 }\n\n`;
 
-    file += `export interface ${baseClass}Visitor<R> {\n`;
+    file += `// tslint:disable-next-line\nexport interface ${baseClass}Visitor<R> {\n`;
     Object.keys(AST).forEach(name => {
-        file += `\tvisit${name}${baseClass}(${baseClass.toLowerCase()}: ${name}): R;\n`;
+        file += `    visit${name}${baseClass}(${baseClass.toLowerCase()}: ${name}): R;\n`;
     });
     file += '}\n\n';
 
@@ -48,26 +49,24 @@ function generateAST(baseClass, AST, filename, imports = '') {
         const syntax = AST[name];
         file += `export class ${name} extends ${baseClass} {\n`;
         syntax.forEach(member => {
-            file += '\tpublic ' + member + ';\n'
+            file += '    public ' + member + ';\n'
         });
-        file += `\n\tconstructor(${syntax.join(', ')}) {\n\t\tsuper();\n`
+        file += `\n    constructor(${syntax.join(', ')}) {\n        super();\n`
         syntax.forEach(member => {
             const name = member.split(': ')[0];
-            file += '\t\tthis.' + name + ' = ' + name + ';\n'
+            file += '        this.' + name + ' = ' + name + ';\n'
         });
-        file += '\t}\n'
+        file += '    }\n'
         file += `
-    accept<R>(visitor: ${baseClass}Visitor<R>): R {
+    public accept<R>(visitor: ${baseClass}Visitor<R>): R {
       return visitor.visit${name}${baseClass}(this);
     }\n`;
         file += `
-    toString(): string {
+    public toString(): string {
       return '${baseClass}.${name}';
     }\n`;
-        file += '}\n\n'
+        file += '}\n'
     });
-
-    file += '\n';
 
     fs.writeFile(`src/${filename}.ts`, file, function (err, data) {
         if (err) console.log(err);

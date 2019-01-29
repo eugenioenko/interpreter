@@ -69,7 +69,7 @@ export class Interpreter implements
         return this.scope.get(expr.name);
     }
 
-    public visitArrayExpr(expr: Expr.Array): any[] {
+    public visitListExpr(expr: Expr.List): any[] {
         const arr: any[] = [];
         for (const expression of expr.value) {
             arr.push(this.evaluate(expression));

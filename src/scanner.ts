@@ -71,7 +71,7 @@ export class Scanner {
 
     private string(quote: string) {
         while (this.peek() !== quote && !this.eof()) {
-            if (this.peek() == '\n') {
+            if (this.peek() === '\n') {
                 this.line++;
             }
             this.advance();
@@ -98,7 +98,7 @@ export class Scanner {
         }
 
         // checks for fraction
-        if (this.peek() == '.' && isDigit(this.peekNext())) {
+        if (this.peek() === '.' && isDigit(this.peekNext())) {
             this.advance();
         }
 
@@ -159,7 +159,7 @@ export class Scanner {
             case '<': this.addToken(this.match('=') ? 'lessEqual' : 'less', null); break;
             case '>': this.addToken(this.match('=') ? 'greaterEqual' : 'greater', null); break;
             case '!': this.addToken(this.match('=') ? this.match('=') ? 'bangEqualEqual' : 'bangEqual' : 'bang', null); break;
-            case '=': this.addToken(this.match('=') ? this.match('=') ? 'equalEqualEqual': 'equalEqual' : 'equal', null); break;
+            case '=': this.addToken(this.match('=') ? this.match('=') ? 'equalEqualEqual' : 'equalEqual' : 'equal', null); break;
             case '/':
                 if (this.match('/')) {
                     this.comment();

@@ -90,12 +90,13 @@
 /*!************************!*\
   !*** ./src/console.ts ***!
   \************************/
-/*! exports provided: ConsoleMessageType, Console */
+/*! exports provided: ConsoleMessageType, ConsoleMessage, Console */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ConsoleMessageType", function() { return ConsoleMessageType; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ConsoleMessage", function() { return ConsoleMessage; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Console", function() { return Console; });
 var ConsoleMessageType;
 (function (ConsoleMessageType) {
@@ -104,6 +105,8 @@ var ConsoleMessageType;
     ConsoleMessageType[ConsoleMessageType["Warning"] = 2] = "Warning";
     ConsoleMessageType[ConsoleMessageType["Info"] = 3] = "Info";
 })(ConsoleMessageType || (ConsoleMessageType = {}));
+class ConsoleMessage {
+}
 class Console {
     constructor() {
         this.messages = [];
@@ -111,8 +114,8 @@ class Console {
     add(message, type) {
         this.messages.push({
             text: message,
-            type: type,
-            time: new Date()
+            time: new Date(),
+            type: type
         });
     }
     clear() {
@@ -356,7 +359,7 @@ class ClassPrototype extends CallableEntity {
 /*!***************************!*\
   !*** ./src/expression.ts ***!
   \***************************/
-/*! exports provided: Expr, Assign, Binary, Ternary, Call, Entity, Get, Set, New, Grouping, Literal, Unary, Variable, Key, Lambda, Array */
+/*! exports provided: Expr, Assign, Binary, Ternary, Call, Entity, Get, Set, New, Grouping, Literal, Unary, Variable, Key, Lambda, List */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -376,7 +379,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Variable", function() { return Variable; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Key", function() { return Key; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Lambda", function() { return Lambda; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Array", function() { return Array; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "List", function() { return List; });
 class Expr {
     constructor() { }
 }
@@ -560,16 +563,16 @@ class Lambda extends Expr {
         return 'Expr.Lambda';
     }
 }
-class Array extends Expr {
+class List extends Expr {
     constructor(value) {
         super();
         this.value = value;
     }
     accept(visitor) {
-        return visitor.visitArrayExpr(this);
+        return visitor.visitListExpr(this);
     }
     toString() {
-        return 'Expr.Array';
+        return 'Expr.List';
     }
 }
 
@@ -682,7 +685,7 @@ class Interpreter {
     visitVariableExpr(expr) {
         return this.scope.get(expr.name);
     }
-    visitArrayExpr(expr) {
+    visitListExpr(expr) {
         const arr = [];
         for (const expression of expr.value) {
             arr.push(this.evaluate(expression));
@@ -1291,7 +1294,7 @@ class Parser {
                 arr.push(this.expression());
             } while (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].comma));
             this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].rightBracket, `Expected "]" after array declaration`);
-            return new _expression__WEBPACK_IMPORTED_MODULE_1__["Array"](arr);
+            return new _expression__WEBPACK_IMPORTED_MODULE_1__["List"](arr);
         }
         // return this.object();
     }
