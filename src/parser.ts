@@ -288,7 +288,7 @@ export class Parser {
 
     private expressionStatement(): Stmt.Stmt {
         const expression: Expr.Expr = this.expression();
-        this.consume(TokenType.semicolon, `Expected semicolon ";" after an expression`);
+        this.consume(TokenType.semicolon, `Expected semicolon ";" after ${expression} expression`);
         return new Stmt.Expression(expression);
     }
 
@@ -422,7 +422,7 @@ export class Parser {
                     } while (this.match(TokenType.comma));
                 }
                 const paren: Token = this.consume(TokenType.rightParen, `Expected ")" after arguments`);
-                return new Expr.Call(callee, paren, args);
+                return new Expr.Call(callee, paren, args, null);
             } else if (this.match(TokenType.dot)) {
                 const name: Token = this.consume(TokenType.identifier, `Expect property name after '.'`);
                 const key: Expr.Key = new Expr.Key(name);
@@ -493,7 +493,7 @@ export class Parser {
 
     public entity(): Expr.Expr {
         if (this.match(TokenType.rightBrace)) {
-            return new Expr.Entity(null);
+            return new Expr.Entity([]);
         }
         const properties: Expr.Set[] = [];
         do {

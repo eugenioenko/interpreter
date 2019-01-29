@@ -31,6 +31,10 @@ export class Block extends Stmt {
     accept<R>(visitor: StmtVisitor<R>): R {
       return visitor.visitBlockStmt(this);
     }
+
+    toString(): string {
+      return 'Stmt.Block';
+    }
 }
 
 export class Expression extends Stmt {
@@ -43,6 +47,10 @@ export class Expression extends Stmt {
 
     accept<R>(visitor: StmtVisitor<R>): R {
       return visitor.visitExpressionStmt(this);
+    }
+
+    toString(): string {
+      return 'Stmt.Expression';
     }
 }
 
@@ -61,6 +69,10 @@ export class If extends Stmt {
     accept<R>(visitor: StmtVisitor<R>): R {
       return visitor.visitIfStmt(this);
     }
+
+    toString(): string {
+      return 'Stmt.If';
+    }
 }
 
 export class Func extends Stmt {
@@ -78,6 +90,10 @@ export class Func extends Stmt {
     accept<R>(visitor: StmtVisitor<R>): R {
       return visitor.visitFuncStmt(this);
     }
+
+    toString(): string {
+      return 'Stmt.Func';
+    }
 }
 
 export class Class extends Stmt {
@@ -92,6 +108,10 @@ export class Class extends Stmt {
 
     accept<R>(visitor: StmtVisitor<R>): R {
       return visitor.visitClassStmt(this);
+    }
+
+    toString(): string {
+      return 'Stmt.Class';
     }
 }
 
@@ -108,6 +128,10 @@ export class Return extends Stmt {
     accept<R>(visitor: StmtVisitor<R>): R {
       return visitor.visitReturnStmt(this);
     }
+
+    toString(): string {
+      return 'Stmt.Return';
+    }
 }
 
 export class While extends Stmt {
@@ -122,6 +146,10 @@ export class While extends Stmt {
 
     accept<R>(visitor: StmtVisitor<R>): R {
       return visitor.visitWhileStmt(this);
+    }
+
+    toString(): string {
+      return 'Stmt.While';
     }
 }
 
@@ -138,6 +166,10 @@ export class DoWhile extends Stmt {
     accept<R>(visitor: StmtVisitor<R>): R {
       return visitor.visitDoWhileStmt(this);
     }
+
+    toString(): string {
+      return 'Stmt.DoWhile';
+    }
 }
 
 export class Print extends Stmt {
@@ -150,6 +182,10 @@ export class Print extends Stmt {
 
     accept<R>(visitor: StmtVisitor<R>): R {
       return visitor.visitPrintStmt(this);
+    }
+
+    toString(): string {
+      return 'Stmt.Print';
     }
 }
 
@@ -167,6 +203,10 @@ export class Var extends Stmt {
 
     accept<R>(visitor: StmtVisitor<R>): R {
       return visitor.visitVarStmt(this);
+    }
+
+    toString(): string {
+      return 'Stmt.Var';
     }
 }
 

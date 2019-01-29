@@ -1,25 +1,38 @@
 export const DemoSourceCode =
-`
-// prototype
-function MyClass() {
-    print "my class";
+`// Recursive function
+function factorialize(n) {
+    if (n < 0) {
+        return -1;
+    }
+    if (n == 0) {
+        return 1;
+    }
+    return (n * factorialize(n - 1));
 }
-MyClass.method = function(this) {
-    this.something = "anything";
+print factorialize(5);
+
+// Prototype objects
+function MyClass(text) {
+    this.text = text;
+}
+
+MyClass.method = function(text) {
+    this.text = this.text + text;
 };
 
-let obj = new MyClass();
-obj.method();
-print obj.something;
+MyClass.count = function(times) {
+    function nested(num) {
+        return num * num;
+    }
+    for (let i = 0; i < times; ++i) {
+        print nested(i);
+    }
+};
 
-
-// recursivity
-function recursive(n, m) {
-  if (n < m)
-    return recursive(n + 1, m);
-  return n;
-}
-print recursive(0,5);
+var instance = new MyClass('Hello ');
+instance.method('World');
+instance.count(3);
+print instance.text;
 
 // string length operator '$'
 print "the length of hellow world is: " + $"hello world";
@@ -27,69 +40,13 @@ print  $"hello" === 6 ? 'hello is 5 character length' : 'it is not';
 
 // while loop and ternary operator
 let i = 0;
-while (i <= 10) {
+while (i <= 4) {
     print i % 2 ? 'odd' : 'even';
     i = i + 1;
 }
 
-// native method rand()
-function showRand(a) {
-  echo("random: " + a + rand());
-}
-showRand(" text ");
-
-
-// while loop
-var counter = 1;
-while (counter < 10) {
-  echo("counter is: " + counter);
-  counter = counter + 1;
-}
-
-// if else block
-if (counter == 10)
-  echo("counter is 10");
-else
-  echo("counter is not 10");
-
-// do while block
-counter = 1;
-do {
-  echo(counter + counter);
-  counter = counter + 1;
-} while (counter < 10);
-
-echo(counter);
-
-// scope and closure
-var a = "global a";
-var b = "global b";
-var c = "global c";
-{
-  var a = "outer a";
-  var b = "outer b";
-  {
-    var a = "inner a";
-    echo(a);
-    echo(b);
-    echo(c);
-  }
-  echo(a);
-  echo(b);
-  echo(c);
-}
-echo(a);
-echo(b);
-echo(c);
-
-function test() {
-
-}
-test.method = function() {
-    print "hello world";
-};
-print test.method();
-var d = {
+// literals
+var literal = {
     firstname: "John",
     lastname: "Doe",
     records: {
@@ -97,5 +54,6 @@ var d = {
         next: "next"
     }
 };
-echo(d);
+
+print literal.records.prev;
 `;

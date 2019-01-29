@@ -86,6 +86,147 @@
 /************************************************************************/
 /******/ ({
 
+/***/ "./src/callable.ts":
+/*!*************************!*\
+  !*** ./src/callable.ts ***!
+  \*************************/
+/*! exports provided: InternalEntity, PrototypeEntity, CallableEntity, FunctionEntity, InstanceEntity, ClassPrototype */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "InternalEntity", function() { return InternalEntity; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PrototypeEntity", function() { return PrototypeEntity; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CallableEntity", function() { return CallableEntity; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FunctionEntity", function() { return FunctionEntity; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "InstanceEntity", function() { return InstanceEntity; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ClassPrototype", function() { return ClassPrototype; });
+/* harmony import */ var _scope__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./scope */ "./src/scope.ts");
+/* harmony import */ var _return__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./return */ "./src/return.ts");
+/* harmony import */ var _prototype__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./prototype */ "./src/prototype.ts");
+
+
+
+class InternalEntity {
+    constructor() {
+        this.toString = () => '<native function>';
+    }
+}
+class PrototypeEntity {
+    constructor() {
+        this.prototype = new _prototype__WEBPACK_IMPORTED_MODULE_2__["Prototype"](null, null, this);
+        this.properties = new Map();
+        const hasOwnProperty = new InternalEntity();
+        hasOwnProperty.call = (int, thiz, args) => this.properties.has(args[1]);
+        hasOwnProperty.toString = () => 'hasOwnProperty';
+        hasOwnProperty.arity = () => 2;
+        this.prototype.values.set('hasOwnProperty', hasOwnProperty);
+        const lengthProperty = new InternalEntity();
+        lengthProperty.call = (int, thiz, args) => this.properties.size;
+        lengthProperty.toString = () => 'lengthProperty';
+        lengthProperty.arity = () => 1;
+        this.prototype.values.set('length', lengthProperty);
+    }
+    get(key) {
+        if (this.properties.has(key)) {
+            return this.properties.get(key);
+        }
+        return this.prototype.get(key);
+    }
+    set(key, value) {
+        this.properties.set(key, value);
+    }
+    toString() {
+        return 'object';
+    }
+}
+class CallableEntity extends PrototypeEntity {
+    constructor() {
+        super();
+    }
+    arity() {
+        return 0;
+    }
+    call(interpreter, thiz, args) { return; }
+    toString() {
+        return '<internal function>';
+    }
+}
+class FunctionEntity extends CallableEntity {
+    constructor(declaration, closure) {
+        super();
+        this.declaration = declaration;
+        this.closure = closure;
+        this.name = this.declaration.name.lexeme;
+    }
+    toString() {
+        return '<' + this.declaration.name.lexeme + ' function>';
+    }
+    arity() {
+        return this.declaration.params.length;
+    }
+    call(interpreter, thiz, args) {
+        const scope = new _scope__WEBPACK_IMPORTED_MODULE_0__["Scope"](this.closure);
+        for (let i = 0; i < this.declaration.params.length; i++) {
+            scope.define(this.declaration.params[i].lexeme, args[i]);
+        }
+        scope.set('this', thiz);
+        try {
+            interpreter.executeBlock(this.declaration.body, scope);
+        }
+        catch (e) {
+            if (e instanceof _return__WEBPACK_IMPORTED_MODULE_1__["Return"]) {
+                return e.value;
+            }
+        }
+        return undefined;
+    }
+}
+class InstanceEntity extends CallableEntity {
+    constructor(construct) {
+        super();
+        this.instanceof = construct.name;
+        this.properties = new Map();
+        this.prototype = new _prototype__WEBPACK_IMPORTED_MODULE_2__["Prototype"](construct.properties, construct.prototype, this);
+    }
+    get(key) {
+        if (this.properties.has(key)) {
+            return this.properties.get(key);
+        }
+        return this.prototype.get(key);
+        throw new Error(`${this.instanceof} does not have ${key}`);
+    }
+    set(key, value) {
+        this.prototype.set(key, value);
+    }
+    toString() {
+        return '<' + this.instanceof + " instance>";
+    }
+}
+class ClassPrototype extends CallableEntity {
+    constructor(name, methods) {
+        super();
+        this.name = name;
+        this.prototype = new _prototype__WEBPACK_IMPORTED_MODULE_2__["Prototype"](null, null, this);
+        for (const method of methods) {
+            this.prototype.set(method.name.lexeme, method);
+        }
+    }
+    arity() {
+        return 0;
+    }
+    call(interpreter, args) {
+        const instance = new InstanceEntity(null);
+        return instance;
+    }
+    toString() {
+        return '<' + this.name + ' class>';
+    }
+}
+
+
+/***/ }),
+
 /***/ "./src/console.ts":
 /*!************************!*\
   !*** ./src/console.ts ***!
@@ -149,27 +290,40 @@ class Console {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DemoSourceCode", function() { return DemoSourceCode; });
-const DemoSourceCode = `
-// prototype
-function MyClass() {
-    print "my class";
+const DemoSourceCode = `// Recursive function
+function factorialize(n) {
+    if (n < 0) {
+        return -1;
+    }
+    if (n == 0) {
+        return 1;
+    }
+    return (n * factorialize(n - 1));
 }
-MyClass.method = function(this) {
-    this.something = "anything";
+print factorialize(5);
+
+// Prototype objects
+function MyClass(text) {
+    this.text = text;
+}
+
+MyClass.method = function(text) {
+    this.text = this.text + text;
 };
 
-let obj = new MyClass();
-obj.method();
-print obj.something;
+MyClass.count = function(times) {
+    function nested(num) {
+        return num * num;
+    }
+    for (let i = 0; i < times; ++i) {
+        print nested(i);
+    }
+};
 
-
-// recursivity
-function recursive(n, m) {
-  if (n < m)
-    return recursive(n + 1, m);
-  return n;
-}
-print recursive(0,5);
+var instance = new MyClass('Hello ');
+instance.method('World');
+instance.count(3);
+print instance.text;
 
 // string length operator '$'
 print "the length of hellow world is: " + $"hello world";
@@ -177,69 +331,13 @@ print  $"hello" === 6 ? 'hello is 5 character length' : 'it is not';
 
 // while loop and ternary operator
 let i = 0;
-while (i <= 10) {
+while (i <= 4) {
     print i % 2 ? 'odd' : 'even';
     i = i + 1;
 }
 
-// native method rand()
-function showRand(a) {
-  echo("random: " + a + rand());
-}
-showRand(" text ");
-
-
-// while loop
-var counter = 1;
-while (counter < 10) {
-  echo("counter is: " + counter);
-  counter = counter + 1;
-}
-
-// if else block
-if (counter == 10)
-  echo("counter is 10");
-else
-  echo("counter is not 10");
-
-// do while block
-counter = 1;
-do {
-  echo(counter + counter);
-  counter = counter + 1;
-} while (counter < 10);
-
-echo(counter);
-
-// scope and closure
-var a = "global a";
-var b = "global b";
-var c = "global c";
-{
-  var a = "outer a";
-  var b = "outer b";
-  {
-    var a = "inner a";
-    echo(a);
-    echo(b);
-    echo(c);
-  }
-  echo(a);
-  echo(b);
-  echo(c);
-}
-echo(a);
-echo(b);
-echo(c);
-
-function test() {
-
-}
-test.method = function() {
-    print "hello world";
-};
-print test.method();
-var d = {
+// literals
+var literal = {
     firstname: "John",
     lastname: "Doe",
     records: {
@@ -247,135 +345,9 @@ var d = {
         next: "next"
     }
 };
-echo(d);
+
+print literal.records.prev;
 `;
-
-
-/***/ }),
-
-/***/ "./src/entity.ts":
-/*!***********************!*\
-  !*** ./src/entity.ts ***!
-  \***********************/
-/*! exports provided: RuntimeObject, CallableObject, CallableFunc, EntityInstance, ClassPrototype */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RuntimeObject", function() { return RuntimeObject; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CallableObject", function() { return CallableObject; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CallableFunc", function() { return CallableFunc; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "EntityInstance", function() { return EntityInstance; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ClassPrototype", function() { return ClassPrototype; });
-/* harmony import */ var _scope__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./scope */ "./src/scope.ts");
-/* harmony import */ var _return__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./return */ "./src/return.ts");
-/* harmony import */ var _prototype__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./prototype */ "./src/prototype.ts");
-
-
-
-class RuntimeObject {
-    constructor() {
-        this.prototype = new _prototype__WEBPACK_IMPORTED_MODULE_2__["Prototype"](null);
-        this.properties = new Map();
-    }
-    get(key) {
-        if (this.properties.has(key)) {
-            return this.properties.get(key);
-        }
-        return this.prototype.get(key);
-    }
-    set(key, value) {
-        this.properties.set(key, value);
-    }
-    toString() {
-        return 'object';
-    }
-}
-class CallableObject extends RuntimeObject {
-    constructor() {
-        super();
-        // TODO: inheritance place
-        this.properties.set('prototype', this.prototype);
-    }
-    arity() {
-        return 0;
-    }
-    call(interpreter, args) { return; }
-    toString() {
-        return 'function';
-    }
-}
-class CallableFunc extends CallableObject {
-    constructor(declaration, closure) {
-        super();
-        this.declaration = declaration;
-        this.closure = closure;
-        this.name = this.declaration.name.lexeme;
-    }
-    toString() {
-        return this.declaration.name.lexeme;
-    }
-    arity() {
-        return this.declaration.params.length;
-    }
-    call(interpreter, args) {
-        const scope = new _scope__WEBPACK_IMPORTED_MODULE_0__["Scope"](this.closure);
-        for (let i = 0; i < this.declaration.params.length; i++) {
-            scope.define(this.declaration.params[i].lexeme, args[i]);
-        }
-        try {
-            interpreter.executeBlock(this.declaration.body, scope);
-        }
-        catch (e) {
-            if (e instanceof _return__WEBPACK_IMPORTED_MODULE_1__["Return"]) {
-                return e.value;
-            }
-        }
-        return undefined;
-    }
-}
-class EntityInstance extends RuntimeObject {
-    constructor(construct) {
-        super();
-        this.instanceof = construct.name;
-        this.properties = new Map();
-        this.prototype = construct.prototype;
-        this.properties.set('prototype', this.prototype);
-    }
-    get(key) {
-        if (this.properties.has(key)) {
-            return this.properties.get(key);
-        }
-        return this.prototype.get(key);
-        throw new Error(`${this.instanceof} does not have ${key}`);
-    }
-    set(key, value) {
-        this.prototype.set(key, value);
-    }
-    toString() {
-        return this.instanceof + " instance";
-    }
-}
-class ClassPrototype extends CallableObject {
-    constructor(name, methods) {
-        super();
-        this.name = name;
-        this.prototype = new _prototype__WEBPACK_IMPORTED_MODULE_2__["Prototype"](null);
-        for (const method of methods) {
-            this.prototype.set(method.name.lexeme, method);
-        }
-    }
-    arity() {
-        return 0;
-    }
-    call(interpreter, args) {
-        const instance = new EntityInstance(null);
-        return instance;
-    }
-    toString() {
-        return this.name;
-    }
-}
 
 
 /***/ }),
@@ -384,7 +356,7 @@ class ClassPrototype extends CallableObject {
 /*!***************************!*\
   !*** ./src/expression.ts ***!
   \***************************/
-/*! exports provided: Expr, Assign, Binary, Ternary, Call, Entity, Get, Set, New, Grouping, Literal, Unary, Variable, Key, Lambda, Array */
+/*! exports provided: Expr, Assign, Binary, Ternary, Call, Entity, Get, Set, New, Grouping, Literal, Unary, Variable, Lambda, Array */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -402,7 +374,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Literal", function() { return Literal; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Unary", function() { return Unary; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Variable", function() { return Variable; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Key", function() { return Key; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Lambda", function() { return Lambda; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Array", function() { return Array; });
 class Expr {
@@ -417,6 +388,9 @@ class Assign extends Expr {
     accept(visitor) {
         return visitor.visitAssignExpr(this);
     }
+    toString() {
+        return 'Expr.Assign';
+    }
 }
 class Binary extends Expr {
     constructor(left, operator, right) {
@@ -427,6 +401,9 @@ class Binary extends Expr {
     }
     accept(visitor) {
         return visitor.visitBinaryExpr(this);
+    }
+    toString() {
+        return 'Expr.Binary';
     }
 }
 class Ternary extends Expr {
@@ -439,16 +416,23 @@ class Ternary extends Expr {
     accept(visitor) {
         return visitor.visitTernaryExpr(this);
     }
+    toString() {
+        return 'Expr.Ternary';
+    }
 }
 class Call extends Expr {
-    constructor(callee, paren, args) {
+    constructor(callee, paren, args, thiz) {
         super();
         this.callee = callee;
         this.paren = paren;
         this.args = args;
+        this.thiz = thiz;
     }
     accept(visitor) {
         return visitor.visitCallExpr(this);
+    }
+    toString() {
+        return 'Expr.Call';
     }
 }
 class Entity extends Expr {
@@ -459,26 +443,35 @@ class Entity extends Expr {
     accept(visitor) {
         return visitor.visitEntityExpr(this);
     }
+    toString() {
+        return 'Expr.Entity';
+    }
 }
 class Get extends Expr {
-    constructor(entity, key) {
+    constructor(object, name) {
         super();
-        this.entity = entity;
-        this.key = key;
+        this.object = object;
+        this.name = name;
     }
     accept(visitor) {
         return visitor.visitGetExpr(this);
     }
+    toString() {
+        return 'Expr.Get';
+    }
 }
 class Set extends Expr {
-    constructor(entity, key, value) {
+    constructor(object, name, value) {
         super();
-        this.entity = entity;
-        this.key = key;
+        this.object = object;
+        this.name = name;
         this.value = value;
     }
     accept(visitor) {
         return visitor.visitSetExpr(this);
+    }
+    toString() {
+        return 'Expr.Set';
     }
 }
 class New extends Expr {
@@ -489,6 +482,9 @@ class New extends Expr {
     accept(visitor) {
         return visitor.visitNewExpr(this);
     }
+    toString() {
+        return 'Expr.New';
+    }
 }
 class Grouping extends Expr {
     constructor(expression) {
@@ -498,6 +494,9 @@ class Grouping extends Expr {
     accept(visitor) {
         return visitor.visitGroupingExpr(this);
     }
+    toString() {
+        return 'Expr.Grouping';
+    }
 }
 class Literal extends Expr {
     constructor(value) {
@@ -506,6 +505,9 @@ class Literal extends Expr {
     }
     accept(visitor) {
         return visitor.visitLiteralExpr(this);
+    }
+    toString() {
+        return 'Expr.Literal';
     }
 }
 class Unary extends Expr {
@@ -517,6 +519,9 @@ class Unary extends Expr {
     accept(visitor) {
         return visitor.visitUnaryExpr(this);
     }
+    toString() {
+        return 'Expr.Unary';
+    }
 }
 class Variable extends Expr {
     constructor(name) {
@@ -526,14 +531,8 @@ class Variable extends Expr {
     accept(visitor) {
         return visitor.visitVariableExpr(this);
     }
-}
-class Key extends Expr {
-    constructor(name) {
-        super();
-        this.name = name;
-    }
-    accept(visitor) {
-        return visitor.visitKeyExpr(this);
+    toString() {
+        return 'Expr.Variable';
     }
 }
 class Lambda extends Expr {
@@ -544,6 +543,9 @@ class Lambda extends Expr {
     accept(visitor) {
         return visitor.visitLambdaExpr(this);
     }
+    toString() {
+        return 'Expr.Lambda';
+    }
 }
 class Array extends Expr {
     constructor(value) {
@@ -552,6 +554,9 @@ class Array extends Expr {
     }
     accept(visitor) {
         return visitor.visitArrayExpr(this);
+    }
+    toString() {
+        return 'Expr.Array';
     }
 }
 
@@ -607,7 +612,7 @@ window.execute = function (source) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Interpreter", function() { return Interpreter; });
 /* harmony import */ var _expression__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./expression */ "./src/expression.ts");
-/* harmony import */ var _entity__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./entity */ "./src/entity.ts");
+/* harmony import */ var _callable__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./callable */ "./src/callable.ts");
 /* harmony import */ var _return__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./return */ "./src/return.ts");
 /* harmony import */ var _scope__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./scope */ "./src/scope.ts");
 /* harmony import */ var _token__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./token */ "./src/token.ts");
@@ -620,14 +625,14 @@ class Interpreter {
     constructor() {
         this.global = new _scope__WEBPACK_IMPORTED_MODULE_3__["Scope"]();
         this.scope = this.global;
-        const rand = new _entity__WEBPACK_IMPORTED_MODULE_1__["CallableObject"]();
+        const rand = new _callable__WEBPACK_IMPORTED_MODULE_1__["CallableEntity"]();
         rand.call = () => Math.random();
         rand.toString = () => '<native function>';
         this.global.define('rand', rand);
-        const echo = new _entity__WEBPACK_IMPORTED_MODULE_1__["CallableObject"]();
+        const echo = new _callable__WEBPACK_IMPORTED_MODULE_1__["InternalEntity"]();
         echo.arity = () => 1;
         echo.toString = () => '<native function>';
-        echo.call = (interpreter, args) => console.log(args[0]);
+        echo.call = (interpreter, thiz, args) => console.log(args[0]);
         this.global.define('echo', echo);
         this.global.define('months', ["Jan", "Feb", "Mar", "Apr"]);
     }
@@ -784,32 +789,39 @@ class Interpreter {
     visitCallExpr(expr) {
         const callee = this.evaluate(expr.callee);
         const args = [];
+        let thiz = null;
         if (expr.callee instanceof _expression__WEBPACK_IMPORTED_MODULE_0__["Get"]) {
-            args.push(this.evaluate(expr.callee.entity));
+            thiz = this.evaluate(expr.callee.object);
+        }
+        else if (expr.thiz !== null) {
+            thiz = expr.thiz;
         }
         for (const argument of expr.args) {
             args.push(this.evaluate(argument));
         }
-        if (!(callee instanceof _entity__WEBPACK_IMPORTED_MODULE_1__["CallableObject"])) {
+        if (!(callee instanceof _callable__WEBPACK_IMPORTED_MODULE_1__["CallableEntity"]) &&
+            !(callee instanceof _callable__WEBPACK_IMPORTED_MODULE_1__["InternalEntity"])) {
             conzole.error(`${callee} is not a function`);
             throw new Error();
         }
         const func = callee;
         if (args.length !== func.arity()) {
-            conzole.warn(`Warning at (${expr.paren.line}): ${callee} mismatched argument length`);
+            conzole.warn(`Warning at (${expr.paren.line}): ${callee} mismatched argument length; \n Expected ${func.arity()} but got ${args.length} `);
         }
-        return func.call(this, args);
+        return func.call(this, thiz, args);
     }
     visitNewExpr(expr) {
         const construct = expr.construct;
         const callee = this.evaluate(construct.callee);
+        const newInstance = new _callable__WEBPACK_IMPORTED_MODULE_1__["InstanceEntity"](callee);
+        construct.thiz = newInstance;
         this.evaluate(construct);
-        return new _entity__WEBPACK_IMPORTED_MODULE_1__["EntityInstance"](callee);
+        return newInstance;
     }
     visitEntityExpr(expr) {
-        const entity = new _entity__WEBPACK_IMPORTED_MODULE_1__["RuntimeObject"]();
+        const entity = new _callable__WEBPACK_IMPORTED_MODULE_1__["PrototypeEntity"]();
         for (const property of expr.properties) {
-            const key = this.evaluate(property.key);
+            const key = property.name.lexeme;
             const value = this.evaluate(property.value);
             entity.set(key, value);
         }
@@ -817,41 +829,36 @@ class Interpreter {
     }
     visitClassStmt(stmt) {
         this.scope.define(stmt.name.lexeme, null);
-        const classDef = new _entity__WEBPACK_IMPORTED_MODULE_1__["ClassPrototype"](stmt.name.lexeme, stmt.methods);
+        const classDef = new _callable__WEBPACK_IMPORTED_MODULE_1__["ClassPrototype"](stmt.name.lexeme, stmt.methods);
         this.scope.set(stmt.name.lexeme, classDef);
         return null;
     }
-    visitKeyExpr(expr) {
-        return expr.name.lexeme;
-    }
     visitGetExpr(expr) {
-        const entity = this.evaluate(expr.entity);
-        const key = this.evaluate(expr.key);
-        if (entity instanceof _entity__WEBPACK_IMPORTED_MODULE_1__["RuntimeObject"]) {
-            return entity.get(key);
+        const entity = this.evaluate(expr.object);
+        if (entity instanceof _callable__WEBPACK_IMPORTED_MODULE_1__["PrototypeEntity"]) {
+            return entity.get(expr.name.lexeme);
         }
-        conzole.error(`${entity}.${key}: only instances have properties`);
+        conzole.error(`${expr.name} Only instances have properties`);
         throw new Error();
     }
     visitSetExpr(expr) {
-        const entity = this.evaluate(expr.entity);
-        const key = this.evaluate(expr.key);
-        // TODO: check type of entity properly: CallableObject/Prototype
+        const entity = this.evaluate(expr.object);
+        // TODO: check type of entity properly: CallableEntity/Prototype
         if (typeof entity.set === "undefined") {
-            conzole.warn(`${entity} is not a runtime Object`);
+            conzole.warn(`${expr.name.lexeme} is not a runtime Object`);
         }
         const value = this.evaluate(expr.value);
-        entity.set(key, value);
+        entity.set(expr.name.lexeme, value);
         return value;
     }
     visitFuncStmt(stmt) {
-        const func = new _entity__WEBPACK_IMPORTED_MODULE_1__["CallableFunc"](stmt, this.scope);
+        const func = new _callable__WEBPACK_IMPORTED_MODULE_1__["FunctionEntity"](stmt, this.scope);
         this.scope.define(stmt.name.lexeme, func);
         return null;
     }
     visitLambdaExpr(expr) {
         const lambda = expr.lambda;
-        const func = new _entity__WEBPACK_IMPORTED_MODULE_1__["CallableFunc"](lambda, this.scope);
+        const func = new _callable__WEBPACK_IMPORTED_MODULE_1__["FunctionEntity"](lambda, this.scope);
         return func;
     }
     visitReturnStmt(stmt) {
@@ -1134,7 +1141,7 @@ class Parser {
     }
     expressionStatement() {
         const expression = this.expression();
-        this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].semicolon, `Expected semicolon ";" after an expression`);
+        this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].semicolon, `Expected semicolon ";" after ${expression} expression`);
         return new _statement__WEBPACK_IMPORTED_MODULE_2__["Expression"](expression);
     }
     expression() {
@@ -1150,7 +1157,8 @@ class Parser {
                 return new _expression__WEBPACK_IMPORTED_MODULE_1__["Assign"](name, value);
             }
             else if (expr instanceof _expression__WEBPACK_IMPORTED_MODULE_1__["Get"]) {
-                return new _expression__WEBPACK_IMPORTED_MODULE_1__["Set"](expr.entity, expr.key, value);
+                const get = expr;
+                return new _expression__WEBPACK_IMPORTED_MODULE_1__["Set"](get.object, get.name, value);
             }
             this.parseError(equals, `Invalid l-value, is not an assigning target.`);
         }
@@ -1238,17 +1246,11 @@ class Parser {
                     } while (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].comma));
                 }
                 const paren = this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].rightParen, `Expected ")" after arguments`);
-                return new _expression__WEBPACK_IMPORTED_MODULE_1__["Call"](callee, paren, args);
+                return new _expression__WEBPACK_IMPORTED_MODULE_1__["Call"](callee, paren, args, null);
             }
             else if (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].dot)) {
                 const name = this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].identifier, `Expect property name after '.'`);
-                const key = new _expression__WEBPACK_IMPORTED_MODULE_1__["Key"](name);
-                expr = new _expression__WEBPACK_IMPORTED_MODULE_1__["Get"](expr, key);
-            }
-            else if (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].leftBracket)) {
-                const key = this.expression();
-                expr = new _expression__WEBPACK_IMPORTED_MODULE_1__["Get"](expr, key);
-                this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].rightBracket, `Expected "]" after property name expression`);
+                expr = new _expression__WEBPACK_IMPORTED_MODULE_1__["Get"](expr, name);
             }
             else {
                 break;
@@ -1306,7 +1308,7 @@ class Parser {
     }
     entity() {
         if (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].rightBrace)) {
-            return new _expression__WEBPACK_IMPORTED_MODULE_1__["Entity"](null);
+            return new _expression__WEBPACK_IMPORTED_MODULE_1__["Entity"]([]);
         }
         const properties = [];
         do {
@@ -1314,7 +1316,7 @@ class Parser {
                 const key = this.previous();
                 this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].colon, `Expected ":" colon after member`);
                 const value = this.expression();
-                properties.push(new _expression__WEBPACK_IMPORTED_MODULE_1__["Set"](null, new _expression__WEBPACK_IMPORTED_MODULE_1__["Key"](key), value));
+                properties.push(new _expression__WEBPACK_IMPORTED_MODULE_1__["Set"](null, key, value));
             }
             else {
                 this.parseError(this.peek(), `String or identifier expected after Object {`);
@@ -1339,9 +1341,10 @@ class Parser {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Prototype", function() { return Prototype; });
 class Prototype {
-    constructor(parent = null) {
-        this.values = new Map();
+    constructor(values, parent = null, owner) {
+        this.values = new Map(values);
         this.parent = parent;
+        this.owner = owner;
     }
     set(name, value) {
         this.values.set(name, value);
@@ -1351,9 +1354,9 @@ class Prototype {
             return this.values.get(key);
         }
         if (this.parent !== null) {
-            return this.parent.get(name);
+            return this.parent.get(key);
         }
-        conzole.error(`${key} is not defined in prototype`);
+        conzole.error(`${key} is not defined in ${this.owner}`);
     }
 }
 
@@ -1701,6 +1704,9 @@ class Block extends Stmt {
     accept(visitor) {
         return visitor.visitBlockStmt(this);
     }
+    toString() {
+        return 'Stmt.Block';
+    }
 }
 class Expression extends Stmt {
     constructor(expression) {
@@ -1709,6 +1715,9 @@ class Expression extends Stmt {
     }
     accept(visitor) {
         return visitor.visitExpressionStmt(this);
+    }
+    toString() {
+        return 'Stmt.Expression';
     }
 }
 class If extends Stmt {
@@ -1721,6 +1730,9 @@ class If extends Stmt {
     accept(visitor) {
         return visitor.visitIfStmt(this);
     }
+    toString() {
+        return 'Stmt.If';
+    }
 }
 class Func extends Stmt {
     constructor(name, params, body) {
@@ -1732,6 +1744,9 @@ class Func extends Stmt {
     accept(visitor) {
         return visitor.visitFuncStmt(this);
     }
+    toString() {
+        return 'Stmt.Func';
+    }
 }
 class Class extends Stmt {
     constructor(name, methods) {
@@ -1741,6 +1756,9 @@ class Class extends Stmt {
     }
     accept(visitor) {
         return visitor.visitClassStmt(this);
+    }
+    toString() {
+        return 'Stmt.Class';
     }
 }
 class Return extends Stmt {
@@ -1752,6 +1770,9 @@ class Return extends Stmt {
     accept(visitor) {
         return visitor.visitReturnStmt(this);
     }
+    toString() {
+        return 'Stmt.Return';
+    }
 }
 class While extends Stmt {
     constructor(condition, loop) {
@@ -1761,6 +1782,9 @@ class While extends Stmt {
     }
     accept(visitor) {
         return visitor.visitWhileStmt(this);
+    }
+    toString() {
+        return 'Stmt.While';
     }
 }
 class DoWhile extends Stmt {
@@ -1772,6 +1796,9 @@ class DoWhile extends Stmt {
     accept(visitor) {
         return visitor.visitDoWhileStmt(this);
     }
+    toString() {
+        return 'Stmt.DoWhile';
+    }
 }
 class Print extends Stmt {
     constructor(expression) {
@@ -1780,6 +1807,9 @@ class Print extends Stmt {
     }
     accept(visitor) {
         return visitor.visitPrintStmt(this);
+    }
+    toString() {
+        return 'Stmt.Print';
     }
 }
 class Var extends Stmt {
@@ -1791,6 +1821,9 @@ class Var extends Stmt {
     }
     accept(visitor) {
         return visitor.visitVarStmt(this);
+    }
+    toString() {
+        return 'Stmt.Var';
     }
 }
 

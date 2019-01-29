@@ -38,6 +38,10 @@ export class Assign extends Expr {
     accept<R>(visitor: ExprVisitor<R>): R {
       return visitor.visitAssignExpr(this);
     }
+
+    toString(): string {
+      return 'Expr.Assign';
+    }
 }
 
 export class Binary extends Expr {
@@ -54,6 +58,10 @@ export class Binary extends Expr {
 
     accept<R>(visitor: ExprVisitor<R>): R {
       return visitor.visitBinaryExpr(this);
+    }
+
+    toString(): string {
+      return 'Expr.Binary';
     }
 }
 
@@ -72,22 +80,32 @@ export class Ternary extends Expr {
     accept<R>(visitor: ExprVisitor<R>): R {
       return visitor.visitTernaryExpr(this);
     }
+
+    toString(): string {
+      return 'Expr.Ternary';
+    }
 }
 
 export class Call extends Expr {
 	public callee: Expr;
 	public paren: Token;
 	public args: Expr[];
+	public thiz: any;
 
-	constructor(callee: Expr, paren: Token, args: Expr[]) {
+	constructor(callee: Expr, paren: Token, args: Expr[], thiz: any) {
 		super();
 		this.callee = callee;
 		this.paren = paren;
 		this.args = args;
+		this.thiz = thiz;
 	}
 
     accept<R>(visitor: ExprVisitor<R>): R {
       return visitor.visitCallExpr(this);
+    }
+
+    toString(): string {
+      return 'Expr.Call';
     }
 }
 
@@ -101,6 +119,10 @@ export class Entity extends Expr {
 
     accept<R>(visitor: ExprVisitor<R>): R {
       return visitor.visitEntityExpr(this);
+    }
+
+    toString(): string {
+      return 'Expr.Entity';
     }
 }
 
@@ -116,6 +138,10 @@ export class Get extends Expr {
 
     accept<R>(visitor: ExprVisitor<R>): R {
       return visitor.visitGetExpr(this);
+    }
+
+    toString(): string {
+      return 'Expr.Get';
     }
 }
 
@@ -134,6 +160,10 @@ export class Set extends Expr {
     accept<R>(visitor: ExprVisitor<R>): R {
       return visitor.visitSetExpr(this);
     }
+
+    toString(): string {
+      return 'Expr.Set';
+    }
 }
 
 export class New extends Expr {
@@ -146,6 +176,10 @@ export class New extends Expr {
 
     accept<R>(visitor: ExprVisitor<R>): R {
       return visitor.visitNewExpr(this);
+    }
+
+    toString(): string {
+      return 'Expr.New';
     }
 }
 
@@ -160,6 +194,10 @@ export class Grouping extends Expr {
     accept<R>(visitor: ExprVisitor<R>): R {
       return visitor.visitGroupingExpr(this);
     }
+
+    toString(): string {
+      return 'Expr.Grouping';
+    }
 }
 
 export class Literal extends Expr {
@@ -172,6 +210,10 @@ export class Literal extends Expr {
 
     accept<R>(visitor: ExprVisitor<R>): R {
       return visitor.visitLiteralExpr(this);
+    }
+
+    toString(): string {
+      return 'Expr.Literal';
     }
 }
 
@@ -188,6 +230,10 @@ export class Unary extends Expr {
     accept<R>(visitor: ExprVisitor<R>): R {
       return visitor.visitUnaryExpr(this);
     }
+
+    toString(): string {
+      return 'Expr.Unary';
+    }
 }
 
 export class Variable extends Expr {
@@ -200,6 +246,10 @@ export class Variable extends Expr {
 
     accept<R>(visitor: ExprVisitor<R>): R {
       return visitor.visitVariableExpr(this);
+    }
+
+    toString(): string {
+      return 'Expr.Variable';
     }
 }
 
@@ -227,6 +277,10 @@ export class Lambda extends Expr {
     accept<R>(visitor: ExprVisitor<R>): R {
       return visitor.visitLambdaExpr(this);
     }
+
+    toString(): string {
+      return 'Expr.Lambda';
+    }
 }
 
 export class Array extends Expr {
@@ -239,6 +293,10 @@ export class Array extends Expr {
 
     accept<R>(visitor: ExprVisitor<R>): R {
       return visitor.visitArrayExpr(this);
+    }
+
+    toString(): string {
+      return 'Expr.Array';
     }
 }
 

@@ -1,6 +1,6 @@
 import * as Expr from './expression';
 import * as Stmt from './statement';
-import { CallableFunc, CallableObject, ClassPrototype, EntityInstance, RuntimeObject} from './callable';
+import { FunctionEntity, CallableEntity, ClassPrototype, InternalEntity, InstanceEntity, PrototypeEntity } from './callable';
 import { Console } from './console';
 import { Return } from './return';
 import { Scope } from './scope';
@@ -15,15 +15,15 @@ export class Interpreter implements
     private scope = this.global;
 
     constructor( ) {
-        const rand = new CallableObject();
+        const rand = new CallableEntity();
         rand.call = () => Math.random();
         rand.toString = () => '<native function>';
         this.global.define('rand', rand);
 
-        const echo = new CallableObject();
+        const echo = new InternalEntity();
         echo.arity = () => 1;
         echo.toString = () => '<native function>';
-        echo.call = (interpreter, args) => console.log(args[0]);
+        echo.call = (interpreter, thiz, args) => console.log(args[0]);
         this.global.define('echo', echo);
 
         this.global.define('months', ["Jan", "Feb", "Mar", "Apr"]);
@@ -200,35 +200,40 @@ export class Interpreter implements
     public visitCallExpr(expr: Expr.Call): object {
         const callee = this.evaluate(expr.callee);
         const args = [];
+        let thiz: any = null;
         if (expr.callee instanceof Expr.Get) {
-            args.push(
-                this.evaluate(expr.callee.entity)
-            );
+            thiz = this.evaluate(expr.callee.object);
+        } else if (expr.thiz !== null) {
+            thiz = expr.thiz;
         }
         for (const argument of expr.args) {
             args.push(this.evaluate(argument));
         }
 
-        if ( !(callee instanceof CallableObject)) {
+        if (!(callee instanceof CallableEntity) &&
+            !(callee instanceof InternalEntity)
+        ) {
             conzole.error(`${callee} is not a function`);
             throw new Error();
         }
-        const func = callee as CallableObject;
+        const func = callee as CallableEntity;
         if (args.length !== func.arity()) {
-            conzole.warn(`Warning at (${expr.paren.line}): ${callee} mismatched argument length`);
+            conzole.warn(`Warning at (${expr.paren.line}): ${callee} mismatched argument length; \n Expected ${func.arity()} but got ${args.length} `);
         }
-        return func.call(this, args);
+        return func.call(this, thiz, args);
     }
 
     public visitNewExpr(expr: Expr.New): object {
         const construct = expr.construct as Expr.Call;
         const callee = this.evaluate(construct.callee);
+        const newInstance = new InstanceEntity(callee);
+        construct.thiz = newInstance;
         this.evaluate(construct);
-        return new EntityInstance(callee);
+        return newInstance;
     }
 
     public visitEntityExpr(expr: Expr.Entity) {
-        const entity = new RuntimeObject();
+        const entity = new PrototypeEntity();
         for (const property of expr.properties) {
             const key  = this.evaluate((property as Expr.Set).key);
             const value = this.evaluate((property as Expr.Set).value);
@@ -271,14 +276,14 @@ export class Interpreter implements
     }
 
     public visitFuncStmt(stmt: Stmt.Func): any {
-        const func: CallableFunc = new CallableFunc(stmt, this.scope);
+        const func: FunctionEntity = new FunctionEntity(stmt, this.scope);
         this.scope.define(stmt.name.lexeme, func);
         return null;
     }
 
     public visitLambdaExpr(expr: Expr.Lambda): object {
         const lambda: Stmt.Func = expr.lambda as Stmt.Func;
-        const func: CallableFunc = new CallableFunc(lambda, this.scope);
+        const func: FunctionEntity = new FunctionEntity(lambda, this.scope);
         return func;
     }
 
