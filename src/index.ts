@@ -4,9 +4,9 @@ import { Interpreter } from './interpreter';
 import { Console } from './console';
 import { DemoSourceCode } from './demo';
 
-(<any>window).conzole = new Console();
-(<any>window).demoSourceCode = DemoSourceCode;
-(<any>window).execute = function(source: string): Console {
+(window as any).conzole = new Console();
+(window as any).demoSourceCode = DemoSourceCode;
+(window as any).execute = (source: string): Console => {
     /*
     const consoleInstance = new Console();
     const scanner = new Scanner(source);
@@ -18,6 +18,5 @@ import { DemoSourceCode } from './demo';
     intererpreter.interpet(statements);
     */
 
-
     return (new Interpreter().interpet((new Parser((new Scanner(source)).scan())).parse()));
-}
+};

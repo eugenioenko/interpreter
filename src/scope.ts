@@ -18,7 +18,7 @@ export class Scope {
 
     public define(name: string, value: any) {
         if (this.values.has(name)) {
-            conzole.error(`identifier "${name}" has already been declared`)
+            conzole.error(`identifier "${name}" has already been declared`);
         } else {
             this.set(name, value);
         }
@@ -31,7 +31,7 @@ export class Scope {
             if (this.parent !== null) {
                 return this.parent.assign(name, value);
             }
-            conzole.error(`Identifier "${name}" has not been declared`)
+            conzole.error(`Identifier "${name}" has not been declared`);
         }
     }
 
@@ -52,7 +52,7 @@ export class Scope {
                 return this.values.get(name.lexeme);
             }
         }
-        conzole.error(`Error at (${name.line}): ${name.lexeme} is not defined`)
+        conzole.error(`Error at (${name.line}): ${name.lexeme} is not defined`);
     }
 
 }

@@ -5,10 +5,10 @@ export enum ConsoleMessageType {
     Info
 }
 
-export interface ConsoleMessage {
-    time: Date;
-    text: any;
-    type: ConsoleMessageType;
+export class ConsoleMessage {
+    public time: Date;
+    public text: any;
+    public type: ConsoleMessageType;
 }
 
 export class Console {
@@ -22,8 +22,9 @@ export class Console {
     private add(message: any, type: ConsoleMessageType): void {
         this.messages.push({
             text: message,
-            type: type,
-            time: new Date()
+            time: new Date(),
+            // tslint:disable-next-line
+            type: type
         });
     }
 
@@ -49,7 +50,7 @@ export class Console {
     }
 
     public print(): any {
-        return console.log(this.messages.map(cm => cm.text));
+        return console.log(this.messages.map((cm) => cm.text));
     }
 
 }

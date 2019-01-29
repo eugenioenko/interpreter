@@ -90,12 +90,13 @@
 /*!************************!*\
   !*** ./src/console.ts ***!
   \************************/
-/*! exports provided: ConsoleMessageType, Console */
+/*! exports provided: ConsoleMessageType, ConsoleMessage, Console */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ConsoleMessageType", function() { return ConsoleMessageType; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ConsoleMessage", function() { return ConsoleMessage; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Console", function() { return Console; });
 var ConsoleMessageType;
 (function (ConsoleMessageType) {
@@ -104,6 +105,8 @@ var ConsoleMessageType;
     ConsoleMessageType[ConsoleMessageType["Warning"] = 2] = "Warning";
     ConsoleMessageType[ConsoleMessageType["Info"] = 3] = "Info";
 })(ConsoleMessageType || (ConsoleMessageType = {}));
+class ConsoleMessage {
+}
 class Console {
     constructor() {
         this.messages = [];
@@ -111,8 +114,9 @@ class Console {
     add(message, type) {
         this.messages.push({
             text: message,
-            type: type,
-            time: new Date()
+            time: new Date(),
+            // tslint:disable-next-line
+            type: type
         });
     }
     clear() {
@@ -132,7 +136,7 @@ class Console {
         this.add(message, ConsoleMessageType.Info);
     }
     print() {
-        return console.log(this.messages.map(cm => cm.text));
+        return console.log(this.messages.map((cm) => cm.text));
     }
 }
 
@@ -356,7 +360,7 @@ class ClassPrototype extends CallableEntity {
 /*!***************************!*\
   !*** ./src/expression.ts ***!
   \***************************/
-/*! exports provided: Expr, Assign, Binary, Ternary, Call, Entity, Get, Set, New, Grouping, Literal, Unary, Variable, Key, Lambda, Array */
+/*! exports provided: Expr, Assign, Binary, Ternary, Call, Entity, Get, Set, New, Grouping, Literal, Unary, Variable, Key, Lambda, List */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -376,8 +380,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Variable", function() { return Variable; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Key", function() { return Key; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Lambda", function() { return Lambda; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Array", function() { return Array; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "List", function() { return List; });
 class Expr {
+    // tslint:disable-next-line
     constructor() { }
 }
 class Assign extends Expr {
@@ -560,16 +565,16 @@ class Lambda extends Expr {
         return 'Expr.Lambda';
     }
 }
-class Array extends Expr {
+class List extends Expr {
     constructor(value) {
         super();
         this.value = value;
     }
     accept(visitor) {
-        return visitor.visitArrayExpr(this);
+        return visitor.visitListExpr(this);
     }
     toString() {
-        return 'Expr.Array';
+        return 'Expr.List';
     }
 }
 
@@ -597,7 +602,7 @@ __webpack_require__.r(__webpack_exports__);
 
 window.conzole = new _console__WEBPACK_IMPORTED_MODULE_3__["Console"]();
 window.demoSourceCode = _demo__WEBPACK_IMPORTED_MODULE_4__["DemoSourceCode"];
-window.execute = function (source) {
+window.execute = (source) => {
     /*
     const consoleInstance = new Console();
     const scanner = new Scanner(source);
@@ -682,7 +687,7 @@ class Interpreter {
     visitVariableExpr(expr) {
         return this.scope.get(expr.name);
     }
-    visitArrayExpr(expr) {
+    visitListExpr(expr) {
         const arr = [];
         for (const expression of expr.value) {
             arr.push(this.evaluate(expression));
@@ -1291,7 +1296,7 @@ class Parser {
                 arr.push(this.expression());
             } while (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].comma));
             this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].rightBracket, `Expected "]" after array declaration`);
-            return new _expression__WEBPACK_IMPORTED_MODULE_1__["Array"](arr);
+            return new _expression__WEBPACK_IMPORTED_MODULE_1__["List"](arr);
         }
         // return this.object();
     }
@@ -1470,7 +1475,7 @@ class Scanner {
     }
     string(quote) {
         while (this.peek() !== quote && !this.eof()) {
-            if (this.peek() == '\n') {
+            if (this.peek() === '\n') {
                 this.line++;
             }
             this.advance();
@@ -1492,7 +1497,7 @@ class Scanner {
             this.advance();
         }
         // checks for fraction
-        if (this.peek() == '.' && isDigit(this.peekNext())) {
+        if (this.peek() === '.' && isDigit(this.peekNext())) {
             this.advance();
         }
         // gets fraction part
@@ -1717,6 +1722,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Print", function() { return Print; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Var", function() { return Var; });
 class Stmt {
+    // tslint:disable-next-line
     constructor() { }
 }
 class Block extends Stmt {
