@@ -136,7 +136,7 @@ export class ClassPrototype  extends CallableEntity {
     constructor(name: string, methods: Stmt.Func[]) {
         super();
         this.name = name;
-        this.prototype = new Prototype(null,null, this);
+        this.prototype = new Prototype(null, null, this);
         for (const method of methods) {
             this.prototype.set(method.name.lexeme, method);
         }

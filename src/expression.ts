@@ -3,305 +3,291 @@ import { Token } from 'token';
 import { Stmt } from 'statement';
 
 export abstract class Expr {
+    // tslint:disable-next-line
     constructor() {}
-    abstract accept<R>(visitor: ExprVisitor<R>): R;
+    public abstract accept<R>(visitor: ExprVisitor<R>): R;
 }
 
+// tslint:disable-next-line
 export interface ExprVisitor<R> {
-	visitAssignExpr(expr: Assign): R;
-	visitBinaryExpr(expr: Binary): R;
-	visitTernaryExpr(expr: Ternary): R;
-	visitCallExpr(expr: Call): R;
-	visitEntityExpr(expr: Entity): R;
-	visitGetExpr(expr: Get): R;
-	visitSetExpr(expr: Set): R;
-	visitNewExpr(expr: New): R;
-	visitGroupingExpr(expr: Grouping): R;
-	visitLiteralExpr(expr: Literal): R;
-	visitUnaryExpr(expr: Unary): R;
-	visitVariableExpr(expr: Variable): R;
-	visitKeyExpr(expr: Key): R;
-	visitLambdaExpr(expr: Lambda): R;
-	visitArrayExpr(expr: Array): R;
+    visitAssignExpr(expr: Assign): R;
+    visitBinaryExpr(expr: Binary): R;
+    visitTernaryExpr(expr: Ternary): R;
+    visitCallExpr(expr: Call): R;
+    visitEntityExpr(expr: Entity): R;
+    visitGetExpr(expr: Get): R;
+    visitSetExpr(expr: Set): R;
+    visitNewExpr(expr: New): R;
+    visitGroupingExpr(expr: Grouping): R;
+    visitLiteralExpr(expr: Literal): R;
+    visitUnaryExpr(expr: Unary): R;
+    visitVariableExpr(expr: Variable): R;
+    visitKeyExpr(expr: Key): R;
+    visitLambdaExpr(expr: Lambda): R;
+    visitListExpr(expr: List): R;
 }
 
 export class Assign extends Expr {
-	public name: Token;
-	public value: Expr;
+    public name: Token;
+    public value: Expr;
 
-	constructor(name: Token, value: Expr) {
-		super();
-		this.name = name;
-		this.value = value;
-	}
+    constructor(name: Token, value: Expr) {
+        super();
+        this.name = name;
+        this.value = value;
+    }
 
-    accept<R>(visitor: ExprVisitor<R>): R {
+    public accept<R>(visitor: ExprVisitor<R>): R {
       return visitor.visitAssignExpr(this);
     }
 
-    toString(): string {
+    public toString(): string {
       return 'Expr.Assign';
     }
 }
-
 export class Binary extends Expr {
-	public left: Expr;
-	public operator: Token;
-	public right: Expr;
+    public left: Expr;
+    public operator: Token;
+    public right: Expr;
 
-	constructor(left: Expr, operator: Token, right: Expr) {
-		super();
-		this.left = left;
-		this.operator = operator;
-		this.right = right;
-	}
+    constructor(left: Expr, operator: Token, right: Expr) {
+        super();
+        this.left = left;
+        this.operator = operator;
+        this.right = right;
+    }
 
-    accept<R>(visitor: ExprVisitor<R>): R {
+    public accept<R>(visitor: ExprVisitor<R>): R {
       return visitor.visitBinaryExpr(this);
     }
 
-    toString(): string {
+    public toString(): string {
       return 'Expr.Binary';
     }
 }
-
 export class Ternary extends Expr {
-	public condition: Expr;
-	public thenExpr: Expr;
-	public elseExpr: Expr;
+    public condition: Expr;
+    public thenExpr: Expr;
+    public elseExpr: Expr;
 
-	constructor(condition: Expr, thenExpr: Expr, elseExpr: Expr) {
-		super();
-		this.condition = condition;
-		this.thenExpr = thenExpr;
-		this.elseExpr = elseExpr;
-	}
+    constructor(condition: Expr, thenExpr: Expr, elseExpr: Expr) {
+        super();
+        this.condition = condition;
+        this.thenExpr = thenExpr;
+        this.elseExpr = elseExpr;
+    }
 
-    accept<R>(visitor: ExprVisitor<R>): R {
+    public accept<R>(visitor: ExprVisitor<R>): R {
       return visitor.visitTernaryExpr(this);
     }
 
-    toString(): string {
+    public toString(): string {
       return 'Expr.Ternary';
     }
 }
-
 export class Call extends Expr {
-	public callee: Expr;
-	public paren: Token;
-	public args: Expr[];
-	public thiz: any;
+    public callee: Expr;
+    public paren: Token;
+    public args: Expr[];
+    public thiz: any;
 
-	constructor(callee: Expr, paren: Token, args: Expr[], thiz: any) {
-		super();
-		this.callee = callee;
-		this.paren = paren;
-		this.args = args;
-		this.thiz = thiz;
-	}
+    constructor(callee: Expr, paren: Token, args: Expr[], thiz: any) {
+        super();
+        this.callee = callee;
+        this.paren = paren;
+        this.args = args;
+        this.thiz = thiz;
+    }
 
-    accept<R>(visitor: ExprVisitor<R>): R {
+    public accept<R>(visitor: ExprVisitor<R>): R {
       return visitor.visitCallExpr(this);
     }
 
-    toString(): string {
+    public toString(): string {
       return 'Expr.Call';
     }
 }
-
 export class Entity extends Expr {
-	public properties: Expr[];
+    public properties: Expr[];
 
-	constructor(properties: Expr[]) {
-		super();
-		this.properties = properties;
-	}
+    constructor(properties: Expr[]) {
+        super();
+        this.properties = properties;
+    }
 
-    accept<R>(visitor: ExprVisitor<R>): R {
+    public accept<R>(visitor: ExprVisitor<R>): R {
       return visitor.visitEntityExpr(this);
     }
 
-    toString(): string {
+    public toString(): string {
       return 'Expr.Entity';
     }
 }
-
 export class Get extends Expr {
-	public entity: Expr;
-	public key: Expr;
+    public entity: Expr;
+    public key: Expr;
 
-	constructor(entity: Expr, key: Expr) {
-		super();
-		this.entity = entity;
-		this.key = key;
-	}
+    constructor(entity: Expr, key: Expr) {
+        super();
+        this.entity = entity;
+        this.key = key;
+    }
 
-    accept<R>(visitor: ExprVisitor<R>): R {
+    public accept<R>(visitor: ExprVisitor<R>): R {
       return visitor.visitGetExpr(this);
     }
 
-    toString(): string {
+    public toString(): string {
       return 'Expr.Get';
     }
 }
-
 export class Set extends Expr {
-	public entity: Expr;
-	public key: Expr;
-	public value: Expr;
+    public entity: Expr;
+    public key: Expr;
+    public value: Expr;
 
-	constructor(entity: Expr, key: Expr, value: Expr) {
-		super();
-		this.entity = entity;
-		this.key = key;
-		this.value = value;
-	}
+    constructor(entity: Expr, key: Expr, value: Expr) {
+        super();
+        this.entity = entity;
+        this.key = key;
+        this.value = value;
+    }
 
-    accept<R>(visitor: ExprVisitor<R>): R {
+    public accept<R>(visitor: ExprVisitor<R>): R {
       return visitor.visitSetExpr(this);
     }
 
-    toString(): string {
+    public toString(): string {
       return 'Expr.Set';
     }
 }
-
 export class New extends Expr {
-	public construct: Expr;
+    public construct: Expr;
 
-	constructor(construct: Expr) {
-		super();
-		this.construct = construct;
-	}
+    constructor(construct: Expr) {
+        super();
+        this.construct = construct;
+    }
 
-    accept<R>(visitor: ExprVisitor<R>): R {
+    public accept<R>(visitor: ExprVisitor<R>): R {
       return visitor.visitNewExpr(this);
     }
 
-    toString(): string {
+    public toString(): string {
       return 'Expr.New';
     }
 }
-
 export class Grouping extends Expr {
-	public expression: Expr;
+    public expression: Expr;
 
-	constructor(expression: Expr) {
-		super();
-		this.expression = expression;
-	}
+    constructor(expression: Expr) {
+        super();
+        this.expression = expression;
+    }
 
-    accept<R>(visitor: ExprVisitor<R>): R {
+    public accept<R>(visitor: ExprVisitor<R>): R {
       return visitor.visitGroupingExpr(this);
     }
 
-    toString(): string {
+    public toString(): string {
       return 'Expr.Grouping';
     }
 }
-
 export class Literal extends Expr {
-	public value: any;
+    public value: any;
 
-	constructor(value: any) {
-		super();
-		this.value = value;
-	}
+    constructor(value: any) {
+        super();
+        this.value = value;
+    }
 
-    accept<R>(visitor: ExprVisitor<R>): R {
+    public accept<R>(visitor: ExprVisitor<R>): R {
       return visitor.visitLiteralExpr(this);
     }
 
-    toString(): string {
+    public toString(): string {
       return 'Expr.Literal';
     }
 }
-
 export class Unary extends Expr {
-	public operator: Token;
-	public right: Expr;
+    public operator: Token;
+    public right: Expr;
 
-	constructor(operator: Token, right: Expr) {
-		super();
-		this.operator = operator;
-		this.right = right;
-	}
+    constructor(operator: Token, right: Expr) {
+        super();
+        this.operator = operator;
+        this.right = right;
+    }
 
-    accept<R>(visitor: ExprVisitor<R>): R {
+    public accept<R>(visitor: ExprVisitor<R>): R {
       return visitor.visitUnaryExpr(this);
     }
 
-    toString(): string {
+    public toString(): string {
       return 'Expr.Unary';
     }
 }
-
 export class Variable extends Expr {
-	public name: Token;
+    public name: Token;
 
-	constructor(name: Token) {
-		super();
-		this.name = name;
-	}
+    constructor(name: Token) {
+        super();
+        this.name = name;
+    }
 
-    accept<R>(visitor: ExprVisitor<R>): R {
+    public accept<R>(visitor: ExprVisitor<R>): R {
       return visitor.visitVariableExpr(this);
     }
 
-    toString(): string {
+    public toString(): string {
       return 'Expr.Variable';
     }
 }
-
 export class Key extends Expr {
-	public name: Token;
+    public name: Token;
 
-	constructor(name: Token) {
-		super();
-		this.name = name;
-	}
+    constructor(name: Token) {
+        super();
+        this.name = name;
+    }
 
-    accept<R>(visitor: ExprVisitor<R>): R {
+    public accept<R>(visitor: ExprVisitor<R>): R {
       return visitor.visitKeyExpr(this);
     }
 
-    toString(): string {
+    public toString(): string {
       return 'Expr.Key';
     }
 }
-
 export class Lambda extends Expr {
-	public lambda: Stmt;
+    public lambda: Stmt;
 
-	constructor(lambda: Stmt) {
-		super();
-		this.lambda = lambda;
-	}
+    constructor(lambda: Stmt) {
+        super();
+        this.lambda = lambda;
+    }
 
-    accept<R>(visitor: ExprVisitor<R>): R {
+    public accept<R>(visitor: ExprVisitor<R>): R {
       return visitor.visitLambdaExpr(this);
     }
 
-    toString(): string {
+    public toString(): string {
       return 'Expr.Lambda';
     }
 }
+export class List extends Expr {
+    public value: Expr[];
 
-export class Array extends Expr {
-	public value: Expr[];
-
-	constructor(value: Expr[]) {
-		super();
-		this.value = value;
-	}
-
-    accept<R>(visitor: ExprVisitor<R>): R {
-      return visitor.visitArrayExpr(this);
+    constructor(value: Expr[]) {
+        super();
+        this.value = value;
     }
 
-    toString(): string {
-      return 'Expr.Array';
+    public accept<R>(visitor: ExprVisitor<R>): R {
+      return visitor.visitListExpr(this);
+    }
+
+    public toString(): string {
+      return 'Expr.List';
     }
 }
-
-

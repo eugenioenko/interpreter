@@ -449,7 +449,7 @@ export class Parser {
                 arr.push(this.expression());
             } while (this.match(TokenType.comma));
             this.consume(TokenType.rightBracket, `Expected "]" after array declaration`);
-            return new Expr.Array(arr);
+            return new Expr.List(arr);
         }
         // return this.object();
     }
