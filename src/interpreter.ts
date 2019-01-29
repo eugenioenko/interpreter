@@ -1,6 +1,6 @@
 import * as Expr from './expression';
 import * as Stmt from './statement';
-import { CallableFunc, CallableObject, ClassPrototype, ObjectInstance, RuntimeObject} from './callable';
+import { CallableFunc, CallableObject, ClassPrototype, EntityInstance, RuntimeObject} from './callable';
 import { Console } from './console';
 import { Return } from './return';
 import { Scope } from './scope';
@@ -224,7 +224,7 @@ export class Interpreter implements
         const construct = expr.construct as Expr.Call;
         const callee = this.evaluate(construct.callee);
         this.evaluate(construct);
-        return new ObjectInstance(callee);
+        return new EntityInstance(callee);
     }
 
     public visitEntityExpr(expr: Expr.Entity) {

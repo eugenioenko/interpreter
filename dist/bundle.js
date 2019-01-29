@@ -86,133 +86,6 @@
 /************************************************************************/
 /******/ ({
 
-/***/ "./src/callable.ts":
-/*!*************************!*\
-  !*** ./src/callable.ts ***!
-  \*************************/
-/*! exports provided: RuntimeObject, CallableObject, CallableFunc, ObjectInstance, ClassPrototype */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RuntimeObject", function() { return RuntimeObject; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CallableObject", function() { return CallableObject; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CallableFunc", function() { return CallableFunc; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ObjectInstance", function() { return ObjectInstance; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ClassPrototype", function() { return ClassPrototype; });
-/* harmony import */ var _scope__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./scope */ "./src/scope.ts");
-/* harmony import */ var _return__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./return */ "./src/return.ts");
-/* harmony import */ var _prototype__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./prototype */ "./src/prototype.ts");
-
-
-
-class RuntimeObject {
-    constructor() {
-        this.prototype = new _prototype__WEBPACK_IMPORTED_MODULE_2__["Prototype"](null);
-        this.properties = new Map();
-    }
-    get(key) {
-        if (this.properties.has(key)) {
-            return this.properties.get(key);
-        }
-        return this.prototype.get(key);
-    }
-    set(key, value) {
-        this.properties.set(key, value);
-    }
-    toString() {
-        return 'object';
-    }
-}
-class CallableObject extends RuntimeObject {
-    constructor() {
-        super();
-        // TODO: inheritance place
-        this.properties.set('prototype', this.prototype);
-    }
-    arity() {
-        return 0;
-    }
-    call(interpreter, args) { return; }
-    toString() {
-        return 'function';
-    }
-}
-class CallableFunc extends CallableObject {
-    constructor(declaration, closure) {
-        super();
-        this.declaration = declaration;
-        this.closure = closure;
-        this.name = this.declaration.name.lexeme;
-    }
-    toString() {
-        return this.declaration.name.lexeme;
-    }
-    arity() {
-        return this.declaration.params.length;
-    }
-    call(interpreter, args) {
-        const scope = new _scope__WEBPACK_IMPORTED_MODULE_0__["Scope"](this.closure);
-        for (let i = 0; i < this.declaration.params.length; i++) {
-            scope.define(this.declaration.params[i].lexeme, args[i]);
-        }
-        try {
-            interpreter.executeBlock(this.declaration.body, scope);
-        }
-        catch (e) {
-            if (e instanceof _return__WEBPACK_IMPORTED_MODULE_1__["Return"]) {
-                return e.value;
-            }
-        }
-        return undefined;
-    }
-}
-class ObjectInstance extends RuntimeObject {
-    constructor(construct) {
-        super();
-        this.instanceof = construct.name;
-        this.properties = new Map();
-        this.prototype = construct.prototype;
-        this.properties.set('prototype', this.prototype);
-    }
-    get(key) {
-        if (this.properties.has(key)) {
-            return this.properties.get(key);
-        }
-        return this.prototype.get(key);
-        throw new Error(`${this.instanceof} does not have ${key}`);
-    }
-    set(key, value) {
-        this.prototype.set(key, value);
-    }
-    toString() {
-        return this.instanceof + " instance";
-    }
-}
-class ClassPrototype extends CallableObject {
-    constructor(name, methods) {
-        super();
-        this.name = name;
-        this.prototype = new _prototype__WEBPACK_IMPORTED_MODULE_2__["Prototype"](null);
-        for (const method of methods) {
-            this.prototype.set(method.name.lexeme, method);
-        }
-    }
-    arity() {
-        return 0;
-    }
-    call(interpreter, args) {
-        const instance = new ObjectInstance(null);
-        return instance;
-    }
-    toString() {
-        return this.name;
-    }
-}
-
-
-/***/ }),
-
 /***/ "./src/console.ts":
 /*!************************!*\
   !*** ./src/console.ts ***!
@@ -281,7 +154,7 @@ const DemoSourceCode = `
 function MyClass() {
     print "my class";
 }
-MyClass.prototype.method = function(this) {
+MyClass.method = function(this) {
     this.something = "anything";
 };
 
@@ -362,7 +235,7 @@ echo(c);
 function test() {
 
 }
-test.prototype.method = function() {
+test.method = function() {
     print "hello world";
 };
 print test.method();
@@ -376,6 +249,133 @@ var d = {
 };
 echo(d);
 `;
+
+
+/***/ }),
+
+/***/ "./src/entity.ts":
+/*!***********************!*\
+  !*** ./src/entity.ts ***!
+  \***********************/
+/*! exports provided: RuntimeObject, CallableObject, CallableFunc, EntityInstance, ClassPrototype */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RuntimeObject", function() { return RuntimeObject; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CallableObject", function() { return CallableObject; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CallableFunc", function() { return CallableFunc; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "EntityInstance", function() { return EntityInstance; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ClassPrototype", function() { return ClassPrototype; });
+/* harmony import */ var _scope__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./scope */ "./src/scope.ts");
+/* harmony import */ var _return__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./return */ "./src/return.ts");
+/* harmony import */ var _prototype__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./prototype */ "./src/prototype.ts");
+
+
+
+class RuntimeObject {
+    constructor() {
+        this.prototype = new _prototype__WEBPACK_IMPORTED_MODULE_2__["Prototype"](null);
+        this.properties = new Map();
+    }
+    get(key) {
+        if (this.properties.has(key)) {
+            return this.properties.get(key);
+        }
+        return this.prototype.get(key);
+    }
+    set(key, value) {
+        this.properties.set(key, value);
+    }
+    toString() {
+        return 'object';
+    }
+}
+class CallableObject extends RuntimeObject {
+    constructor() {
+        super();
+        // TODO: inheritance place
+        this.properties.set('prototype', this.prototype);
+    }
+    arity() {
+        return 0;
+    }
+    call(interpreter, args) { return; }
+    toString() {
+        return 'function';
+    }
+}
+class CallableFunc extends CallableObject {
+    constructor(declaration, closure) {
+        super();
+        this.declaration = declaration;
+        this.closure = closure;
+        this.name = this.declaration.name.lexeme;
+    }
+    toString() {
+        return this.declaration.name.lexeme;
+    }
+    arity() {
+        return this.declaration.params.length;
+    }
+    call(interpreter, args) {
+        const scope = new _scope__WEBPACK_IMPORTED_MODULE_0__["Scope"](this.closure);
+        for (let i = 0; i < this.declaration.params.length; i++) {
+            scope.define(this.declaration.params[i].lexeme, args[i]);
+        }
+        try {
+            interpreter.executeBlock(this.declaration.body, scope);
+        }
+        catch (e) {
+            if (e instanceof _return__WEBPACK_IMPORTED_MODULE_1__["Return"]) {
+                return e.value;
+            }
+        }
+        return undefined;
+    }
+}
+class EntityInstance extends RuntimeObject {
+    constructor(construct) {
+        super();
+        this.instanceof = construct.name;
+        this.properties = new Map();
+        this.prototype = construct.prototype;
+        this.properties.set('prototype', this.prototype);
+    }
+    get(key) {
+        if (this.properties.has(key)) {
+            return this.properties.get(key);
+        }
+        return this.prototype.get(key);
+        throw new Error(`${this.instanceof} does not have ${key}`);
+    }
+    set(key, value) {
+        this.prototype.set(key, value);
+    }
+    toString() {
+        return this.instanceof + " instance";
+    }
+}
+class ClassPrototype extends CallableObject {
+    constructor(name, methods) {
+        super();
+        this.name = name;
+        this.prototype = new _prototype__WEBPACK_IMPORTED_MODULE_2__["Prototype"](null);
+        for (const method of methods) {
+            this.prototype.set(method.name.lexeme, method);
+        }
+    }
+    arity() {
+        return 0;
+    }
+    call(interpreter, args) {
+        const instance = new EntityInstance(null);
+        return instance;
+    }
+    toString() {
+        return this.name;
+    }
+}
 
 
 /***/ }),
@@ -607,7 +607,7 @@ window.execute = function (source) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Interpreter", function() { return Interpreter; });
 /* harmony import */ var _expression__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./expression */ "./src/expression.ts");
-/* harmony import */ var _callable__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./callable */ "./src/callable.ts");
+/* harmony import */ var _entity__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./entity */ "./src/entity.ts");
 /* harmony import */ var _return__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./return */ "./src/return.ts");
 /* harmony import */ var _scope__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./scope */ "./src/scope.ts");
 /* harmony import */ var _token__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./token */ "./src/token.ts");
@@ -620,11 +620,11 @@ class Interpreter {
     constructor() {
         this.global = new _scope__WEBPACK_IMPORTED_MODULE_3__["Scope"]();
         this.scope = this.global;
-        const rand = new _callable__WEBPACK_IMPORTED_MODULE_1__["CallableObject"]();
+        const rand = new _entity__WEBPACK_IMPORTED_MODULE_1__["CallableObject"]();
         rand.call = () => Math.random();
         rand.toString = () => '<native function>';
         this.global.define('rand', rand);
-        const echo = new _callable__WEBPACK_IMPORTED_MODULE_1__["CallableObject"]();
+        const echo = new _entity__WEBPACK_IMPORTED_MODULE_1__["CallableObject"]();
         echo.arity = () => 1;
         echo.toString = () => '<native function>';
         echo.call = (interpreter, args) => console.log(args[0]);
@@ -790,7 +790,7 @@ class Interpreter {
         for (const argument of expr.args) {
             args.push(this.evaluate(argument));
         }
-        if (!(callee instanceof _callable__WEBPACK_IMPORTED_MODULE_1__["CallableObject"])) {
+        if (!(callee instanceof _entity__WEBPACK_IMPORTED_MODULE_1__["CallableObject"])) {
             conzole.error(`${callee} is not a function`);
             throw new Error();
         }
@@ -804,10 +804,10 @@ class Interpreter {
         const construct = expr.construct;
         const callee = this.evaluate(construct.callee);
         this.evaluate(construct);
-        return new _callable__WEBPACK_IMPORTED_MODULE_1__["ObjectInstance"](callee);
+        return new _entity__WEBPACK_IMPORTED_MODULE_1__["EntityInstance"](callee);
     }
     visitEntityExpr(expr) {
-        const entity = new _callable__WEBPACK_IMPORTED_MODULE_1__["RuntimeObject"]();
+        const entity = new _entity__WEBPACK_IMPORTED_MODULE_1__["RuntimeObject"]();
         for (const property of expr.properties) {
             const key = this.evaluate(property.key);
             const value = this.evaluate(property.value);
@@ -817,7 +817,7 @@ class Interpreter {
     }
     visitClassStmt(stmt) {
         this.scope.define(stmt.name.lexeme, null);
-        const classDef = new _callable__WEBPACK_IMPORTED_MODULE_1__["ClassPrototype"](stmt.name.lexeme, stmt.methods);
+        const classDef = new _entity__WEBPACK_IMPORTED_MODULE_1__["ClassPrototype"](stmt.name.lexeme, stmt.methods);
         this.scope.set(stmt.name.lexeme, classDef);
         return null;
     }
@@ -827,7 +827,7 @@ class Interpreter {
     visitGetExpr(expr) {
         const entity = this.evaluate(expr.entity);
         const key = this.evaluate(expr.key);
-        if (entity instanceof _callable__WEBPACK_IMPORTED_MODULE_1__["RuntimeObject"]) {
+        if (entity instanceof _entity__WEBPACK_IMPORTED_MODULE_1__["RuntimeObject"]) {
             return entity.get(key);
         }
         conzole.error(`${entity}.${key}: only instances have properties`);
@@ -845,13 +845,13 @@ class Interpreter {
         return value;
     }
     visitFuncStmt(stmt) {
-        const func = new _callable__WEBPACK_IMPORTED_MODULE_1__["CallableFunc"](stmt, this.scope);
+        const func = new _entity__WEBPACK_IMPORTED_MODULE_1__["CallableFunc"](stmt, this.scope);
         this.scope.define(stmt.name.lexeme, func);
         return null;
     }
     visitLambdaExpr(expr) {
         const lambda = expr.lambda;
-        const func = new _callable__WEBPACK_IMPORTED_MODULE_1__["CallableFunc"](lambda, this.scope);
+        const func = new _entity__WEBPACK_IMPORTED_MODULE_1__["CallableFunc"](lambda, this.scope);
         return func;
     }
     visitReturnStmt(stmt) {
@@ -1246,7 +1246,9 @@ class Parser {
                 expr = new _expression__WEBPACK_IMPORTED_MODULE_1__["Get"](expr, key);
             }
             else if (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].leftBracket)) {
-                // TODO: add array der
+                const key = this.expression();
+                expr = new _expression__WEBPACK_IMPORTED_MODULE_1__["Get"](expr, key);
+                this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].rightBracket, `Expected "]" after property name expression`);
             }
             else {
                 break;
