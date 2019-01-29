@@ -210,6 +210,7 @@ export class Parser {
 
     private forStatement(): Stmt.Stmt {
         this.consume(TokenType.leftParen, `Expected "(" after a for statement`);
+
         let initializer: Stmt.Stmt;
         if (this.match(TokenType.semicolon)) {
             initializer = null;
@@ -427,7 +428,9 @@ export class Parser {
                 const key: Expr.Key = new Expr.Key(name);
                 expr = new Expr.Get(expr, key);
             } else if (this.match(TokenType.leftBracket)) {
-                // TODO: add array der
+                const key: Expr.Expr = this.expression();
+                expr = new Expr.Get(expr, key);
+                this.consume(TokenType.rightBracket, `Expected "]" after property name expression`);
             } else {
                 break;
             }

@@ -14,10 +14,14 @@
 `
 let object = {
     property: {
-        name: "name"
+        name: "name",
+        two: "two"
     }
 };
-print object.property.name;
+function getter() {
+    return "property";
+}
+print object[getter()].name;
 `;
 
         conzole.clear();

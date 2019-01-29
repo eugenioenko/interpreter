@@ -4,7 +4,7 @@ export const DemoSourceCode =
 function MyClass() {
     print "my class";
 }
-MyClass.prototype.method = function(this) {
+MyClass.method = function(this) {
     this.something = "anything";
 };
 
@@ -85,7 +85,7 @@ echo(c);
 function test() {
 
 }
-test.prototype.method = function() {
+test.method = function() {
     print "hello world";
 };
 print test.method();

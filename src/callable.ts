@@ -82,14 +82,13 @@ export class CallableFunc extends CallableObject {
 
 }
 
-export class ObjectInstance extends RuntimeObject {
+export class EntityInstance extends RuntimeObject {
     private instanceof: string;
     constructor(construct: CallableFunc) {
         super();
         this.instanceof = construct.name;
         this.properties = new Map();
         this.prototype = construct.prototype;
-        this.properties.set('prototype', this.prototype);
     }
 
     public get(key: string): any {
@@ -128,7 +127,7 @@ export class ClassPrototype  extends CallableObject {
     }
 
     public call(interpreter: Interpreter, args: any[]): any {
-        const instance: ObjectInstance  = new ObjectInstance(null);
+        const instance: EntityInstance = new EntityInstance(null);
         return instance;
     }
 
