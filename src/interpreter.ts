@@ -1,11 +1,10 @@
 import * as Expr from './expression';
 import * as Stmt from './statement';
-import { FunctionEntity, CallableEntity, ClassPrototype, InternalEntity, InstanceEntity, PrototypeEntity } from './callable';
+import { FunctionEntity, CallableEntity, ClassPrototype, InternalEntity, InstanceEntity, PrototypeEntity } from './entity';
 import { Console } from './console';
 import { Return } from './return';
 import { Scope } from './scope';
 import { TokenType } from './token';
-import { Prototype } from './prototype';
 declare var conzole: Console;
 
 export class Interpreter implements
@@ -202,7 +201,7 @@ export class Interpreter implements
         const args = [];
         let thiz: any = null;
         if (expr.callee instanceof Expr.Get) {
-            thiz = this.evaluate(expr.callee.object);
+            thiz = this.evaluate(expr.callee.entity);
         } else if (expr.thiz !== null) {
             thiz = expr.thiz;
         }
@@ -256,7 +255,7 @@ export class Interpreter implements
     public visitGetExpr(expr: Expr.Get): any {
         const entity = this.evaluate(expr.entity);
         const key = this.evaluate(expr.key);
-        if (entity instanceof RuntimeObject) {
+        if (entity instanceof PrototypeEntity) {
             return entity.get(key);
         }
         conzole.error(`${entity}.${key}: only instances have properties`);
@@ -271,7 +270,7 @@ export class Interpreter implements
             conzole.warn(`${entity} is not a runtime Object`);
         }
         const value = this.evaluate(expr.value);
-        (entity as RuntimeObject).set(key, value);
+        (entity as PrototypeEntity).set(key, value);
         return value;
     }
 

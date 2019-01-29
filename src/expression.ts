@@ -264,6 +264,10 @@ export class Key extends Expr {
     accept<R>(visitor: ExprVisitor<R>): R {
       return visitor.visitKeyExpr(this);
     }
+
+    toString(): string {
+      return 'Expr.Key';
+    }
 }
 
 export class Lambda extends Expr {

@@ -86,10 +86,135 @@
 /************************************************************************/
 /******/ ({
 
-/***/ "./src/callable.ts":
-/*!*************************!*\
-  !*** ./src/callable.ts ***!
-  \*************************/
+/***/ "./src/console.ts":
+/*!************************!*\
+  !*** ./src/console.ts ***!
+  \************************/
+/*! exports provided: ConsoleMessageType, Console */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ConsoleMessageType", function() { return ConsoleMessageType; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Console", function() { return Console; });
+var ConsoleMessageType;
+(function (ConsoleMessageType) {
+    ConsoleMessageType[ConsoleMessageType["User"] = 0] = "User";
+    ConsoleMessageType[ConsoleMessageType["Error"] = 1] = "Error";
+    ConsoleMessageType[ConsoleMessageType["Warning"] = 2] = "Warning";
+    ConsoleMessageType[ConsoleMessageType["Info"] = 3] = "Info";
+})(ConsoleMessageType || (ConsoleMessageType = {}));
+class Console {
+    constructor() {
+        this.messages = [];
+    }
+    add(message, type) {
+        this.messages.push({
+            text: message,
+            type: type,
+            time: new Date()
+        });
+    }
+    clear() {
+        this.messages = [];
+    }
+    log(message) {
+        this.add(message, ConsoleMessageType.User);
+    }
+    warn(message) {
+        this.add(message, ConsoleMessageType.Warning);
+    }
+    error(message) {
+        this.add(message, ConsoleMessageType.Error);
+        // throw new Error("");
+    }
+    info(message) {
+        this.add(message, ConsoleMessageType.Info);
+    }
+    print() {
+        return console.log(this.messages.map(cm => cm.text));
+    }
+}
+
+
+/***/ }),
+
+/***/ "./src/demo.ts":
+/*!*********************!*\
+  !*** ./src/demo.ts ***!
+  \*********************/
+/*! exports provided: DemoSourceCode */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DemoSourceCode", function() { return DemoSourceCode; });
+const DemoSourceCode = `// Recursive function
+function factorialize(n) {
+    if (n < 0) {
+        return -1;
+    }
+    if (n == 0) {
+        return 1;
+    }
+    return (n * factorialize(n - 1));
+}
+print factorialize(5);
+
+// Prototype objects
+function MyClass(text) {
+    this.text = text;
+}
+
+MyClass.method = function(text) {
+    this.text = this.text + text;
+};
+
+MyClass.count = function(times) {
+    function nested(num) {
+        return num * num;
+    }
+    for (let i = 0; i < times; ++i) {
+        print nested(i);
+    }
+};
+
+var instance = new MyClass('Hello ');
+instance.method('World');
+instance.count(3);
+print instance.text;
+
+// string length operator '$'
+print "the length of hellow world is: " + $"hello world";
+print  $"hello" === 6 ? 'hello is 5 character length' : 'it is not';
+
+// while loop and ternary operator
+let i = 0;
+while (i <= 4) {
+    print i % 2 ? 'odd' : 'even';
+    i = i + 1;
+}
+
+// literals
+var literal = {
+    firstname: "John",
+    lastname: "Doe",
+    records: {
+        prev: "previous",
+        next: "next"
+    }
+};
+
+print literal.records.prev;
+`;
+
+
+/***/ }),
+
+/***/ "./src/entity.ts":
+/*!***********************!*\
+  !*** ./src/entity.ts ***!
+  \***********************/
 /*! exports provided: InternalEntity, PrototypeEntity, CallableEntity, FunctionEntity, InstanceEntity, ClassPrototype */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -227,136 +352,11 @@ class ClassPrototype extends CallableEntity {
 
 /***/ }),
 
-/***/ "./src/console.ts":
-/*!************************!*\
-  !*** ./src/console.ts ***!
-  \************************/
-/*! exports provided: ConsoleMessageType, Console */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ConsoleMessageType", function() { return ConsoleMessageType; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Console", function() { return Console; });
-var ConsoleMessageType;
-(function (ConsoleMessageType) {
-    ConsoleMessageType[ConsoleMessageType["User"] = 0] = "User";
-    ConsoleMessageType[ConsoleMessageType["Error"] = 1] = "Error";
-    ConsoleMessageType[ConsoleMessageType["Warning"] = 2] = "Warning";
-    ConsoleMessageType[ConsoleMessageType["Info"] = 3] = "Info";
-})(ConsoleMessageType || (ConsoleMessageType = {}));
-class Console {
-    constructor() {
-        this.messages = [];
-    }
-    add(message, type) {
-        this.messages.push({
-            text: message,
-            type: type,
-            time: new Date()
-        });
-    }
-    clear() {
-        this.messages = [];
-    }
-    log(message) {
-        this.add(message, ConsoleMessageType.User);
-    }
-    warn(message) {
-        this.add(message, ConsoleMessageType.Warning);
-    }
-    error(message) {
-        this.add(message, ConsoleMessageType.Error);
-        // throw new Error("");
-    }
-    info(message) {
-        this.add(message, ConsoleMessageType.Info);
-    }
-    print() {
-        return console.log(this.messages.map(cm => cm.text));
-    }
-}
-
-
-/***/ }),
-
-/***/ "./src/demo.ts":
-/*!*********************!*\
-  !*** ./src/demo.ts ***!
-  \*********************/
-/*! exports provided: DemoSourceCode */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DemoSourceCode", function() { return DemoSourceCode; });
-const DemoSourceCode = `// Recursive function
-function factorialize(n) {
-    if (n < 0) {
-        return -1;
-    }
-    if (n == 0) {
-        return 1;
-    }
-    return (n * factorialize(n - 1));
-}
-print factorialize(5);
-
-// Prototype objects
-function MyClass(text) {
-    this.text = text;
-}
-
-MyClass.method = function(text) {
-    this.text = this.text + text;
-};
-
-MyClass.count = function(times) {
-    function nested(num) {
-        return num * num;
-    }
-    for (let i = 0; i < times; ++i) {
-        print nested(i);
-    }
-};
-
-var instance = new MyClass('Hello ');
-instance.method('World');
-instance.count(3);
-print instance.text;
-
-// string length operator '$'
-print "the length of hellow world is: " + $"hello world";
-print  $"hello" === 6 ? 'hello is 5 character length' : 'it is not';
-
-// while loop and ternary operator
-let i = 0;
-while (i <= 4) {
-    print i % 2 ? 'odd' : 'even';
-    i = i + 1;
-}
-
-// literals
-var literal = {
-    firstname: "John",
-    lastname: "Doe",
-    records: {
-        prev: "previous",
-        next: "next"
-    }
-};
-
-print literal.records.prev;
-`;
-
-
-/***/ }),
-
 /***/ "./src/expression.ts":
 /*!***************************!*\
   !*** ./src/expression.ts ***!
   \***************************/
-/*! exports provided: Expr, Assign, Binary, Ternary, Call, Entity, Get, Set, New, Grouping, Literal, Unary, Variable, Lambda, Array */
+/*! exports provided: Expr, Assign, Binary, Ternary, Call, Entity, Get, Set, New, Grouping, Literal, Unary, Variable, Key, Lambda, Array */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -374,6 +374,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Literal", function() { return Literal; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Unary", function() { return Unary; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Variable", function() { return Variable; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Key", function() { return Key; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Lambda", function() { return Lambda; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Array", function() { return Array; });
 class Expr {
@@ -448,10 +449,10 @@ class Entity extends Expr {
     }
 }
 class Get extends Expr {
-    constructor(object, name) {
+    constructor(entity, key) {
         super();
-        this.object = object;
-        this.name = name;
+        this.entity = entity;
+        this.key = key;
     }
     accept(visitor) {
         return visitor.visitGetExpr(this);
@@ -461,10 +462,10 @@ class Get extends Expr {
     }
 }
 class Set extends Expr {
-    constructor(object, name, value) {
+    constructor(entity, key, value) {
         super();
-        this.object = object;
-        this.name = name;
+        this.entity = entity;
+        this.key = key;
         this.value = value;
     }
     accept(visitor) {
@@ -533,6 +534,18 @@ class Variable extends Expr {
     }
     toString() {
         return 'Expr.Variable';
+    }
+}
+class Key extends Expr {
+    constructor(name) {
+        super();
+        this.name = name;
+    }
+    accept(visitor) {
+        return visitor.visitKeyExpr(this);
+    }
+    toString() {
+        return 'Expr.Key';
     }
 }
 class Lambda extends Expr {
@@ -612,7 +625,7 @@ window.execute = function (source) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Interpreter", function() { return Interpreter; });
 /* harmony import */ var _expression__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./expression */ "./src/expression.ts");
-/* harmony import */ var _callable__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./callable */ "./src/callable.ts");
+/* harmony import */ var _entity__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./entity */ "./src/entity.ts");
 /* harmony import */ var _return__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./return */ "./src/return.ts");
 /* harmony import */ var _scope__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./scope */ "./src/scope.ts");
 /* harmony import */ var _token__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./token */ "./src/token.ts");
@@ -625,11 +638,11 @@ class Interpreter {
     constructor() {
         this.global = new _scope__WEBPACK_IMPORTED_MODULE_3__["Scope"]();
         this.scope = this.global;
-        const rand = new _callable__WEBPACK_IMPORTED_MODULE_1__["CallableEntity"]();
+        const rand = new _entity__WEBPACK_IMPORTED_MODULE_1__["CallableEntity"]();
         rand.call = () => Math.random();
         rand.toString = () => '<native function>';
         this.global.define('rand', rand);
-        const echo = new _callable__WEBPACK_IMPORTED_MODULE_1__["InternalEntity"]();
+        const echo = new _entity__WEBPACK_IMPORTED_MODULE_1__["InternalEntity"]();
         echo.arity = () => 1;
         echo.toString = () => '<native function>';
         echo.call = (interpreter, thiz, args) => console.log(args[0]);
@@ -791,7 +804,7 @@ class Interpreter {
         const args = [];
         let thiz = null;
         if (expr.callee instanceof _expression__WEBPACK_IMPORTED_MODULE_0__["Get"]) {
-            thiz = this.evaluate(expr.callee.object);
+            thiz = this.evaluate(expr.callee.entity);
         }
         else if (expr.thiz !== null) {
             thiz = expr.thiz;
@@ -799,8 +812,8 @@ class Interpreter {
         for (const argument of expr.args) {
             args.push(this.evaluate(argument));
         }
-        if (!(callee instanceof _callable__WEBPACK_IMPORTED_MODULE_1__["CallableEntity"]) &&
-            !(callee instanceof _callable__WEBPACK_IMPORTED_MODULE_1__["InternalEntity"])) {
+        if (!(callee instanceof _entity__WEBPACK_IMPORTED_MODULE_1__["CallableEntity"]) &&
+            !(callee instanceof _entity__WEBPACK_IMPORTED_MODULE_1__["InternalEntity"])) {
             conzole.error(`${callee} is not a function`);
             throw new Error();
         }
@@ -813,15 +826,15 @@ class Interpreter {
     visitNewExpr(expr) {
         const construct = expr.construct;
         const callee = this.evaluate(construct.callee);
-        const newInstance = new _callable__WEBPACK_IMPORTED_MODULE_1__["InstanceEntity"](callee);
+        const newInstance = new _entity__WEBPACK_IMPORTED_MODULE_1__["InstanceEntity"](callee);
         construct.thiz = newInstance;
         this.evaluate(construct);
         return newInstance;
     }
     visitEntityExpr(expr) {
-        const entity = new _callable__WEBPACK_IMPORTED_MODULE_1__["PrototypeEntity"]();
+        const entity = new _entity__WEBPACK_IMPORTED_MODULE_1__["PrototypeEntity"]();
         for (const property of expr.properties) {
-            const key = property.name.lexeme;
+            const key = this.evaluate(property.key);
             const value = this.evaluate(property.value);
             entity.set(key, value);
         }
@@ -829,36 +842,41 @@ class Interpreter {
     }
     visitClassStmt(stmt) {
         this.scope.define(stmt.name.lexeme, null);
-        const classDef = new _callable__WEBPACK_IMPORTED_MODULE_1__["ClassPrototype"](stmt.name.lexeme, stmt.methods);
+        const classDef = new _entity__WEBPACK_IMPORTED_MODULE_1__["ClassPrototype"](stmt.name.lexeme, stmt.methods);
         this.scope.set(stmt.name.lexeme, classDef);
         return null;
     }
+    visitKeyExpr(expr) {
+        return expr.name.lexeme;
+    }
     visitGetExpr(expr) {
-        const entity = this.evaluate(expr.object);
-        if (entity instanceof _callable__WEBPACK_IMPORTED_MODULE_1__["PrototypeEntity"]) {
-            return entity.get(expr.name.lexeme);
+        const entity = this.evaluate(expr.entity);
+        const key = this.evaluate(expr.key);
+        if (entity instanceof _entity__WEBPACK_IMPORTED_MODULE_1__["PrototypeEntity"]) {
+            return entity.get(key);
         }
-        conzole.error(`${expr.name} Only instances have properties`);
+        conzole.error(`${entity}.${key}: only instances have properties`);
         throw new Error();
     }
     visitSetExpr(expr) {
-        const entity = this.evaluate(expr.object);
-        // TODO: check type of entity properly: CallableEntity/Prototype
+        const entity = this.evaluate(expr.entity);
+        const key = this.evaluate(expr.key);
+        // TODO: check type of entity properly: CallableObject/Prototype
         if (typeof entity.set === "undefined") {
-            conzole.warn(`${expr.name.lexeme} is not a runtime Object`);
+            conzole.warn(`${entity} is not a runtime Object`);
         }
         const value = this.evaluate(expr.value);
-        entity.set(expr.name.lexeme, value);
+        entity.set(key, value);
         return value;
     }
     visitFuncStmt(stmt) {
-        const func = new _callable__WEBPACK_IMPORTED_MODULE_1__["FunctionEntity"](stmt, this.scope);
+        const func = new _entity__WEBPACK_IMPORTED_MODULE_1__["FunctionEntity"](stmt, this.scope);
         this.scope.define(stmt.name.lexeme, func);
         return null;
     }
     visitLambdaExpr(expr) {
         const lambda = expr.lambda;
-        const func = new _callable__WEBPACK_IMPORTED_MODULE_1__["FunctionEntity"](lambda, this.scope);
+        const func = new _entity__WEBPACK_IMPORTED_MODULE_1__["FunctionEntity"](lambda, this.scope);
         return func;
     }
     visitReturnStmt(stmt) {
@@ -1157,8 +1175,7 @@ class Parser {
                 return new _expression__WEBPACK_IMPORTED_MODULE_1__["Assign"](name, value);
             }
             else if (expr instanceof _expression__WEBPACK_IMPORTED_MODULE_1__["Get"]) {
-                const get = expr;
-                return new _expression__WEBPACK_IMPORTED_MODULE_1__["Set"](get.object, get.name, value);
+                return new _expression__WEBPACK_IMPORTED_MODULE_1__["Set"](expr.entity, expr.key, value);
             }
             this.parseError(equals, `Invalid l-value, is not an assigning target.`);
         }
@@ -1250,7 +1267,13 @@ class Parser {
             }
             else if (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].dot)) {
                 const name = this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].identifier, `Expect property name after '.'`);
-                expr = new _expression__WEBPACK_IMPORTED_MODULE_1__["Get"](expr, name);
+                const key = new _expression__WEBPACK_IMPORTED_MODULE_1__["Key"](name);
+                expr = new _expression__WEBPACK_IMPORTED_MODULE_1__["Get"](expr, key);
+            }
+            else if (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].leftBracket)) {
+                const key = this.expression();
+                expr = new _expression__WEBPACK_IMPORTED_MODULE_1__["Get"](expr, key);
+                this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].rightBracket, `Expected "]" after property name expression`);
             }
             else {
                 break;
@@ -1316,7 +1339,7 @@ class Parser {
                 const key = this.previous();
                 this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].colon, `Expected ":" colon after member`);
                 const value = this.expression();
-                properties.push(new _expression__WEBPACK_IMPORTED_MODULE_1__["Set"](null, key, value));
+                properties.push(new _expression__WEBPACK_IMPORTED_MODULE_1__["Set"](null, new _expression__WEBPACK_IMPORTED_MODULE_1__["Key"](key), value));
             }
             else {
                 this.parseError(this.peek(), `String or identifier expected after Object {`);
