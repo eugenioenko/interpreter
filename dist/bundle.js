@@ -115,6 +115,7 @@ class Console {
         this.messages.push({
             text: message,
             time: new Date(),
+            // tslint:disable-next-line
             type: type
         });
     }
@@ -135,7 +136,7 @@ class Console {
         this.add(message, ConsoleMessageType.Info);
     }
     print() {
-        return console.log(this.messages.map(cm => cm.text));
+        return console.log(this.messages.map((cm) => cm.text));
     }
 }
 
@@ -381,6 +382,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Lambda", function() { return Lambda; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "List", function() { return List; });
 class Expr {
+    // tslint:disable-next-line
     constructor() { }
 }
 class Assign extends Expr {
@@ -600,7 +602,7 @@ __webpack_require__.r(__webpack_exports__);
 
 window.conzole = new _console__WEBPACK_IMPORTED_MODULE_3__["Console"]();
 window.demoSourceCode = _demo__WEBPACK_IMPORTED_MODULE_4__["DemoSourceCode"];
-window.execute = function (source) {
+window.execute = (source) => {
     /*
     const consoleInstance = new Console();
     const scanner = new Scanner(source);
@@ -1473,7 +1475,7 @@ class Scanner {
     }
     string(quote) {
         while (this.peek() !== quote && !this.eof()) {
-            if (this.peek() == '\n') {
+            if (this.peek() === '\n') {
                 this.line++;
             }
             this.advance();
@@ -1495,7 +1497,7 @@ class Scanner {
             this.advance();
         }
         // checks for fraction
-        if (this.peek() == '.' && isDigit(this.peekNext())) {
+        if (this.peek() === '.' && isDigit(this.peekNext())) {
             this.advance();
         }
         // gets fraction part
@@ -1720,6 +1722,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Print", function() { return Print; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Var", function() { return Var; });
 class Stmt {
+    // tslint:disable-next-line
     constructor() { }
 }
 class Block extends Stmt {
