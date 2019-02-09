@@ -1,5 +1,30 @@
 export const DemoSourceCode =
-`// Recursive function
+`// multiple inheritance
+
+function Blade() {
+    this.sharpness = "very sharp";
+}
+Blade.cut = func() {
+    print "cutting..." + this.sharpness;
+};
+function Handle() {
+    this.color = "wood";
+}
+Handle.hold = func() {
+    print "holding..." + this.color;
+};
+function Knife() {
+    Blade.invoke(this);
+    Handle.invoke(this);
+}
+Knife.extends(Blade);
+Knife.extends(Handle);
+let knife = new Knife();
+knife.cut();
+knife.hold();
+
+
+// Recursive function
 function factorialize(n) {
     if (n < 0) {
         return -1;

@@ -153,7 +153,32 @@ class Console {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DemoSourceCode", function() { return DemoSourceCode; });
-const DemoSourceCode = `// Recursive function
+const DemoSourceCode = `// multiple inheritance
+
+function Blade() {
+    this.sharpness = "very sharp";
+}
+Blade.cut = func() {
+    print "cutting..." + this.sharpness;
+};
+function Handle() {
+    this.color = "wood";
+}
+Handle.hold = func() {
+    print "holding..." + this.color;
+};
+function Knife() {
+    Blade.invoke(this);
+    Handle.invoke(this);
+}
+Knife.extends(Blade);
+Knife.extends(Handle);
+let knife = new Knife();
+knife.cut();
+knife.hold();
+
+
+// Recursive function
 function factorialize(n) {
     if (n < 0) {
         return -1;
@@ -264,11 +289,11 @@ class PrototypeEntity {
 class CallableEntity extends PrototypeEntity {
     constructor() {
         super();
-        const invokeCall = new InternalEntity();
-        invokeCall.call = (int, thiz, args) => thiz.call(int, args[0], args.slice(1));
-        invokeCall.toString = () => '<internal invoke function>';
-        invokeCall.arity = () => -1;
-        this.prototype.values.set('invoke', invokeCall);
+        const invokeMethod = new InternalEntity();
+        invokeMethod.call = (int, thiz, args) => thiz.call(int, args[0], args.slice(1));
+        invokeMethod.toString = () => '<internal invoke function>';
+        invokeMethod.arity = () => -1;
+        this.prototype.values.set('invoke', invokeMethod);
     }
     arity() {
         return 0;
@@ -283,6 +308,11 @@ class FunctionEntity extends CallableEntity {
         super();
         this.declaration = declaration;
         this.closure = closure;
+        const extendsMethod = new InternalEntity();
+        extendsMethod.call = (int, thiz, args) => this.properties = new Map([...args[0].properties, ...this.properties]);
+        extendsMethod.toString = () => '<internal extend function>';
+        extendsMethod.arity = () => 1;
+        this.prototype.values.set('extends', extendsMethod);
     }
     toString() {
         return '<' + this.declaration.name.lexeme + ' function>';
@@ -313,6 +343,11 @@ class InstanceEntity extends CallableEntity {
         this.instanceof = construct.declaration.name.lexeme;
         this.properties = new Map();
         this.prototype = new _prototype__WEBPACK_IMPORTED_MODULE_2__["Prototype"](construct.properties, construct.prototype, this);
+        const inheritMethod = new InternalEntity();
+        inheritMethod.call = (int, thiz, args) => this.prototype.values = new Map([...args[0].properties, ...this.prototype.values]);
+        inheritMethod.toString = () => '<internal inheritance function>';
+        inheritMethod.arity = () => 1;
+        this.prototype.values.set('inherits', inheritMethod);
     }
     toString() {
         return '<' + this.instanceof + " instance>";

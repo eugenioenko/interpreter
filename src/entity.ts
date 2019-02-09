@@ -52,11 +52,11 @@ export class CallableEntity extends PrototypeEntity {
     constructor() {
         super();
 
-        const invokeCall = new InternalEntity();
-        invokeCall.call = (int, thiz, args) => thiz.call(int, args[0], args.slice(1));
-        invokeCall.toString = () => '<internal invoke function>';
-        invokeCall.arity = () => -1;
-        this.prototype.values.set('invoke', invokeCall);
+        const invokeMethod = new InternalEntity();
+        invokeMethod.call = (int, thiz, args) => thiz.call(int, args[0], args.slice(1));
+        invokeMethod.toString = () => '<internal invoke function>';
+        invokeMethod.arity = () => -1;
+        this.prototype.values.set('invoke', invokeMethod);
     }
 
     public arity(): number {
@@ -78,6 +78,13 @@ export class FunctionEntity extends CallableEntity {
         super();
         this.declaration = declaration;
         this.closure = closure;
+
+        const extendsMethod = new InternalEntity();
+        extendsMethod.call = (int, thiz, args) =>
+            this.properties = new Map([...args[0].properties, ...this.properties]);
+        extendsMethod.toString = () => '<internal extend function>';
+        extendsMethod.arity = () => 1;
+        this.prototype.values.set('extends', extendsMethod);
     }
 
     public toString(): string {
@@ -113,6 +120,13 @@ export class InstanceEntity extends CallableEntity {
         this.instanceof = construct.declaration.name.lexeme;
         this.properties = new Map();
         this.prototype = new Prototype(construct.properties, construct.prototype, this);
+
+        const inheritMethod = new InternalEntity();
+        inheritMethod.call = (int, thiz, args) =>
+            this.prototype.values = new Map([...args[0].properties, ...this.prototype.values]);
+        inheritMethod.toString = () => '<internal inheritance function>';
+        inheritMethod.arity = () => 1;
+        this.prototype.values.set('inherits', inheritMethod);
     }
 
     public toString(): string {
