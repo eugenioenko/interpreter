@@ -19,15 +19,16 @@ export class PrototypeEntity {
         this.properties = new Map();
 
         const hasOwnProperty = new InternalEntity();
-        hasOwnProperty.call = (int, thiz, args) => this.properties.has(args[1]);
+        hasOwnProperty.call = (int, thiz, args) => {
+            return this.properties.has(args[0])};
         hasOwnProperty.toString = () => 'hasOwnProperty';
-        hasOwnProperty.arity = () => 2;
+        hasOwnProperty.arity = () => 1;
         this.prototype.values.set('hasOwnProperty', hasOwnProperty);
 
         const lengthProperty = new InternalEntity();
         lengthProperty.call = (int, thiz, args) => this.properties.size;
         lengthProperty.toString = () => 'lengthProperty';
-        lengthProperty.arity = () => 1;
+        lengthProperty.arity = () => 0;
         this.prototype.values.set('length', lengthProperty);
     }
 
@@ -65,15 +66,13 @@ export class CallableEntity extends PrototypeEntity {
 }
 
 export class FunctionEntity extends CallableEntity {
-    public name: string;
-    private declaration: Stmt.Func;
+    public declaration: Stmt.Func;
     private closure: Scope;
 
     constructor(declaration: Stmt.Func, closure: Scope) {
         super();
         this.declaration = declaration;
         this.closure = closure;
-        this.name = this.declaration.name.lexeme;
     }
 
     public toString(): string {
@@ -106,21 +105,9 @@ export class InstanceEntity extends CallableEntity {
     private instanceof: string;
     constructor(construct: FunctionEntity) {
         super();
-        this.instanceof = construct.name;
+        this.instanceof = construct.declaration.name.lexeme;
         this.properties = new Map();
         this.prototype = new Prototype(construct.properties, construct.prototype, this);
-    }
-
-    public get(key: string): any {
-        if (this.properties.has(key)) {
-            return this.properties.get(key);
-        }
-        return this.prototype.get(key);
-        throw new Error(`${this.instanceof} does not have ${key}`);
-    }
-
-    public set(key: string, value: any) {
-        this.prototype.set(key, value);
     }
 
     public toString(): string {

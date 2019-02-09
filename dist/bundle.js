@@ -153,64 +153,7 @@ class Console {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DemoSourceCode", function() { return DemoSourceCode; });
-const DemoSourceCode = `// Recursive function
-function factorialize(n) {
-    if (n < 0) {
-        return -1;
-    }
-    if (n == 0) {
-        return 1;
-    }
-    return (n * factorialize(n - 1));
-}
-print factorialize(5);
-
-// Prototype objects
-function MyClass(text) {
-    this.text = text;
-}
-
-MyClass.method = function(text) {
-    this.text = this.text + text;
-};
-
-MyClass.count = function(times) {
-    function nested(num) {
-        return num * num;
-    }
-    for (let i = 0; i < times; ++i) {
-        print nested(i);
-    }
-};
-
-var instance = new MyClass('Hello ');
-instance.method('World');
-instance.count(3);
-print instance.text;
-
-// string length operator '$'
-print "the length of hellow world is: " + $"hello world";
-print  $"hello" === 6 ? 'hello is 5 character length' : 'it is not';
-
-// while loop and ternary operator
-let i = 0;
-while (i <= 4) {
-    print i % 2 ? 'odd' : 'even';
-    i = i + 1;
-}
-
-// literals
-var literal = {
-    firstname: "John",
-    lastname: "Doe",
-    records: {
-        prev: "previous",
-        next: "next"
-    }
-};
-
-print literal.records.prev;
-`;
+const DemoSourceCode = ``;
 
 
 /***/ }),
@@ -246,14 +189,16 @@ class PrototypeEntity {
         this.prototype = new _prototype__WEBPACK_IMPORTED_MODULE_2__["Prototype"](null, null, this);
         this.properties = new Map();
         const hasOwnProperty = new InternalEntity();
-        hasOwnProperty.call = (int, thiz, args) => this.properties.has(args[1]);
+        hasOwnProperty.call = (int, thiz, args) => {
+            return this.properties.has(args[0]);
+        };
         hasOwnProperty.toString = () => 'hasOwnProperty';
-        hasOwnProperty.arity = () => 2;
+        hasOwnProperty.arity = () => 1;
         this.prototype.values.set('hasOwnProperty', hasOwnProperty);
         const lengthProperty = new InternalEntity();
         lengthProperty.call = (int, thiz, args) => this.properties.size;
         lengthProperty.toString = () => 'lengthProperty';
-        lengthProperty.arity = () => 1;
+        lengthProperty.arity = () => 0;
         this.prototype.values.set('length', lengthProperty);
     }
     get(key) {
@@ -286,7 +231,6 @@ class FunctionEntity extends CallableEntity {
         super();
         this.declaration = declaration;
         this.closure = closure;
-        this.name = this.declaration.name.lexeme;
     }
     toString() {
         return '<' + this.declaration.name.lexeme + ' function>';
@@ -314,19 +258,9 @@ class FunctionEntity extends CallableEntity {
 class InstanceEntity extends CallableEntity {
     constructor(construct) {
         super();
-        this.instanceof = construct.name;
+        this.instanceof = construct.declaration.name.lexeme;
         this.properties = new Map();
         this.prototype = new _prototype__WEBPACK_IMPORTED_MODULE_2__["Prototype"](construct.properties, construct.prototype, this);
-    }
-    get(key) {
-        if (this.properties.has(key)) {
-            return this.properties.get(key);
-        }
-        return this.prototype.get(key);
-        throw new Error(`${this.instanceof} does not have ${key}`);
-    }
-    set(key, value) {
-        this.prototype.set(key, value);
     }
     toString() {
         return '<' + this.instanceof + " instance>";
