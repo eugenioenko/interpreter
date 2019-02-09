@@ -19,8 +19,7 @@ export class PrototypeEntity {
         this.properties = new Map();
 
         const hasOwnProperty = new InternalEntity();
-        hasOwnProperty.call = (int, thiz, args) => {
-            return this.properties.has(args[0])};
+        hasOwnProperty.call = (int, thiz, args) => { return this.properties.has(args[0])};
         hasOwnProperty.toString = () => 'hasOwnProperty';
         hasOwnProperty.arity = () => 1;
         this.prototype.values.set('hasOwnProperty', hasOwnProperty);
@@ -52,6 +51,12 @@ export class CallableEntity extends PrototypeEntity {
 
     constructor() {
         super();
+
+        const invokeCall = new InternalEntity();
+        invokeCall.call = (int, thiz, args) => thiz.call(int, args[0], args.slice(1));
+        invokeCall.toString = () => '<internal invoke function>';
+        invokeCall.arity = () => -1;
+        this.prototype.values.set('invoke', invokeCall);
     }
 
     public arity(): number {

@@ -216,7 +216,7 @@ export class Interpreter implements
             throw new Error();
         }
         const func = callee as CallableEntity;
-        if (args.length !== func.arity()) {
+        if (args.length !== func.arity() && func.arity() !== -1) {
             conzole.warn(`Warning at (${expr.paren.line}): ${callee} mismatched argument length; \n Expected ${func.arity()} but got ${args.length} `);
         }
         return func.call(this, thiz, args);

@@ -238,9 +238,7 @@ class PrototypeEntity {
         this.prototype = new _prototype__WEBPACK_IMPORTED_MODULE_2__["Prototype"](null, null, this);
         this.properties = new Map();
         const hasOwnProperty = new InternalEntity();
-        hasOwnProperty.call = (int, thiz, args) => {
-            return this.properties.has(args[0]);
-        };
+        hasOwnProperty.call = (int, thiz, args) => { return this.properties.has(args[0]); };
         hasOwnProperty.toString = () => 'hasOwnProperty';
         hasOwnProperty.arity = () => 1;
         this.prototype.values.set('hasOwnProperty', hasOwnProperty);
@@ -266,6 +264,11 @@ class PrototypeEntity {
 class CallableEntity extends PrototypeEntity {
     constructor() {
         super();
+        const invokeCall = new InternalEntity();
+        invokeCall.call = (int, thiz, args) => thiz.call(int, args[0], args.slice(1));
+        invokeCall.toString = () => '<internal invoke function>';
+        invokeCall.arity = () => -1;
+        this.prototype.values.set('invoke', invokeCall);
     }
     arity() {
         return 0;
@@ -806,7 +809,7 @@ class Interpreter {
             throw new Error();
         }
         const func = callee;
-        if (args.length !== func.arity()) {
+        if (args.length !== func.arity() && func.arity() !== -1) {
             conzole.warn(`Warning at (${expr.paren.line}): ${callee} mismatched argument length; \n Expected ${func.arity()} but got ${args.length} `);
         }
         return func.call(this, thiz, args);
