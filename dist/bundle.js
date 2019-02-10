@@ -266,6 +266,7 @@ class PrototypeEntity {
         this.properties = new Map();
         this.prototype.values.set('hasOwnProperty', _runtime__WEBPACK_IMPORTED_MODULE_3__["hasOwnProperty"](this));
         this.prototype.values.set('size', _runtime__WEBPACK_IMPORTED_MODULE_3__["lengthProperty"]);
+        this.prototype.values.set('inherit', _runtime__WEBPACK_IMPORTED_MODULE_3__["inheritMethod"](this));
     }
     get(key) {
         if (this.properties.has(key)) {
@@ -330,7 +331,6 @@ class InstanceEntity extends CallableEntity {
         this.instanceof = construct.declaration.name.lexeme;
         this.properties = new Map();
         this.prototype = new _prototype__WEBPACK_IMPORTED_MODULE_2__["Prototype"](construct.properties, construct.prototype, this);
-        this.prototype.values.set('inherit', _runtime__WEBPACK_IMPORTED_MODULE_3__["inheritMethod"](this));
     }
     toString() {
         return '<' + this.instanceof + " instance>";

@@ -20,6 +20,7 @@ export class PrototypeEntity {
         this.properties = new Map();
         this.prototype.values.set('hasOwnProperty', Runtime.hasOwnProperty(this));
         this.prototype.values.set('size', Runtime.lengthProperty);
+        this.prototype.values.set('inherit', Runtime.inheritMethod(this));
     }
 
     public get(key: string): any {
@@ -101,7 +102,6 @@ export class InstanceEntity extends CallableEntity {
         this.instanceof = construct.declaration.name.lexeme;
         this.properties = new Map();
         this.prototype = new Prototype(construct.properties, construct.prototype, this);
-        this.prototype.values.set('inherit', Runtime.inheritMethod(this));
     }
 
     public toString(): string {
