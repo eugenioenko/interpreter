@@ -1,5 +1,5 @@
 
-##  @script (atScript)
+##  @script (at-script)
 This is a work in progress of an interpreter writen in typescript of  a scripting language which shares some similarities with javascript.
 
 ### > [Try it out in playground!](https://eugenioenko.github.io/interpreter/)
@@ -49,6 +49,12 @@ While *var* definition lets you override a variable, *let* will throw an error.
     func name(alfa, beta) {
        return alfa + beta;
     }
+    @ name(alfa, beta) {
+       return alfa + beta;
+    }
+    @name(alfa, beta) {
+       return alfa + beta;
+    }
     let name = function(alfa, beta) {
        return alfa + beta;
     }
@@ -56,7 +62,7 @@ While *var* definition lets you override a variable, *let* will throw an error.
        return alfa + beta;
     }
 
-#### Immediately-invoked Function Expression (IIFE):
+#### immediately-invoked function expression (IIFE):
 
     (function (alfa, beta) {
        return alfa + beta;
@@ -69,7 +75,7 @@ While *var* definition lets you override a variable, *let* will throw an error.
 ### prototype functions and inheritance
 
     @MyClass(arg) {
-    	this.arg = arg;
+       this.arg = arg;
     }
     MyClass.method = @(){
        print this.arg;
@@ -96,7 +102,7 @@ If MyClass is executed as a function without *new*, *this* will be null.
         // todo: child method statements
     };
 *invoke* method will call the function and pass the desired this as argument. This way *this* can be manipulated  for each method or function.
-In escence this two would be equivalent:
+In essence this two would be equivalent:
 
     @MyClass() {
         this.name = 'name';
