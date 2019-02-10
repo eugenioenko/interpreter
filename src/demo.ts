@@ -1,19 +1,19 @@
 export const DemoSourceCode =
 `// multiple inheritance
 
-function Blade() {
+@Blade() {
     this.sharpness = "very sharp";
 }
-Blade.cut = func() {
+Blade.cut = @() {
     print "cutting..." + this.sharpness;
 };
-function Handle() {
+@Handle() {
     this.color = "wood";
 }
-Handle.hold = func() {
+Handle.hold = @() {
     print "holding..." + this.color;
 };
-function Knife() {
+@Knife() {
     Blade.invoke(this);
     Handle.invoke(this);
 }
@@ -36,14 +36,14 @@ function factorialize(n) {
 }
 print factorialize(5);
 // Prototype objects
-function MyClass(text) {
+@MyClass(text) {
     this.text = text;
 }
-MyClass.method = function (text) {
+MyClass.method = @(text) {
     this.text = this.text + text;
 };
-MyClass.count = function (times) {
-    function nested(num) {
+MyClass.count = @(times) {
+    @nested(num) {
         return num * num;
     }
     for (let i = 0; i < times; ++i) {

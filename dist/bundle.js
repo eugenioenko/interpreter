@@ -155,19 +155,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DemoSourceCode", function() { return DemoSourceCode; });
 const DemoSourceCode = `// multiple inheritance
 
-function Blade() {
+@Blade() {
     this.sharpness = "very sharp";
 }
-Blade.cut = func() {
+Blade.cut = @() {
     print "cutting..." + this.sharpness;
 };
-function Handle() {
+@Handle() {
     this.color = "wood";
 }
-Handle.hold = func() {
+Handle.hold = @() {
     print "holding..." + this.color;
 };
-function Knife() {
+@Knife() {
     Blade.invoke(this);
     Handle.invoke(this);
 }
@@ -190,14 +190,14 @@ function factorialize(n) {
 }
 print factorialize(5);
 // Prototype objects
-function MyClass(text) {
+@MyClass(text) {
     this.text = text;
 }
-MyClass.method = function (text) {
+MyClass.method = @(text) {
     this.text = this.text + text;
 };
-MyClass.count = function (times) {
-    function nested(num) {
+MyClass.count = @(times) {
+    @nested(num) {
         return num * num;
     }
     for (let i = 0; i < times; ++i) {
@@ -992,7 +992,7 @@ class Parser {
             if (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].class)) {
                 return this.classDeclaration();
             }
-            if (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].function, _token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].func)) {
+            if (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].function)) {
                 return this.funcDeclaration("function");
             }
             if (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].var, _token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].let)) {
@@ -1323,7 +1323,7 @@ class Parser {
         if (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].leftBrace)) {
             return this.entity();
         }
-        if (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].func, _token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].function)) {
+        if (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].function)) {
             const token = new _token__WEBPACK_IMPORTED_MODULE_0__["Token"]('lambda', 'lambda', 'lambda', this.previous().line);
             const lambda = this.funcArgsBody(token, "lambda");
             return new _expression__WEBPACK_IMPORTED_MODULE_1__["Lambda"](lambda);
@@ -1601,7 +1601,8 @@ class Scanner {
         while (isAlphaNumeric(this.peek())) {
             this.advance();
         }
-        const value = this.source.substring(this.start, this.current);
+        let value = this.source.substring(this.start, this.current);
+        value = value === 'func' ? 'function' : value;
         if (isKeyword(value)) {
             this.addToken(value, null);
         }
@@ -1665,6 +1666,9 @@ class Scanner {
             case '$':
                 this.addToken('dollar', null);
                 break;
+            case '@':
+                this.addToken('function', null);
+                break;
             case '-':
                 this.addToken(this.match('-') ? 'minusMinus' : 'minus', null);
                 break;
@@ -1684,7 +1688,20 @@ class Scanner {
                 this.addToken(this.match('=') ? this.match('=') ? 'bangEqualEqual' : 'bangEqual' : 'bang', null);
                 break;
             case '=':
-                this.addToken(this.match('=') ? this.match('=') ? 'equalEqualEqual' : 'equalEqual' : 'equal', null);
+                if (this.match('=')) {
+                    if (this.match('=')) {
+                        this.addToken('equalEqualEqual', null);
+                    }
+                    else {
+                        this.addToken('equalEqual', null);
+                    }
+                }
+                else if (this.match('>')) {
+                    this.addToken('arrow', null);
+                }
+                else {
+                    this.addToken('equal', null);
+                }
                 break;
             case '/':
                 if (this.match('/')) {
@@ -1982,48 +1999,50 @@ var TokenType;
     TokenType[TokenType["caret"] = 15] = "caret";
     TokenType[TokenType["percent"] = 16] = "percent";
     TokenType[TokenType["dollar"] = 17] = "dollar";
+    TokenType[TokenType["atSign"] = 18] = "atSign";
     // one or two character tokens
-    TokenType[TokenType["minus"] = 18] = "minus";
-    TokenType[TokenType["minusMinus"] = 19] = "minusMinus";
-    TokenType[TokenType["plus"] = 20] = "plus";
-    TokenType[TokenType["plusPlus"] = 21] = "plusPlus";
-    TokenType[TokenType["bang"] = 22] = "bang";
-    TokenType[TokenType["bangEqual"] = 23] = "bangEqual";
-    TokenType[TokenType["equal"] = 24] = "equal";
-    TokenType[TokenType["equalEqual"] = 25] = "equalEqual";
-    TokenType[TokenType["greater"] = 26] = "greater";
-    TokenType[TokenType["greaterEqual"] = 27] = "greaterEqual";
-    TokenType[TokenType["less"] = 28] = "less";
-    TokenType[TokenType["lessEqual"] = 29] = "lessEqual";
-    TokenType[TokenType["colon"] = 30] = "colon";
-    TokenType[TokenType["question"] = 31] = "question";
+    TokenType[TokenType["minus"] = 19] = "minus";
+    TokenType[TokenType["minusMinus"] = 20] = "minusMinus";
+    TokenType[TokenType["plus"] = 21] = "plus";
+    TokenType[TokenType["plusPlus"] = 22] = "plusPlus";
+    TokenType[TokenType["bang"] = 23] = "bang";
+    TokenType[TokenType["bangEqual"] = 24] = "bangEqual";
+    TokenType[TokenType["equal"] = 25] = "equal";
+    TokenType[TokenType["equalEqual"] = 26] = "equalEqual";
+    TokenType[TokenType["greater"] = 27] = "greater";
+    TokenType[TokenType["greaterEqual"] = 28] = "greaterEqual";
+    TokenType[TokenType["less"] = 29] = "less";
+    TokenType[TokenType["lessEqual"] = 30] = "lessEqual";
+    TokenType[TokenType["colon"] = 31] = "colon";
+    TokenType[TokenType["question"] = 32] = "question";
+    TokenType[TokenType["arrow"] = 33] = "arrow";
     // three character tokens
-    TokenType[TokenType["bangEqualEqual"] = 32] = "bangEqualEqual";
-    TokenType[TokenType["equalEqualEqual"] = 33] = "equalEqualEqual";
+    TokenType[TokenType["bangEqualEqual"] = 34] = "bangEqualEqual";
+    TokenType[TokenType["equalEqualEqual"] = 35] = "equalEqualEqual";
     // literals
-    TokenType[TokenType["identifier"] = 34] = "identifier";
-    TokenType[TokenType["string"] = 35] = "string";
-    TokenType[TokenType["number"] = 36] = "number";
+    TokenType[TokenType["identifier"] = 36] = "identifier";
+    TokenType[TokenType["string"] = 37] = "string";
+    TokenType[TokenType["number"] = 38] = "number";
     // keywords
-    TokenType[TokenType["and"] = 37] = "and";
-    TokenType[TokenType["class"] = 38] = "class";
-    TokenType[TokenType["do"] = 39] = "do";
-    TokenType[TokenType["else"] = 40] = "else";
-    TokenType[TokenType["false"] = 41] = "false";
-    TokenType[TokenType["function"] = 42] = "function";
-    TokenType[TokenType["func"] = 43] = "func";
-    TokenType[TokenType["for"] = 44] = "for";
-    TokenType[TokenType["if"] = 45] = "if";
-    TokenType[TokenType["new"] = 46] = "new";
-    TokenType[TokenType["null"] = 47] = "null";
-    TokenType[TokenType["or"] = 48] = "or";
-    TokenType[TokenType["print"] = 49] = "print";
-    TokenType[TokenType["return"] = 50] = "return";
-    TokenType[TokenType["super"] = 51] = "super";
-    TokenType[TokenType["true"] = 52] = "true";
-    TokenType[TokenType["var"] = 53] = "var";
-    TokenType[TokenType["let"] = 54] = "let";
-    TokenType[TokenType["while"] = 55] = "while";
+    TokenType[TokenType["and"] = 39] = "and";
+    TokenType[TokenType["class"] = 40] = "class";
+    TokenType[TokenType["do"] = 41] = "do";
+    TokenType[TokenType["else"] = 42] = "else";
+    TokenType[TokenType["false"] = 43] = "false";
+    TokenType[TokenType["function"] = 44] = "function";
+    TokenType[TokenType["func"] = 45] = "func";
+    TokenType[TokenType["for"] = 46] = "for";
+    TokenType[TokenType["if"] = 47] = "if";
+    TokenType[TokenType["new"] = 48] = "new";
+    TokenType[TokenType["null"] = 49] = "null";
+    TokenType[TokenType["or"] = 50] = "or";
+    TokenType[TokenType["print"] = 51] = "print";
+    TokenType[TokenType["return"] = 52] = "return";
+    TokenType[TokenType["super"] = 53] = "super";
+    TokenType[TokenType["true"] = 54] = "true";
+    TokenType[TokenType["var"] = 55] = "var";
+    TokenType[TokenType["let"] = 56] = "let";
+    TokenType[TokenType["while"] = 57] = "while";
 })(TokenType || (TokenType = {}));
 class Token {
     constructor(name, lexeme, literal, line) {

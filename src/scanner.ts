@@ -116,8 +116,8 @@ export class Scanner {
             this.advance();
         }
 
-        const value = this.source.substring(this.start, this.current);
-
+        let value = this.source.substring(this.start, this.current);
+        value = value === 'func' ? 'function' : value;
         if (isKeyword(value)) {
             this.addToken(value, null);
         } else {
@@ -153,13 +153,26 @@ export class Scanner {
             case ':': this.addToken('colon', null); break;
             case '%': this.addToken('percent', null); break;
             case '$': this.addToken('dollar', null); break;
+            case '@': this.addToken('function', null); break;
             case '-': this.addToken(this.match('-') ? 'minusMinus' : 'minus', null); break;
             case '+': this.addToken(this.match('+') ? 'plusPlus' : 'plus', null); break;
             case '|': this.addToken(this.match('|') ? 'or' : 'pipe', null); break;
             case '<': this.addToken(this.match('=') ? 'lessEqual' : 'less', null); break;
             case '>': this.addToken(this.match('=') ? 'greaterEqual' : 'greater', null); break;
             case '!': this.addToken(this.match('=') ? this.match('=') ? 'bangEqualEqual' : 'bangEqual' : 'bang', null); break;
-            case '=': this.addToken(this.match('=') ? this.match('=') ? 'equalEqualEqual' : 'equalEqual' : 'equal', null); break;
+            case '=':
+                if (this.match('=')) {
+                    if (this.match('=')) {
+                        this.addToken('equalEqualEqual', null);
+                    } else {
+                        this.addToken('equalEqual', null);
+                    }
+                } else if (this.match('>')) {
+                    this.addToken('arrow', null);
+                } else {
+                    this.addToken('equal', null);
+                }
+                break;
             case '/':
                 if (this.match('/')) {
                     this.comment();
