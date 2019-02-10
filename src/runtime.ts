@@ -1,4 +1,5 @@
-import { InternalEntity } from "./entity";
+import { InternalEntity, FunctionEntity } from "./entity";
+import { Prototype } from "./prototype";
 
 export function hasOwnProperty(that: any): InternalEntity {
     const func = new InternalEntity();
@@ -31,6 +32,21 @@ export function mergeMethod(that: any): InternalEntity {
         that.properties = args[1] ?
             new Map([...that.properties, ...args[0].properties]) :
             new Map([...args[0].properties, ...that.properties]);
+    };
+    func.toString = () => '<internal merge function>';
+    func.arity = () => -1;
+    return func;
+}
+
+export function extendMethod(that: any): InternalEntity {
+    const func = new InternalEntity();
+    func.call = (int, thiz, args) => {
+        const proto = new Prototype(
+            that.properties,
+            new Prototype(args[0].properties, args[0].prototype, thiz),
+            thiz
+        );
+        that.prototype = proto;
     };
     func.toString = () => '<internal merge function>';
     func.arity = () => -1;

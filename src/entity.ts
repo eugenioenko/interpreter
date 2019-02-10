@@ -65,6 +65,7 @@ export class FunctionEntity extends CallableEntity {
         this.declaration = declaration;
         this.closure = closure;
         this.prototype.values.set('merge', Runtime.mergeMethod(this));
+        this.prototype.values.set('extend', Runtime.extendMethod(this));
     }
 
     public toString(): string {

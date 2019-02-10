@@ -299,6 +299,7 @@ class FunctionEntity extends CallableEntity {
         this.declaration = declaration;
         this.closure = closure;
         this.prototype.values.set('merge', _runtime__WEBPACK_IMPORTED_MODULE_3__["mergeMethod"](this));
+        this.prototype.values.set('extend', _runtime__WEBPACK_IMPORTED_MODULE_3__["extendMethod"](this));
     }
     toString() {
         return '<' + this.declaration.name.lexeme + ' function>';
@@ -329,7 +330,7 @@ class InstanceEntity extends CallableEntity {
         this.instanceof = construct.declaration.name.lexeme;
         this.properties = new Map();
         this.prototype = new _prototype__WEBPACK_IMPORTED_MODULE_2__["Prototype"](construct.properties, construct.prototype, this);
-        this.prototype.values.set('inherits', _runtime__WEBPACK_IMPORTED_MODULE_3__["inheritMethod"](this));
+        this.prototype.values.set('inherit', _runtime__WEBPACK_IMPORTED_MODULE_3__["inheritMethod"](this));
     }
     toString() {
         return '<' + this.instanceof + " instance>";
@@ -1412,7 +1413,7 @@ class Return extends Error {
 /*!************************!*\
   !*** ./src/runtime.ts ***!
   \************************/
-/*! exports provided: hasOwnProperty, lengthProperty, invokeMethod, mergeMethod, inheritMethod, echoFunction, randFunction */
+/*! exports provided: hasOwnProperty, lengthProperty, invokeMethod, mergeMethod, extendMethod, inheritMethod, echoFunction, randFunction */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1421,10 +1422,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "lengthProperty", function() { return lengthProperty; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "invokeMethod", function() { return invokeMethod; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "mergeMethod", function() { return mergeMethod; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "extendMethod", function() { return extendMethod; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "inheritMethod", function() { return inheritMethod; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "echoFunction", function() { return echoFunction; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "randFunction", function() { return randFunction; });
 /* harmony import */ var _entity__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./entity */ "./src/entity.ts");
+/* harmony import */ var _prototype__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./prototype */ "./src/prototype.ts");
+
 
 function hasOwnProperty(that) {
     const func = new _entity__WEBPACK_IMPORTED_MODULE_0__["InternalEntity"]();
@@ -1455,6 +1459,16 @@ function mergeMethod(that) {
         that.properties = args[1] ?
             new Map([...that.properties, ...args[0].properties]) :
             new Map([...args[0].properties, ...that.properties]);
+    };
+    func.toString = () => '<internal merge function>';
+    func.arity = () => -1;
+    return func;
+}
+function extendMethod(that) {
+    const func = new _entity__WEBPACK_IMPORTED_MODULE_0__["InternalEntity"]();
+    func.call = (int, thiz, args) => {
+        const proto = new _prototype__WEBPACK_IMPORTED_MODULE_1__["Prototype"](that.properties, new _prototype__WEBPACK_IMPORTED_MODULE_1__["Prototype"](args[0].properties, args[0].prototype, thiz), thiz);
+        that.prototype = proto;
     };
     func.toString = () => '<internal merge function>';
     func.arity = () => -1;
