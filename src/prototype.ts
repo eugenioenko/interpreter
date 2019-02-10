@@ -4,11 +4,11 @@ declare var conzole: Console;
 export class Prototype {
 
     public values: Map<string, any>;
-    private parent: Prototype;
+    private prototype: Prototype;
     private owner: object;
     constructor(values: Map<string, any>, parent: Prototype = null, owner: object) {
         this.values = new Map(values);
-        this.parent = parent;
+        this.prototype = parent;
         this.owner = owner;
     }
 
@@ -20,8 +20,8 @@ export class Prototype {
         if (this.values.has(key)) {
             return this.values.get(key);
         }
-        if (this.parent !== null ) {
-            return this.parent.get(key);
+        if (this.prototype !== null ) {
+            return this.prototype.get(key);
         }
         conzole.error(`${key} is not defined in ${this.owner}`);
     }

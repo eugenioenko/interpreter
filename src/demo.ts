@@ -17,8 +17,8 @@ function Knife() {
     Blade.invoke(this);
     Handle.invoke(this);
 }
-Knife.extends(Blade);
-Knife.extends(Handle);
+Knife.merge(Blade);
+Knife.merge(Handle);
 let knife = new Knife();
 knife.cut();
 knife.hold();

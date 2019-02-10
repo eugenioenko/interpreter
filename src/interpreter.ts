@@ -5,6 +5,7 @@ import { Console } from './console';
 import { Return } from './return';
 import { Scope } from './scope';
 import { TokenType } from './token';
+import * as Runtime from './runtime';
 declare var conzole: Console;
 
 export class Interpreter implements
@@ -14,19 +15,8 @@ export class Interpreter implements
     private scope = this.global;
 
     constructor( ) {
-        const rand = new CallableEntity();
-        rand.call = () => Math.random();
-        rand.toString = () => '<native function>';
-        this.global.define('rand', rand);
-
-        const echo = new InternalEntity();
-        echo.arity = () => 1;
-        echo.toString = () => '<native function>';
-        echo.call = (interpreter, thiz, args) => console.log(args[0]);
-        this.global.define('echo', echo);
-
-        this.global.define('months', ["Jan", "Feb", "Mar", "Apr"]);
-
+        this.global.define('echo', Runtime.echoFunction());
+        this.global.define('rand', Runtime.randFunction());
     }
 
     private evaluate(expr: Expr.Expr): any {

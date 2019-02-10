@@ -171,8 +171,8 @@ function Knife() {
     Blade.invoke(this);
     Handle.invoke(this);
 }
-Knife.extends(Blade);
-Knife.extends(Handle);
+Knife.merge(Blade);
+Knife.merge(Handle);
 let knife = new Knife();
 knife.cut();
 knife.hold();
@@ -250,6 +250,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _scope__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./scope */ "./src/scope.ts");
 /* harmony import */ var _return__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./return */ "./src/return.ts");
 /* harmony import */ var _prototype__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./prototype */ "./src/prototype.ts");
+/* harmony import */ var _runtime__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./runtime */ "./src/runtime.ts");
+
 
 
 
@@ -262,16 +264,8 @@ class PrototypeEntity {
     constructor() {
         this.prototype = new _prototype__WEBPACK_IMPORTED_MODULE_2__["Prototype"](null, null, this);
         this.properties = new Map();
-        const hasOwnProperty = new InternalEntity();
-        hasOwnProperty.call = (int, thiz, args) => { return this.properties.has(args[0]); };
-        hasOwnProperty.toString = () => 'hasOwnProperty';
-        hasOwnProperty.arity = () => 1;
-        this.prototype.values.set('hasOwnProperty', hasOwnProperty);
-        const lengthProperty = new InternalEntity();
-        lengthProperty.call = (int, thiz, args) => this.properties.size;
-        lengthProperty.toString = () => 'lengthProperty';
-        lengthProperty.arity = () => 0;
-        this.prototype.values.set('length', lengthProperty);
+        this.prototype.values.set('hasOwnProperty', _runtime__WEBPACK_IMPORTED_MODULE_3__["hasOwnProperty"](this));
+        this.prototype.values.set('size', _runtime__WEBPACK_IMPORTED_MODULE_3__["lengthProperty"]);
     }
     get(key) {
         if (this.properties.has(key)) {
@@ -289,11 +283,7 @@ class PrototypeEntity {
 class CallableEntity extends PrototypeEntity {
     constructor() {
         super();
-        const invokeMethod = new InternalEntity();
-        invokeMethod.call = (int, thiz, args) => thiz.call(int, args[0], args.slice(1));
-        invokeMethod.toString = () => '<internal invoke function>';
-        invokeMethod.arity = () => -1;
-        this.prototype.values.set('invoke', invokeMethod);
+        this.prototype.values.set('invoke', _runtime__WEBPACK_IMPORTED_MODULE_3__["invokeMethod"](this));
     }
     arity() {
         return 0;
@@ -308,11 +298,7 @@ class FunctionEntity extends CallableEntity {
         super();
         this.declaration = declaration;
         this.closure = closure;
-        const extendsMethod = new InternalEntity();
-        extendsMethod.call = (int, thiz, args) => this.properties = new Map([...args[0].properties, ...this.properties]);
-        extendsMethod.toString = () => '<internal extend function>';
-        extendsMethod.arity = () => 1;
-        this.prototype.values.set('extends', extendsMethod);
+        this.prototype.values.set('merge', _runtime__WEBPACK_IMPORTED_MODULE_3__["mergeMethod"](this));
     }
     toString() {
         return '<' + this.declaration.name.lexeme + ' function>';
@@ -343,11 +329,7 @@ class InstanceEntity extends CallableEntity {
         this.instanceof = construct.declaration.name.lexeme;
         this.properties = new Map();
         this.prototype = new _prototype__WEBPACK_IMPORTED_MODULE_2__["Prototype"](construct.properties, construct.prototype, this);
-        const inheritMethod = new InternalEntity();
-        inheritMethod.call = (int, thiz, args) => this.prototype.values = new Map([...args[0].properties, ...this.prototype.values]);
-        inheritMethod.toString = () => '<internal inheritance function>';
-        inheritMethod.arity = () => 1;
-        this.prototype.values.set('inherits', inheritMethod);
+        this.prototype.values.set('inherits', _runtime__WEBPACK_IMPORTED_MODULE_3__["inheritMethod"](this));
     }
     toString() {
         return '<' + this.instanceof + " instance>";
@@ -655,6 +637,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _return__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./return */ "./src/return.ts");
 /* harmony import */ var _scope__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./scope */ "./src/scope.ts");
 /* harmony import */ var _token__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./token */ "./src/token.ts");
+/* harmony import */ var _runtime__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./runtime */ "./src/runtime.ts");
+
 
 
 
@@ -664,16 +648,8 @@ class Interpreter {
     constructor() {
         this.global = new _scope__WEBPACK_IMPORTED_MODULE_3__["Scope"]();
         this.scope = this.global;
-        const rand = new _entity__WEBPACK_IMPORTED_MODULE_1__["CallableEntity"]();
-        rand.call = () => Math.random();
-        rand.toString = () => '<native function>';
-        this.global.define('rand', rand);
-        const echo = new _entity__WEBPACK_IMPORTED_MODULE_1__["InternalEntity"]();
-        echo.arity = () => 1;
-        echo.toString = () => '<native function>';
-        echo.call = (interpreter, thiz, args) => console.log(args[0]);
-        this.global.define('echo', echo);
-        this.global.define('months', ["Jan", "Feb", "Mar", "Apr"]);
+        this.global.define('echo', _runtime__WEBPACK_IMPORTED_MODULE_5__["echoFunction"]());
+        this.global.define('rand', _runtime__WEBPACK_IMPORTED_MODULE_5__["randFunction"]());
     }
     evaluate(expr) {
         return expr.accept(this);
@@ -1392,7 +1368,7 @@ __webpack_require__.r(__webpack_exports__);
 class Prototype {
     constructor(values, parent = null, owner) {
         this.values = new Map(values);
-        this.parent = parent;
+        this.prototype = parent;
         this.owner = owner;
     }
     set(name, value) {
@@ -1402,8 +1378,8 @@ class Prototype {
         if (this.values.has(key)) {
             return this.values.get(key);
         }
-        if (this.parent !== null) {
-            return this.parent.get(key);
+        if (this.prototype !== null) {
+            return this.prototype.get(key);
         }
         conzole.error(`${key} is not defined in ${this.owner}`);
     }
@@ -1427,6 +1403,85 @@ class Return extends Error {
         super();
         this.value = value;
     }
+}
+
+
+/***/ }),
+
+/***/ "./src/runtime.ts":
+/*!************************!*\
+  !*** ./src/runtime.ts ***!
+  \************************/
+/*! exports provided: hasOwnProperty, lengthProperty, invokeMethod, mergeMethod, inheritMethod, echoFunction, randFunction */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "hasOwnProperty", function() { return hasOwnProperty; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "lengthProperty", function() { return lengthProperty; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "invokeMethod", function() { return invokeMethod; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "mergeMethod", function() { return mergeMethod; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "inheritMethod", function() { return inheritMethod; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "echoFunction", function() { return echoFunction; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "randFunction", function() { return randFunction; });
+/* harmony import */ var _entity__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./entity */ "./src/entity.ts");
+
+function hasOwnProperty(that) {
+    const func = new _entity__WEBPACK_IMPORTED_MODULE_0__["InternalEntity"]();
+    func.toString = () => '<internal function hasOwnProperty>';
+    func.arity = () => 1;
+    func.call = (int, thiz, args) => thiz.properties.has(args[0]);
+    return func;
+}
+;
+function lengthProperty(that) {
+    const func = new _entity__WEBPACK_IMPORTED_MODULE_0__["InternalEntity"]();
+    func.toString = () => '<internal function size>';
+    func.arity = () => 0;
+    func.call = (int, thiz, args) => thiz.properties.size;
+    return func;
+}
+function invokeMethod(that) {
+    const func = new _entity__WEBPACK_IMPORTED_MODULE_0__["InternalEntity"]();
+    func.toString = () => '<internal function invoke>';
+    func.arity = () => -1;
+    func.call = (int, thiz, args) => thiz.call(int, args[0], args.slice(1));
+    return func;
+}
+function mergeMethod(that) {
+    const func = new _entity__WEBPACK_IMPORTED_MODULE_0__["InternalEntity"]();
+    /** merge(Parent, override=false) */
+    func.call = (int, thiz, args) => {
+        that.properties = args[1] ?
+            new Map([...that.properties, ...args[0].properties]) :
+            new Map([...args[0].properties, ...that.properties]);
+    };
+    func.toString = () => '<internal merge function>';
+    func.arity = () => -1;
+    return func;
+}
+function inheritMethod(that) {
+    const func = new _entity__WEBPACK_IMPORTED_MODULE_0__["InternalEntity"]();
+    func.call = (int, thiz, args) => {
+        that.prototype.values = new Map([...args[0].properties, ...that.prototype.values]);
+    };
+    func.toString = () => '<internal inheritance function>';
+    func.arity = () => 1;
+    return func;
+}
+function echoFunction() {
+    const func = new _entity__WEBPACK_IMPORTED_MODULE_0__["InternalEntity"]();
+    func.arity = () => 1;
+    func.toString = () => '<native function>';
+    func.call = (interpreter, thiz, args) => console.log(args[0]);
+    return func;
+}
+function randFunction() {
+    const func = new _entity__WEBPACK_IMPORTED_MODULE_0__["InternalEntity"]();
+    func.arity = () => 0;
+    func.call = () => Math.random();
+    func.toString = () => '<native function>';
+    return func;
 }
 
 
