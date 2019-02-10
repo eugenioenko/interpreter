@@ -20,6 +20,7 @@ export enum TokenType {
     caret,
     percent,
     dollar,
+    atSign,
 
     // one or two character tokens
     minus,
@@ -36,6 +37,7 @@ export enum TokenType {
     lessEqual,
     colon,
     question,
+    arrow,
 
     // three character tokens
     bangEqualEqual,

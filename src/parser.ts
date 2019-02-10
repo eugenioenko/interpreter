@@ -102,7 +102,7 @@ export class Parser {
             if (this.match(TokenType.class)) {
                 return this.classDeclaration();
             }
-            if (this.match(TokenType.function, TokenType.func)) {
+            if (this.match(TokenType.function)) {
                 return this.funcDeclaration("function");
             }
             if (this.match(TokenType.var, TokenType.let)) {
@@ -480,7 +480,7 @@ export class Parser {
             return this.entity();
         }
 
-        if (this.match(TokenType.func, TokenType.function)) {
+        if (this.match(TokenType.function)) {
             const token: Token = new Token('lambda', 'lambda', 'lambda', this.previous().line);
             const lambda: Stmt.Func = this.funcArgsBody(token, "lambda");
             return new Expr.Lambda(lambda);
