@@ -153,8 +153,7 @@ class Console {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DemoSourceCode", function() { return DemoSourceCode; });
-const DemoSourceCode = `// multiple inheritance
-
+const DemoSourceCode = `// shallow multiple inheritance
 @Blade() {
     this.sharpness = "very sharp";
 }
@@ -176,7 +175,6 @@ Knife.merge(Handle);
 let knife = new Knife();
 knife.cut();
 knife.hold();
-
 
 // Recursive function
 function factorialize(n) {
@@ -208,9 +206,7 @@ var instance = new MyClass('Hello ');
 instance.method('World');
 instance.count(3);
 print instance.text;
-// string length operator '$'
-print "the length of hellow world is: " + $"hello world";
-print  $"hello" === 6 ? 'hello is 5 character length' : 'it is not';
+
 // while loop and ternary operator
 let i = 0;
 while (i <= 4) {
