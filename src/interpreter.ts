@@ -47,7 +47,10 @@ export class Interpreter implements
         if (stmt.initializer !== null) {
             value = this.evaluate(stmt.initializer);
         }
-
+        if (value instanceof FunctionEntity && value.name === "lambda") {
+            value.name = stmt.name.lexeme;
+            value.prototype.set('name', value.name);
+        }
         if (stmt.type.type === TokenType.var)  {
             this.scope.set(stmt.name.lexeme, value);
         } else {

@@ -297,9 +297,11 @@ class FunctionEntity extends CallableEntity {
         this.closure = closure;
         this.prototype.values.set('merge', _runtime__WEBPACK_IMPORTED_MODULE_3__["mergeMethod"](this));
         this.prototype.values.set('extend', _runtime__WEBPACK_IMPORTED_MODULE_3__["extendMethod"](this));
+        this.name = this.declaration.name.lexeme;
+        this.prototype.values.set('name', this.name);
     }
     toString() {
-        return '<' + this.declaration.name.lexeme + ' function>';
+        return `<${this.name}  function>`;
     }
     arity() {
         return this.declaration.params.length;
@@ -670,6 +672,10 @@ class Interpreter {
         let value = null;
         if (stmt.initializer !== null) {
             value = this.evaluate(stmt.initializer);
+        }
+        if (value instanceof _entity__WEBPACK_IMPORTED_MODULE_1__["FunctionEntity"] && value.name === "lambda") {
+            value.name = stmt.name.lexeme;
+            value.prototype.set('name', value.name);
         }
         if (stmt.type.type === _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].var) {
             this.scope.set(stmt.name.lexeme, value);

@@ -59,6 +59,7 @@ export class CallableEntity extends PrototypeEntity {
 
 export class FunctionEntity extends CallableEntity {
     public declaration: Stmt.Func;
+    public name: string;
     private closure: Scope;
 
     constructor(declaration: Stmt.Func, closure: Scope) {
@@ -67,10 +68,12 @@ export class FunctionEntity extends CallableEntity {
         this.closure = closure;
         this.prototype.values.set('merge', Runtime.mergeMethod(this));
         this.prototype.values.set('extend', Runtime.extendMethod(this));
+        this.name = this.declaration.name.lexeme;
+        this.prototype.values.set('name', this.name);
     }
 
     public toString(): string {
-        return '<' + this.declaration.name.lexeme + ' function>';
+        return `<${this.name}  function>`;
     }
 
     public arity(): number {
