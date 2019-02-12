@@ -1,11 +1,12 @@
 import * as Expr from './expression';
 import * as Stmt from './statement';
-import { FunctionEntity, CallableEntity, ClassPrototype, InternalEntity, InstanceEntity, PrototypeEntity } from './entity';
+import { FunctionEntity, CallableEntity, InternalEntity, InstanceEntity, PrototypeEntity } from './entity';
 import { Console } from './console';
 import { Return } from './return';
 import { Scope } from './scope';
 import { TokenType } from './token';
 import * as Runtime from './runtime';
+import { Prototype } from './prototype';
 declare var conzole: Console;
 
 export class Interpreter implements
@@ -234,13 +235,6 @@ export class Interpreter implements
         return entity;
     }
 
-    public visitClassStmt(stmt: Stmt.Class): any {
-        this.scope.define(stmt.name.lexeme, null);
-        const classDef = new ClassPrototype(stmt.name.lexeme, stmt.methods);
-        this.scope.set(stmt.name.lexeme, classDef);
-        return null;
-    }
-
     public visitKeyExpr(expr: Expr.Key): string {
         return expr.name.lexeme;
     }
@@ -270,6 +264,31 @@ export class Interpreter implements
     public visitFuncStmt(stmt: Stmt.Func): any {
         const func: FunctionEntity = new FunctionEntity(stmt, this.scope);
         this.scope.define(stmt.name.lexeme, func);
+        return null;
+    }
+
+    public visitClassStmt(stmt: Stmt.Class): any {
+        let construct = stmt.methods.find(method => method.name.lexeme === "constructor");
+        const methods = stmt.methods.filter(method => method.name.lexeme !== "constructor");
+
+        if (!construct) {
+            construct = new Stmt.Func(stmt.name, [], []);
+        } else {
+            construct.name = stmt.name;
+        }
+
+        const func: FunctionEntity = new FunctionEntity(construct, this.scope);
+        if (stmt.parent) {
+            const parent = this.scope.get(stmt.parent);
+            if (parent) {
+                func.prototype = new Prototype(parent.properties, parent.prototype, func);
+            }
+        }
+        for (let method of methods) {
+            func.properties.set(method.name.lexeme, new FunctionEntity(method, this.scope));
+        }
+
+        this.scope.set(stmt.name.lexeme, func);
         return null;
     }
 

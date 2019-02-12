@@ -51,6 +51,7 @@ export enum TokenType {
     // keywords
     and,
     class,
+    extends,
     do,
     else,
     false,

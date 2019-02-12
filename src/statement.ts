@@ -96,11 +96,13 @@ export class Func extends Stmt {
 }
 export class Class extends Stmt {
     public name: Token;
+    public parent: Token;
     public methods: Func[];
 
-    constructor(name: Token, methods: Func[]) {
+    constructor(name: Token, parent: Token, methods: Func[]) {
         super();
         this.name = name;
+        this.parent = parent;
         this.methods = methods;
     }
 

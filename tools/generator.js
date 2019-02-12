@@ -23,7 +23,7 @@ const StatementAST = {
     Expression : ['expression: Expr'],
     If: ['condition: Expr', 'thenStmt: Stmt', 'elseStmt: Stmt'],
     Func: ['name: Token', 'params: Token[]', 'body: Stmt[]'],
-    Class: ['name: Token', 'methods: Func[]'],
+    Class: ['name: Token', 'parent: Token', 'methods: Func[]'],
     Return: ['keyword: Token', 'value: Expr'],
     While: ['condition: Expr', 'loop: Stmt'],
     DoWhile: ['loop: Stmt', 'condition: Expr'],

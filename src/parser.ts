@@ -119,6 +119,10 @@ export class Parser {
 
     private classDeclaration(): Stmt.Class {
         const name: Token = this.consume(TokenType.identifier, `Expected a class name`);
+        let parent: Token = null;
+        if (this.match(TokenType.extends)) {
+            parent  = this.consume(TokenType.identifier, `Expected a parent name`);
+        }
         this.consume(TokenType.leftBrace, `Expected "{" after class name`);
         const methods: Stmt.Func[] = [];
 
@@ -127,7 +131,7 @@ export class Parser {
         }
 
         this.consume(TokenType.rightBrace, `Expected "}" after class "${name.literal}" methods`);
-        return new Stmt.Class(name, methods);
+        return new Stmt.Class(name, parent, methods);
     }
 
     private funcDeclaration(kind: string): Stmt.Func {

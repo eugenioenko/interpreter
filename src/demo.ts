@@ -1,5 +1,6 @@
 export const DemoSourceCode =
-`// shallow multiple inheritance
+`
+// shallow multiple inheritance
 @Blade() {
     this.sharpness = "very sharp";
 }

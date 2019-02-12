@@ -153,7 +153,8 @@ class Console {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DemoSourceCode", function() { return DemoSourceCode; });
-const DemoSourceCode = `// shallow multiple inheritance
+const DemoSourceCode = `
+// shallow multiple inheritance
 @Blade() {
     this.sharpness = "very sharp";
 }
@@ -232,7 +233,7 @@ print literal.records.prev;
 /*!***********************!*\
   !*** ./src/entity.ts ***!
   \***********************/
-/*! exports provided: InternalEntity, PrototypeEntity, CallableEntity, FunctionEntity, InstanceEntity, ClassPrototype */
+/*! exports provided: InternalEntity, PrototypeEntity, CallableEntity, FunctionEntity, InstanceEntity */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -242,7 +243,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "CallableEntity", function() { return CallableEntity; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FunctionEntity", function() { return FunctionEntity; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "InstanceEntity", function() { return InstanceEntity; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ClassPrototype", function() { return ClassPrototype; });
 /* harmony import */ var _scope__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./scope */ "./src/scope.ts");
 /* harmony import */ var _return__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./return */ "./src/return.ts");
 /* harmony import */ var _prototype__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./prototype */ "./src/prototype.ts");
@@ -332,26 +332,6 @@ class InstanceEntity extends CallableEntity {
     }
     toString() {
         return '<' + this.instanceof + " instance>";
-    }
-}
-class ClassPrototype extends CallableEntity {
-    constructor(name, methods) {
-        super();
-        this.name = name;
-        this.prototype = new _prototype__WEBPACK_IMPORTED_MODULE_2__["Prototype"](null, null, this);
-        for (const method of methods) {
-            this.prototype.set(method.name.lexeme, method);
-        }
-    }
-    arity() {
-        return 0;
-    }
-    call(interpreter, args) {
-        const instance = new InstanceEntity(null);
-        return instance;
-    }
-    toString() {
-        return '<' + this.name + ' class>';
     }
 }
 
@@ -632,11 +612,15 @@ window.execute = (source) => {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Interpreter", function() { return Interpreter; });
 /* harmony import */ var _expression__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./expression */ "./src/expression.ts");
-/* harmony import */ var _entity__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./entity */ "./src/entity.ts");
-/* harmony import */ var _return__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./return */ "./src/return.ts");
-/* harmony import */ var _scope__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./scope */ "./src/scope.ts");
-/* harmony import */ var _token__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./token */ "./src/token.ts");
-/* harmony import */ var _runtime__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./runtime */ "./src/runtime.ts");
+/* harmony import */ var _statement__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./statement */ "./src/statement.ts");
+/* harmony import */ var _entity__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./entity */ "./src/entity.ts");
+/* harmony import */ var _return__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./return */ "./src/return.ts");
+/* harmony import */ var _scope__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./scope */ "./src/scope.ts");
+/* harmony import */ var _token__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./token */ "./src/token.ts");
+/* harmony import */ var _runtime__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./runtime */ "./src/runtime.ts");
+/* harmony import */ var _prototype__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./prototype */ "./src/prototype.ts");
+
+
 
 
 
@@ -645,10 +629,10 @@ __webpack_require__.r(__webpack_exports__);
 
 class Interpreter {
     constructor() {
-        this.global = new _scope__WEBPACK_IMPORTED_MODULE_3__["Scope"]();
+        this.global = new _scope__WEBPACK_IMPORTED_MODULE_4__["Scope"]();
         this.scope = this.global;
-        this.global.define('echo', _runtime__WEBPACK_IMPORTED_MODULE_5__["echoFunction"]());
-        this.global.define('rand', _runtime__WEBPACK_IMPORTED_MODULE_5__["randFunction"]());
+        this.global.define('echo', _runtime__WEBPACK_IMPORTED_MODULE_6__["echoFunction"]());
+        this.global.define('rand', _runtime__WEBPACK_IMPORTED_MODULE_6__["randFunction"]());
     }
     evaluate(expr) {
         return expr.accept(this);
@@ -673,11 +657,11 @@ class Interpreter {
         if (stmt.initializer !== null) {
             value = this.evaluate(stmt.initializer);
         }
-        if (value instanceof _entity__WEBPACK_IMPORTED_MODULE_1__["FunctionEntity"] && value.name === "lambda") {
+        if (value instanceof _entity__WEBPACK_IMPORTED_MODULE_2__["FunctionEntity"] && value.name === "lambda") {
             value.name = stmt.name.lexeme;
             value.prototype.set('name', value.name);
         }
-        if (stmt.type.type === _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].var) {
+        if (stmt.type.type === _token__WEBPACK_IMPORTED_MODULE_5__["TokenType"].var) {
             this.scope.set(stmt.name.lexeme, value);
         }
         else {
@@ -702,42 +686,42 @@ class Interpreter {
         const left = this.evaluate(expr.left);
         const right = this.evaluate(expr.right);
         switch (expr.operator.type) {
-            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].minus:
+            case _token__WEBPACK_IMPORTED_MODULE_5__["TokenType"].minus:
                 return left - right;
-            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].slash:
+            case _token__WEBPACK_IMPORTED_MODULE_5__["TokenType"].slash:
                 return left / right;
-            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].star:
+            case _token__WEBPACK_IMPORTED_MODULE_5__["TokenType"].star:
                 return left * right;
-            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].percent:
+            case _token__WEBPACK_IMPORTED_MODULE_5__["TokenType"].percent:
                 return left % right;
-            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].plus:
+            case _token__WEBPACK_IMPORTED_MODULE_5__["TokenType"].plus:
                 if (typeof left === 'number' && typeof right === 'number') {
                     return (left + right);
                 }
                 else {
                     return left + right;
                 }
-            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].pipe:
+            case _token__WEBPACK_IMPORTED_MODULE_5__["TokenType"].pipe:
                 return left | right;
-            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].caret:
+            case _token__WEBPACK_IMPORTED_MODULE_5__["TokenType"].caret:
                 return left ^ right;
-            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].greater:
+            case _token__WEBPACK_IMPORTED_MODULE_5__["TokenType"].greater:
                 return left > right;
-            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].greaterEqual:
+            case _token__WEBPACK_IMPORTED_MODULE_5__["TokenType"].greaterEqual:
                 return left >= right;
-            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].less:
+            case _token__WEBPACK_IMPORTED_MODULE_5__["TokenType"].less:
                 return left < right;
-            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].lessEqual:
+            case _token__WEBPACK_IMPORTED_MODULE_5__["TokenType"].lessEqual:
                 return left <= right;
-            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].equalEqual:
+            case _token__WEBPACK_IMPORTED_MODULE_5__["TokenType"].equalEqual:
                 // tslint:disable-next-line
                 return left == right;
-            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].equalEqualEqual:
+            case _token__WEBPACK_IMPORTED_MODULE_5__["TokenType"].equalEqualEqual:
                 return left === right;
-            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].bangEqual:
+            case _token__WEBPACK_IMPORTED_MODULE_5__["TokenType"].bangEqual:
                 // tslint:disable-next-line
                 return left != right;
-            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].bangEqualEqual:
+            case _token__WEBPACK_IMPORTED_MODULE_5__["TokenType"].bangEqualEqual:
                 return left !== right;
             default:
                 conzole.warn(expr);
@@ -757,17 +741,17 @@ class Interpreter {
     visitUnaryExpr(expr) {
         const right = this.evaluate(expr.right);
         switch (expr.operator.type) {
-            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].minus:
+            case _token__WEBPACK_IMPORTED_MODULE_5__["TokenType"].minus:
                 return -Number(right);
-            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].bang:
+            case _token__WEBPACK_IMPORTED_MODULE_5__["TokenType"].bang:
                 return !Boolean(right);
-            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].dollar:
+            case _token__WEBPACK_IMPORTED_MODULE_5__["TokenType"].dollar:
                 return right.length;
-            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].plusPlus:
+            case _token__WEBPACK_IMPORTED_MODULE_5__["TokenType"].plusPlus:
                 const incValue = Number(right) + 1;
                 this.scope.assign(expr.right.name.lexeme, incValue);
                 return incValue;
-            case _token__WEBPACK_IMPORTED_MODULE_4__["TokenType"].minusMinus:
+            case _token__WEBPACK_IMPORTED_MODULE_5__["TokenType"].minusMinus:
                 const decValue = Number(right) - 1;
                 this.scope.assign(expr.right.name.lexeme, decValue);
                 return decValue;
@@ -784,7 +768,7 @@ class Interpreter {
         this.scope = currentScope;
     }
     visitBlockStmt(stmt) {
-        this.executeBlock(stmt.statements, new _scope__WEBPACK_IMPORTED_MODULE_3__["Scope"](this.scope));
+        this.executeBlock(stmt.statements, new _scope__WEBPACK_IMPORTED_MODULE_4__["Scope"](this.scope));
     }
     visitIfStmt(stmt) {
         if (this.evaluate(stmt.condition)) {
@@ -817,8 +801,8 @@ class Interpreter {
         for (const argument of expr.args) {
             args.push(this.evaluate(argument));
         }
-        if (!(callee instanceof _entity__WEBPACK_IMPORTED_MODULE_1__["CallableEntity"]) &&
-            !(callee instanceof _entity__WEBPACK_IMPORTED_MODULE_1__["InternalEntity"])) {
+        if (!(callee instanceof _entity__WEBPACK_IMPORTED_MODULE_2__["CallableEntity"]) &&
+            !(callee instanceof _entity__WEBPACK_IMPORTED_MODULE_2__["InternalEntity"])) {
             conzole.error(`${callee} is not a function`);
             throw new Error();
         }
@@ -831,13 +815,13 @@ class Interpreter {
     visitNewExpr(expr) {
         const construct = expr.construct;
         const callee = this.evaluate(construct.callee);
-        const newInstance = new _entity__WEBPACK_IMPORTED_MODULE_1__["InstanceEntity"](callee);
+        const newInstance = new _entity__WEBPACK_IMPORTED_MODULE_2__["InstanceEntity"](callee);
         construct.thiz = newInstance;
         this.evaluate(construct);
         return newInstance;
     }
     visitEntityExpr(expr) {
-        const entity = new _entity__WEBPACK_IMPORTED_MODULE_1__["PrototypeEntity"]();
+        const entity = new _entity__WEBPACK_IMPORTED_MODULE_2__["PrototypeEntity"]();
         for (const property of expr.properties) {
             const key = this.evaluate(property.key);
             const value = this.evaluate(property.value);
@@ -845,19 +829,13 @@ class Interpreter {
         }
         return entity;
     }
-    visitClassStmt(stmt) {
-        this.scope.define(stmt.name.lexeme, null);
-        const classDef = new _entity__WEBPACK_IMPORTED_MODULE_1__["ClassPrototype"](stmt.name.lexeme, stmt.methods);
-        this.scope.set(stmt.name.lexeme, classDef);
-        return null;
-    }
     visitKeyExpr(expr) {
         return expr.name.lexeme;
     }
     visitGetExpr(expr) {
         const entity = this.evaluate(expr.entity);
         const key = this.evaluate(expr.key);
-        if (entity instanceof _entity__WEBPACK_IMPORTED_MODULE_1__["PrototypeEntity"]) {
+        if (entity instanceof _entity__WEBPACK_IMPORTED_MODULE_2__["PrototypeEntity"]) {
             return entity.get(key);
         }
         conzole.error(`${entity}.${key}: only instances have properties`);
@@ -875,13 +853,35 @@ class Interpreter {
         return value;
     }
     visitFuncStmt(stmt) {
-        const func = new _entity__WEBPACK_IMPORTED_MODULE_1__["FunctionEntity"](stmt, this.scope);
+        const func = new _entity__WEBPACK_IMPORTED_MODULE_2__["FunctionEntity"](stmt, this.scope);
         this.scope.define(stmt.name.lexeme, func);
+        return null;
+    }
+    visitClassStmt(stmt) {
+        let construct = stmt.methods.find(method => method.name.lexeme === "constructor");
+        const methods = stmt.methods.filter(method => method.name.lexeme !== "constructor");
+        if (!construct) {
+            construct = new _statement__WEBPACK_IMPORTED_MODULE_1__["Func"](stmt.name, [], []);
+        }
+        else {
+            construct.name = stmt.name;
+        }
+        const func = new _entity__WEBPACK_IMPORTED_MODULE_2__["FunctionEntity"](construct, this.scope);
+        if (stmt.parent) {
+            const parent = this.scope.get(stmt.parent);
+            if (parent) {
+                func.prototype = new _prototype__WEBPACK_IMPORTED_MODULE_7__["Prototype"](parent.properties, parent.prototype, func);
+            }
+        }
+        for (let method of methods) {
+            func.properties.set(method.name.lexeme, new _entity__WEBPACK_IMPORTED_MODULE_2__["FunctionEntity"](method, this.scope));
+        }
+        this.scope.set(stmt.name.lexeme, func);
         return null;
     }
     visitLambdaExpr(expr) {
         const lambda = expr.lambda;
-        const func = new _entity__WEBPACK_IMPORTED_MODULE_1__["FunctionEntity"](lambda, this.scope);
+        const func = new _entity__WEBPACK_IMPORTED_MODULE_2__["FunctionEntity"](lambda, this.scope);
         return func;
     }
     visitReturnStmt(stmt) {
@@ -889,7 +889,7 @@ class Interpreter {
         if (stmt.value) {
             value = this.evaluate(stmt.value);
         }
-        throw new _return__WEBPACK_IMPORTED_MODULE_2__["Return"](value);
+        throw new _return__WEBPACK_IMPORTED_MODULE_3__["Return"](value);
     }
 }
 
@@ -1011,13 +1011,17 @@ class Parser {
     }
     classDeclaration() {
         const name = this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].identifier, `Expected a class name`);
+        let parent = null;
+        if (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].extends)) {
+            parent = this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].identifier, `Expected a parent name`);
+        }
         this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].leftBrace, `Expected "{" after class name`);
         const methods = [];
         while (!this.check(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].rightBrace) && !this.eof()) {
             methods.push(this.funcDeclaration("method"));
         }
         this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].rightBrace, `Expected "}" after class "${name.literal}" methods`);
-        return new _statement__WEBPACK_IMPORTED_MODULE_2__["Class"](name, methods);
+        return new _statement__WEBPACK_IMPORTED_MODULE_2__["Class"](name, parent, methods);
     }
     funcDeclaration(kind) {
         const name = this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].identifier, `Expected a ${kind} name`);
@@ -1887,9 +1891,10 @@ class Func extends Stmt {
     }
 }
 class Class extends Stmt {
-    constructor(name, methods) {
+    constructor(name, parent, methods) {
         super();
         this.name = name;
+        this.parent = parent;
         this.methods = methods;
     }
     accept(visitor) {
@@ -2028,23 +2033,24 @@ var TokenType;
     // keywords
     TokenType[TokenType["and"] = 39] = "and";
     TokenType[TokenType["class"] = 40] = "class";
-    TokenType[TokenType["do"] = 41] = "do";
-    TokenType[TokenType["else"] = 42] = "else";
-    TokenType[TokenType["false"] = 43] = "false";
-    TokenType[TokenType["function"] = 44] = "function";
-    TokenType[TokenType["func"] = 45] = "func";
-    TokenType[TokenType["for"] = 46] = "for";
-    TokenType[TokenType["if"] = 47] = "if";
-    TokenType[TokenType["new"] = 48] = "new";
-    TokenType[TokenType["null"] = 49] = "null";
-    TokenType[TokenType["or"] = 50] = "or";
-    TokenType[TokenType["print"] = 51] = "print";
-    TokenType[TokenType["return"] = 52] = "return";
-    TokenType[TokenType["super"] = 53] = "super";
-    TokenType[TokenType["true"] = 54] = "true";
-    TokenType[TokenType["var"] = 55] = "var";
-    TokenType[TokenType["let"] = 56] = "let";
-    TokenType[TokenType["while"] = 57] = "while";
+    TokenType[TokenType["extends"] = 41] = "extends";
+    TokenType[TokenType["do"] = 42] = "do";
+    TokenType[TokenType["else"] = 43] = "else";
+    TokenType[TokenType["false"] = 44] = "false";
+    TokenType[TokenType["function"] = 45] = "function";
+    TokenType[TokenType["func"] = 46] = "func";
+    TokenType[TokenType["for"] = 47] = "for";
+    TokenType[TokenType["if"] = 48] = "if";
+    TokenType[TokenType["new"] = 49] = "new";
+    TokenType[TokenType["null"] = 50] = "null";
+    TokenType[TokenType["or"] = 51] = "or";
+    TokenType[TokenType["print"] = 52] = "print";
+    TokenType[TokenType["return"] = 53] = "return";
+    TokenType[TokenType["super"] = 54] = "super";
+    TokenType[TokenType["true"] = 55] = "true";
+    TokenType[TokenType["var"] = 56] = "var";
+    TokenType[TokenType["let"] = 57] = "let";
+    TokenType[TokenType["while"] = 58] = "while";
 })(TokenType || (TokenType = {}));
 class Token {
     constructor(name, lexeme, literal, line) {

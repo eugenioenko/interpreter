@@ -115,6 +115,22 @@ In essence this two would be equivalent:
     print myClassA.name;
     print myClassB.name;
 
+### sugar-coated classes and inheritance
+
+    class MyParent {
+        constructor(alfa) {
+            this.something = 'anything' + alfa;
+        }
+    }
+    class MyClass extends MyParent {
+        constructor(){
+            // pending super keyword
+            MyParent.invoke(this, 'nothing');
+        }
+    }
+    let c = new MyClass();
+    print c.something;
+
  ### utility functions
      echo(variable); // outputs variable in javascript console
      rand(); // returns a random number

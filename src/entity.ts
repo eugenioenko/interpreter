@@ -111,32 +111,3 @@ export class InstanceEntity extends CallableEntity {
         return '<' + this.instanceof + " instance>";
     }
 }
-
-export class ClassPrototype  extends CallableEntity {
-
-    public name: string;
-    public prototype: Prototype;
-
-    constructor(name: string, methods: Stmt.Func[]) {
-        super();
-        this.name = name;
-        this.prototype = new Prototype(null, null, this);
-        for (const method of methods) {
-            this.prototype.set(method.name.lexeme, method);
-        }
-    }
-
-    public arity(): number {
-        return 0;
-    }
-
-    public call(interpreter: Interpreter, args: any[]): any {
-        const instance: InstanceEntity  = new InstanceEntity(null);
-        return instance;
-    }
-
-    public toString(): string {
-        return '<' + this.name + ' class>';
-    }
-
-}
