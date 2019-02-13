@@ -124,8 +124,7 @@ In essence this two would be equivalent:
     }
     class MyClass extends MyParent {
         constructor(){
-            // pending super keyword
-            MyParent.invoke(this, 'nothing');
+            super('nothing');
         }
     }
     let c = new MyClass();

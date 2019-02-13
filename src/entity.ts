@@ -61,8 +61,9 @@ export class FunctionEntity extends CallableEntity {
     public declaration: Stmt.Func;
     public name: string;
     private closure: Scope;
+    public parent: FunctionEntity;
 
-    constructor(declaration: Stmt.Func, closure: Scope) {
+    constructor(declaration: Stmt.Func, closure: Scope, parent: FunctionEntity = null) {
         super();
         this.declaration = declaration;
         this.closure = closure;
@@ -70,6 +71,7 @@ export class FunctionEntity extends CallableEntity {
         this.prototype.values.set('extend', Runtime.extendMethod(this));
         this.name = this.declaration.name.lexeme;
         this.prototype.values.set('name', this.name);
+        this.parent = parent;
     }
 
     public toString(): string {
@@ -86,6 +88,9 @@ export class FunctionEntity extends CallableEntity {
             scope.define(this.declaration.params[i].lexeme, args[i]);
         }
         scope.set('this', thiz);
+        if (this.parent) {
+            scope.set('super', Runtime.superCall(this, thiz));
+        }
         try {
             interpreter.executeBlock(this.declaration.body, scope);
         } catch (e) {
@@ -93,7 +98,7 @@ export class FunctionEntity extends CallableEntity {
                 return e.value;
             }
         }
-        return undefined;
+        return null;
     }
 
 }
