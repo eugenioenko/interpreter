@@ -59,11 +59,11 @@ function generateAST(baseClass, AST, filename, imports = '') {
         file += '    }\n'
         file += `
     public accept<R>(visitor: ${baseClass}Visitor<R>): R {
-      return visitor.visit${name}${baseClass}(this);
+        return visitor.visit${name}${baseClass}(this);
     }\n`;
         file += `
     public toString(): string {
-      return '${baseClass}.${name}';
+        return '${baseClass}.${name}';
     }\n`;
         file += '}\n'
     });

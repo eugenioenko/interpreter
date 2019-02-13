@@ -291,7 +291,7 @@ class CallableEntity extends PrototypeEntity {
     }
 }
 class FunctionEntity extends CallableEntity {
-    constructor(declaration, closure) {
+    constructor(declaration, closure, parent = null) {
         super();
         this.declaration = declaration;
         this.closure = closure;
@@ -299,6 +299,7 @@ class FunctionEntity extends CallableEntity {
         this.prototype.values.set('extend', _runtime__WEBPACK_IMPORTED_MODULE_3__["extendMethod"](this));
         this.name = this.declaration.name.lexeme;
         this.prototype.values.set('name', this.name);
+        this.parent = parent;
     }
     toString() {
         return `<${this.name}  function>`;
@@ -312,6 +313,9 @@ class FunctionEntity extends CallableEntity {
             scope.define(this.declaration.params[i].lexeme, args[i]);
         }
         scope.set('this', thiz);
+        if (this.parent) {
+            scope.set('super', _runtime__WEBPACK_IMPORTED_MODULE_3__["superCall"](this, thiz));
+        }
         try {
             interpreter.executeBlock(this.declaration.body, scope);
         }
@@ -320,7 +324,7 @@ class FunctionEntity extends CallableEntity {
                 return e.value;
             }
         }
-        return undefined;
+        return null;
     }
 }
 class InstanceEntity extends CallableEntity {
@@ -585,16 +589,6 @@ __webpack_require__.r(__webpack_exports__);
 window.conzole = new _console__WEBPACK_IMPORTED_MODULE_3__["Console"]();
 window.demoSourceCode = _demo__WEBPACK_IMPORTED_MODULE_4__["DemoSourceCode"];
 window.execute = (source) => {
-    /*
-    const consoleInstance = new Console();
-    const scanner = new Scanner(source);
-    const printer = new TreePrinter();
-    const tokens = scanner.scanTokens();
-    const parser = new Parser(tokens);
-    const intererpreter = new Interpreter(consoleInstance);
-    const statements = parser.parse();
-    intererpreter.interpet(statements);
-    */
     return (new _interpreter__WEBPACK_IMPORTED_MODULE_2__["Interpreter"]().interpet((new _parser__WEBPACK_IMPORTED_MODULE_1__["Parser"]((new _scanner__WEBPACK_IMPORTED_MODULE_0__["Scanner"](source)).scan())).parse()));
 };
 
@@ -844,8 +838,7 @@ class Interpreter {
     visitSetExpr(expr) {
         const entity = this.evaluate(expr.entity);
         const key = this.evaluate(expr.key);
-        // TODO: check type of entity properly: CallableObject/Prototype
-        if (typeof entity.set === "undefined") {
+        if (!(entity instanceof _entity__WEBPACK_IMPORTED_MODULE_2__["PrototypeEntity"])) {
             conzole.warn(`${entity} is not a runtime Object`);
         }
         const value = this.evaluate(expr.value);
@@ -867,14 +860,16 @@ class Interpreter {
             construct.name = stmt.name;
         }
         const func = new _entity__WEBPACK_IMPORTED_MODULE_2__["FunctionEntity"](construct, this.scope);
+        let parent = null;
         if (stmt.parent) {
-            const parent = this.scope.get(stmt.parent);
+            parent = this.scope.get(stmt.parent);
             if (parent) {
+                func.parent = parent;
                 func.prototype = new _prototype__WEBPACK_IMPORTED_MODULE_7__["Prototype"](parent.properties, parent.prototype, func);
             }
         }
         for (let method of methods) {
-            func.properties.set(method.name.lexeme, new _entity__WEBPACK_IMPORTED_MODULE_2__["FunctionEntity"](method, this.scope));
+            func.properties.set(method.name.lexeme, new _entity__WEBPACK_IMPORTED_MODULE_2__["FunctionEntity"](method, this.scope, parent));
         }
         this.scope.set(stmt.name.lexeme, func);
         return null;
@@ -885,7 +880,7 @@ class Interpreter {
         return func;
     }
     visitReturnStmt(stmt) {
-        let value = undefined;
+        let value = null;
         if (stmt.value) {
             value = this.evaluate(stmt.value);
         }
@@ -1151,7 +1146,7 @@ class Parser {
     }
     returnStatement() {
         const keyword = this.previous();
-        let value = undefined;
+        let value = null;
         if (!this.check(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].semicolon)) {
             value = this.expression();
         }
@@ -1419,7 +1414,7 @@ class Return extends Error {
 /*!************************!*\
   !*** ./src/runtime.ts ***!
   \************************/
-/*! exports provided: hasOwnProperty, lengthProperty, invokeMethod, mergeMethod, extendMethod, inheritMethod, echoFunction, randFunction */
+/*! exports provided: hasOwnProperty, lengthProperty, invokeMethod, superCall, mergeMethod, extendMethod, inheritMethod, echoFunction, randFunction */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1427,6 +1422,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "hasOwnProperty", function() { return hasOwnProperty; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "lengthProperty", function() { return lengthProperty; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "invokeMethod", function() { return invokeMethod; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "superCall", function() { return superCall; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "mergeMethod", function() { return mergeMethod; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "extendMethod", function() { return extendMethod; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "inheritMethod", function() { return inheritMethod; });
@@ -1456,6 +1452,13 @@ function invokeMethod(that) {
     func.toString = () => '<internal function invoke>';
     func.arity = () => -1;
     func.call = (int, thiz, args) => thiz.call(int, args[0], args.slice(1));
+    return func;
+}
+function superCall(that, instance) {
+    const func = new _entity__WEBPACK_IMPORTED_MODULE_0__["InternalEntity"]();
+    func.arity = () => that.parent.arity();
+    func.toString = () => '<native super function>';
+    func.call = (int, thiz, args) => that.parent.call(int, instance, args);
     return func;
 }
 function mergeMethod(that) {
@@ -1772,7 +1775,7 @@ class Scope {
     }
     define(name, value) {
         if (this.values.has(name)) {
-            conzole.error(`identifier "${name}" has already been declared`);
+            conzole.error(`identifier "${name}" has already been defined`);
         }
         else {
             this.set(name, value);
@@ -1786,7 +1789,7 @@ class Scope {
             if (this.parent !== null) {
                 return this.parent.assign(name, value);
             }
-            conzole.error(`Identifier "${name}" has not been declared`);
+            conzole.error(`Identifier "${name}" has not been defined`);
         }
     }
     get(name) {
@@ -1795,17 +1798,6 @@ class Scope {
         }
         if (this.parent !== null) {
             return this.parent.get(name);
-        }
-        else {
-            // this is global scope
-            /**
-             * TODO: reconsider this
-             * its injecting javascript global scope into application
-             */
-            if (typeof window[name.lexeme] !== 'undefined') {
-                this.values.set(name.lexeme, window[name.lexeme]);
-                return this.values.get(name.lexeme);
-            }
         }
         conzole.error(`Error at (${name.line}): ${name.lexeme} is not defined`);
     }
@@ -2046,11 +2038,10 @@ var TokenType;
     TokenType[TokenType["or"] = 51] = "or";
     TokenType[TokenType["print"] = 52] = "print";
     TokenType[TokenType["return"] = 53] = "return";
-    TokenType[TokenType["super"] = 54] = "super";
-    TokenType[TokenType["true"] = 55] = "true";
-    TokenType[TokenType["var"] = 56] = "var";
-    TokenType[TokenType["let"] = 57] = "let";
-    TokenType[TokenType["while"] = 58] = "while";
+    TokenType[TokenType["true"] = 54] = "true";
+    TokenType[TokenType["var"] = 55] = "var";
+    TokenType[TokenType["let"] = 56] = "let";
+    TokenType[TokenType["while"] = 57] = "while";
 })(TokenType || (TokenType = {}));
 class Token {
     constructor(name, lexeme, literal, line) {

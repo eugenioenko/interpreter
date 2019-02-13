@@ -252,8 +252,7 @@ export class Interpreter implements
     public visitSetExpr(expr: Expr.Set): void {
         const entity = this.evaluate(expr.entity);
         const key = this.evaluate(expr.key);
-        // TODO: check type of entity properly: CallableObject/Prototype
-        if (typeof entity.set === "undefined") {
+        if (!(entity instanceof PrototypeEntity)) {
             conzole.warn(`${entity} is not a runtime Object`);
         }
         const value = this.evaluate(expr.value);
@@ -278,14 +277,16 @@ export class Interpreter implements
         }
 
         const func: FunctionEntity = new FunctionEntity(construct, this.scope);
+        let parent: FunctionEntity = null;
         if (stmt.parent) {
-            const parent = this.scope.get(stmt.parent);
+            parent = this.scope.get(stmt.parent);
             if (parent) {
+                func.parent = parent;
                 func.prototype = new Prototype(parent.properties, parent.prototype, func);
             }
         }
         for (let method of methods) {
-            func.properties.set(method.name.lexeme, new FunctionEntity(method, this.scope));
+            func.properties.set(method.name.lexeme, new FunctionEntity(method, this.scope, parent));
         }
 
         this.scope.set(stmt.name.lexeme, func);
@@ -299,7 +300,7 @@ export class Interpreter implements
     }
 
     public visitReturnStmt(stmt: Stmt.Return): any {
-        let value = undefined;
+        let value = null;
         if (stmt.value) {
             value = this.evaluate(stmt.value);
         }

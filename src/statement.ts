@@ -31,11 +31,11 @@ export class Block extends Stmt {
     }
 
     public accept<R>(visitor: StmtVisitor<R>): R {
-      return visitor.visitBlockStmt(this);
+        return visitor.visitBlockStmt(this);
     }
 
     public toString(): string {
-      return 'Stmt.Block';
+        return 'Stmt.Block';
     }
 }
 export class Expression extends Stmt {
@@ -47,11 +47,11 @@ export class Expression extends Stmt {
     }
 
     public accept<R>(visitor: StmtVisitor<R>): R {
-      return visitor.visitExpressionStmt(this);
+        return visitor.visitExpressionStmt(this);
     }
 
     public toString(): string {
-      return 'Stmt.Expression';
+        return 'Stmt.Expression';
     }
 }
 export class If extends Stmt {
@@ -67,11 +67,11 @@ export class If extends Stmt {
     }
 
     public accept<R>(visitor: StmtVisitor<R>): R {
-      return visitor.visitIfStmt(this);
+        return visitor.visitIfStmt(this);
     }
 
     public toString(): string {
-      return 'Stmt.If';
+        return 'Stmt.If';
     }
 }
 export class Func extends Stmt {
@@ -87,11 +87,11 @@ export class Func extends Stmt {
     }
 
     public accept<R>(visitor: StmtVisitor<R>): R {
-      return visitor.visitFuncStmt(this);
+        return visitor.visitFuncStmt(this);
     }
 
     public toString(): string {
-      return 'Stmt.Func';
+        return 'Stmt.Func';
     }
 }
 export class Class extends Stmt {
@@ -107,11 +107,11 @@ export class Class extends Stmt {
     }
 
     public accept<R>(visitor: StmtVisitor<R>): R {
-      return visitor.visitClassStmt(this);
+        return visitor.visitClassStmt(this);
     }
 
     public toString(): string {
-      return 'Stmt.Class';
+        return 'Stmt.Class';
     }
 }
 export class Return extends Stmt {
@@ -125,11 +125,11 @@ export class Return extends Stmt {
     }
 
     public accept<R>(visitor: StmtVisitor<R>): R {
-      return visitor.visitReturnStmt(this);
+        return visitor.visitReturnStmt(this);
     }
 
     public toString(): string {
-      return 'Stmt.Return';
+        return 'Stmt.Return';
     }
 }
 export class While extends Stmt {
@@ -143,11 +143,11 @@ export class While extends Stmt {
     }
 
     public accept<R>(visitor: StmtVisitor<R>): R {
-      return visitor.visitWhileStmt(this);
+        return visitor.visitWhileStmt(this);
     }
 
     public toString(): string {
-      return 'Stmt.While';
+        return 'Stmt.While';
     }
 }
 export class DoWhile extends Stmt {
@@ -161,11 +161,11 @@ export class DoWhile extends Stmt {
     }
 
     public accept<R>(visitor: StmtVisitor<R>): R {
-      return visitor.visitDoWhileStmt(this);
+        return visitor.visitDoWhileStmt(this);
     }
 
     public toString(): string {
-      return 'Stmt.DoWhile';
+        return 'Stmt.DoWhile';
     }
 }
 export class Print extends Stmt {
@@ -177,11 +177,11 @@ export class Print extends Stmt {
     }
 
     public accept<R>(visitor: StmtVisitor<R>): R {
-      return visitor.visitPrintStmt(this);
+        return visitor.visitPrintStmt(this);
     }
 
     public toString(): string {
-      return 'Stmt.Print';
+        return 'Stmt.Print';
     }
 }
 export class Var extends Stmt {
@@ -197,10 +197,10 @@ export class Var extends Stmt {
     }
 
     public accept<R>(visitor: StmtVisitor<R>): R {
-      return visitor.visitVarStmt(this);
+        return visitor.visitVarStmt(this);
     }
 
     public toString(): string {
-      return 'Stmt.Var';
+        return 'Stmt.Var';
     }
 }

@@ -24,6 +24,14 @@ export function invokeMethod(that: any): InternalEntity {
     func.call = (int, thiz, args) => thiz.call(int, args[0], args.slice(1));
     return func;
 }
+export function superCall(that: any, instance: any): InternalEntity {
+    const func = new InternalEntity();
+    func.arity = () => that.parent.arity();
+    func.toString = () => '<native super function>';
+    func.call = (int, thiz, args) =>
+        that.parent.call(int, instance, args);
+    return func;
+}
 
 export function mergeMethod(that: any): InternalEntity {
     const func = new InternalEntity();
