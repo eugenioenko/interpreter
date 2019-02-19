@@ -418,15 +418,18 @@ export class Parser {
 
         while (true) {
             if (this.match(TokenType.leftParen)) {
-                const args: Expr.Expr[] = [];
-                const callee = expr;
-                if (!this.check(TokenType.rightParen)) {
-                    do {
-                        args.push(this.expression());
-                    } while (this.match(TokenType.comma));
-                }
-                const paren: Token = this.consume(TokenType.rightParen, `Expected ")" after arguments`);
-                return new Expr.Call(callee, paren, args, null);
+                let callee = expr;
+                do {
+                    const args: Expr.Expr[] = [];
+                    if (!this.check(TokenType.rightParen)) {
+                        do {
+                            args.push(this.expression());
+                        } while (this.match(TokenType.comma));
+                    }
+                    const paren: Token = this.consume(TokenType.rightParen, `Expected ")" after arguments`);
+                    callee = new Expr.Call(callee, paren, args, null)
+                } while (this.match(TokenType.leftParen));
+                return callee;
             } else if (this.match(TokenType.dot)) {
                 const name: Token = this.consume(TokenType.identifier, `Expect property name after '.'`);
                 const key: Expr.Key = new Expr.Key(name);

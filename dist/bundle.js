@@ -1259,15 +1259,18 @@ class Parser {
         let expr = this.primary();
         while (true) {
             if (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].leftParen)) {
-                const args = [];
-                const callee = expr;
-                if (!this.check(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].rightParen)) {
-                    do {
-                        args.push(this.expression());
-                    } while (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].comma));
-                }
-                const paren = this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].rightParen, `Expected ")" after arguments`);
-                return new _expression__WEBPACK_IMPORTED_MODULE_1__["Call"](callee, paren, args, null);
+                let callee = expr;
+                do {
+                    const args = [];
+                    if (!this.check(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].rightParen)) {
+                        do {
+                            args.push(this.expression());
+                        } while (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].comma));
+                    }
+                    const paren = this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].rightParen, `Expected ")" after arguments`);
+                    callee = new _expression__WEBPACK_IMPORTED_MODULE_1__["Call"](callee, paren, args, null);
+                } while (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].leftParen));
+                return callee;
             }
             else if (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].dot)) {
                 const name = this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].identifier, `Expect property name after '.'`);
