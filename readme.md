@@ -41,7 +41,9 @@ While *var* definition lets you override a variable, *let* will throw an error.
     }
 
  ### functions
-*function*, *func*, and *@* work as synonyms
+- *function*, *func*, and *@* work as synonyms
+- *->* works as "return" synonym
+- *=> expression* works as short form of "{ return expression }"
 
     function name(alfa, beta) {
          return alfa + beta;
@@ -61,6 +63,10 @@ While *var* definition lets you override a variable, *let* will throw an error.
     let name = @(alfa, beta) {
        return alfa + beta;
     }
+    @name(alfa, beta) {
+        -> alfa + beta;
+    }
+    @name(alfa, beta) => alfa + beta;
 
 #### immediately-invoked function expression (IIFE):
 
