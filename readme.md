@@ -45,6 +45,8 @@ While *var* definition lets you override a variable, *let* will throw an error.
 - *->* works as "return" synonym
 - *=> expression* works as short form of "{ return expression }"
 
+
+
     function name(alfa, beta) {
          return alfa + beta;
     }
@@ -77,6 +79,8 @@ While *var* definition lets you override a variable, *let* will throw an error.
     (@(alfa, beta) {
        return alfa + beta;
     })('alfa', 'two');
+
+    (@(alfa, beta) => alfa + beta)('one', 'two');
 
 ### prototype functions and inheritance
 
