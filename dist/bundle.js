@@ -1034,9 +1034,22 @@ class Parser {
             } while (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].comma));
         }
         this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].rightParen, `Expect ")" after parameters`);
+        if (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].leftBrace)) {
+            const body = this.block();
+            return new _statement__WEBPACK_IMPORTED_MODULE_2__["Func"](name, params, body);
+        }
+        if (this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].arrow)) {
+            const body = [];
+            let arrow;
+            const keyword = this.previous();
+            if (!this.check(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].semicolon)) {
+                arrow = this.expression();
+            }
+            this.match(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].semicolon);
+            body.push(new _statement__WEBPACK_IMPORTED_MODULE_2__["Return"](keyword, arrow));
+            return new _statement__WEBPACK_IMPORTED_MODULE_2__["Func"](name, params, body);
+        }
         this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].leftBrace, `Expect "{" before ${kind} body`);
-        const body = this.block();
-        return new _statement__WEBPACK_IMPORTED_MODULE_2__["Func"](name, params, body);
     }
     varDeclaration(type) {
         const name = this.consume(_token__WEBPACK_IMPORTED_MODULE_0__["TokenType"].identifier, `Expected a variable name`);
@@ -1682,7 +1695,7 @@ class Scanner {
                 this.addToken('function', null);
                 break;
             case '-':
-                this.addToken(this.match('-') ? 'minusMinus' : 'minus', null);
+                this.addToken(this.match('-') ? 'minusMinus' : this.match('>') ? 'return' : 'minus', null);
                 break;
             case '+':
                 this.addToken(this.match('+') ? 'plusPlus' : 'plus', null);

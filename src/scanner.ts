@@ -154,7 +154,7 @@ export class Scanner {
             case '%': this.addToken('percent', null); break;
             case '$': this.addToken('dollar', null); break;
             case '@': this.addToken('function', null); break;
-            case '-': this.addToken(this.match('-') ? 'minusMinus' : 'minus', null); break;
+            case '-': this.addToken(this.match('-') ? 'minusMinus' : this.match('>') ? 'return' : 'minus', null); break;
             case '+': this.addToken(this.match('+') ? 'plusPlus' : 'plus', null); break;
             case '|': this.addToken(this.match('|') ? 'or' : 'pipe', null); break;
             case '<': this.addToken(this.match('=') ? 'lessEqual' : 'less', null); break;

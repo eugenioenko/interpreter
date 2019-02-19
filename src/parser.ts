@@ -138,6 +138,7 @@ export class Parser {
         const name: Token = this.consume(TokenType.identifier, `Expected a ${kind} name`);
         return this.funcArgsBody(name, "function");
     }
+
     private funcArgsBody(name: Token, kind: string): Stmt.Func {
         this.consume(TokenType.leftParen, `Expected "(" after ${kind}`);
         const params: Token[] = [];
@@ -151,9 +152,24 @@ export class Parser {
             } while (this.match(TokenType.comma));
         }
         this.consume(TokenType.rightParen, `Expect ")" after parameters`);
+
+        if (this.match(TokenType.leftBrace)) {
+            const body: Stmt.Stmt[] = this.block();
+            return new Stmt.Func(name, params, body);
+        }
+
+        if (this.match(TokenType.arrow)) {
+            const body: Stmt.Stmt[] = [];
+            let arrow: Expr.Expr;
+            const keyword: Token = this.previous();
+            if (!this.check(TokenType.semicolon)) {
+                arrow = this.expression();
+            }
+            this.match(TokenType.semicolon);
+            body.push(new Stmt.Return(keyword, arrow));
+            return new Stmt.Func(name, params, body);
+        }
         this.consume(TokenType.leftBrace, `Expect "{" before ${kind} body`);
-        const body: Stmt.Stmt[] = this.block();
-        return new Stmt.Func(name, params, body);
     }
 
     private varDeclaration(type: Token): Stmt.Stmt {
