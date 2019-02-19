@@ -45,8 +45,6 @@ While *var* definition lets you override a variable, *let* will throw an error.
 - *->* works as "return" synonym
 - *=> expression* works as short form of "{ return expression }"
 
-
-
     function name(alfa, beta) {
          return alfa + beta;
     }
@@ -69,6 +67,7 @@ While *var* definition lets you override a variable, *let* will throw an error.
         -> alfa + beta;
     }
     @name(alfa, beta) => alfa + beta;
+
 
 #### immediately-invoked function expression (IIFE):
 
