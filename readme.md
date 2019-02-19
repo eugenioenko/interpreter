@@ -5,17 +5,20 @@ This is a work in progress of an interpreter writen in typescript of  a scriptin
 ### > [Try it out in playground!](https://eugenioenko.github.io/interpreter/)
 
 ### variable definition
+```
     var variable = "string";
     let number = 1;
     let object = {
 	    property: "property"
 	};
+```
 While *var* definition lets you override a variable, *let* will throw an error.
-
+```
     let variable = 1;
     let variable = 2; // illegal
-
+```
 ### conditional statements
+```
     if (condition) {
         // todo
     } else if (another_condition) {
@@ -23,28 +26,32 @@ While *var* definition lets you override a variable, *let* will throw an error.
     } else {
       // todo
     }
-
+```
 ### Loop statements
 #### while
+```
     while (condition) {
     	// todo
     }
-
+```
 #### do while
+```
     do {
        // todo
     } while (condition);
-
+```
 #### for
+```
     for (initializer; condition; increment) {
       // todo
     }
-
+```
  ### functions
 - *function*, *func*, and *@* work as synonyms
 - *->* works as "return" synonym
 - *=> expression* works as short form of "{ return expression }"
 
+```
     function name(alfa, beta) {
          return alfa + beta;
     }
@@ -67,10 +74,10 @@ While *var* definition lets you override a variable, *let* will throw an error.
         -> alfa + beta;
     }
     @name(alfa, beta) => alfa + beta;
-
+```
 
 #### immediately-invoked function expression (IIFE):
-
+```
     (function (alfa, beta) {
        return alfa + beta;
     })('alfa', 'two');
@@ -80,9 +87,9 @@ While *var* definition lets you override a variable, *let* will throw an error.
     })('alfa', 'two');
 
     (@(alfa, beta) => alfa + beta)('one', 'two');
-
+```
 ### prototype functions and inheritance
-
+```
     @MyClass(arg) {
        this.arg = arg;
     }
@@ -90,12 +97,12 @@ While *var* definition lets you override a variable, *let* will throw an error.
        print this.arg;
     };
     let myClass = new MyClass('foo');
-
+```
 
 *new* will copy all the properties of the class into its prototype and call the constructor function.
 If MyClass is executed as a function without *new*, *this* will be null.
 #### prototype inheritance
-
+```
     @Parent(name) {
         this.name = name;
     }
@@ -110,9 +117,10 @@ If MyClass is executed as a function without *new*, *this* will be null.
         Parent.method.invoke(this);
         // todo: child method statements
     };
+```
 *invoke* method will call the function and pass the desired this as argument. This way *this* can be manipulated  for each method or function.
 In essence this two would be equivalent:
-
+```
     @MyClass() {
         this.name = 'name';
     }
@@ -123,9 +131,9 @@ In essence this two would be equivalent:
 
     print myClassA.name;
     print myClassB.name;
-
+```
 ### sugar-coated classes and inheritance
-
+```
     class MyParent {
         constructor(alfa) {
             this.something = 'anything' + alfa;
@@ -138,12 +146,13 @@ In essence this two would be equivalent:
     }
     let c = new MyClass();
     print c.something;
-
+```
  ### utility functions
+```
      echo(variable); // outputs variable in javascript console
      rand(); // returns a random number
      print variable; // prints in the interperter console.
-
+```
 ### contents, compiling, installing
 The package consist of a tokenizer/scanner, a parser and an interpreter.
 To compile the contents download the repo and:
