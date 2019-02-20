@@ -102,3 +102,19 @@ export function arrayJoinMethod(that: any): InternalEntity {
     func.call = (int, thiz, args) => thiz.values.join(args[0]);
     return func;
 }
+
+export function arrayPushMethod(that: any): InternalEntity {
+    const func = new InternalEntity();
+    func.toString = () => '<internal function size>';
+    func.arity = () => 1;
+    func.call = (int, thiz, args) => thiz.values.push(args[0]);
+    return func;
+}
+
+export function arrayPopMethod(that: any): InternalEntity {
+    const func = new InternalEntity();
+    func.toString = () => '<internal function size>';
+    func.arity = () => 1;
+    func.call = (int, thiz, args) => thiz.values.pop(args[0]);
+    return func;
+}

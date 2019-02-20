@@ -147,7 +147,26 @@ In essence this two would be equivalent:
     let c = new MyClass();
     print c.something;
 ```
- ### utility functions
+
+### Arrays
+Arrays are instances of ArrayEntinty objects.
+- Accesing the indices with a number returns the array values.
+- Accesing the indices with a string returns the object property.
+```
+    let x = [1, 20, 300];
+    let y = [100, x[1]];
+    print y[0];
+    y.push(x);
+    y.newProperty = "anything";
+    print y.join(',');
+```
+So far there are only a few methods defined for arrays:
+- pop(): removes last element from the array and returns it
+- push(value): adds an element at the end of the array
+- join(separator): returns a string representation of the array with value separated by separator
+
+
+### utility functions
 ```
      echo(variable); // outputs variable in javascript console
      rand(); // returns a random number
