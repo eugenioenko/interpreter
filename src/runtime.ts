@@ -1,4 +1,4 @@
-import { InternalEntity, ArrayEntity } from "./entity";
+import { InternalEntity, ArrayEntity, StringEntity } from "./entity";
 import { Prototype } from "./prototype";
 
 export function hasOwnProperty(that: any): InternalEntity {
@@ -99,7 +99,7 @@ export function arrayJoinMethod(that: any): InternalEntity {
     const func = new InternalEntity();
     func.toString = () => '<internal function size>';
     func.arity = () => 1;
-    func.call = (int, thiz, args) => thiz.values.join(args[0]);
+    func.call = (int, thiz, args) => new StringEntity(thiz.values.join(args[0]));
     return func;
 }
 
@@ -131,7 +131,7 @@ export function stringSubStrMethod(that: any): InternalEntity {
     const func = new InternalEntity();
     func.toString = () => '<internal function size>';
     func.arity = () => -1;
-    func.call = (int, thiz, args) => thiz.value.substr(args[0], args[1]);
+    func.call = (int, thiz, args) => new StringEntity(thiz.value.substr(args[0], args[1]));
     return func;
 }
 

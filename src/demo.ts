@@ -108,4 +108,5 @@ print y[0];
 y.push(x);
 y.newProperty = "anything";
 print y.join(',');
+let z = y.join('-');
 `;
