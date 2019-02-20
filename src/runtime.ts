@@ -1,4 +1,4 @@
-import { InternalEntity, FunctionEntity } from "./entity";
+import { InternalEntity, ArrayEntity } from "./entity";
 import { Prototype } from "./prototype";
 
 export function hasOwnProperty(that: any): InternalEntity {
@@ -124,5 +124,21 @@ export function stringLengthMethod(that: any): InternalEntity {
     func.toString = () => '<internal function size>';
     func.arity = () => 0;
     func.call = (int, thiz, args) => thiz.value.length;
+    return func;
+}
+
+export function stringSubStrMethod(that: any): InternalEntity {
+    const func = new InternalEntity();
+    func.toString = () => '<internal function size>';
+    func.arity = () => -1;
+    func.call = (int, thiz, args) => thiz.value.substr(args[0], args[1]);
+    return func;
+}
+
+export function stringSplitMethod(that: any): InternalEntity {
+    const func = new InternalEntity();
+    func.toString = () => '<internal function size>';
+    func.arity = () => 1;
+    func.call = (int, thiz, args) => new ArrayEntity(thiz.value.split(args[0]));
     return func;
 }
