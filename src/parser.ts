@@ -58,20 +58,33 @@ export class Parser {
             return this.advance();
         }
 
-        return this.parseError(this.peek(), message);
+        return this.parseError(this.previous(), message);
     }
 
-    private parseError(token: Token, message: string) {
+    private extraSemicolon(): boolean {
+        const match = this.match(TokenType.semicolon);
+        if (match) {
+            while(this.match(TokenType.semicolon));
+        }
+        return match;
+    }
+
+    private parseError(token: Token, message: string): any {
         // tslint:disable-next-line
-        if (token.type == TokenType.eof) {
-            conzole.error(`Error in (${token.line}): at end ${message}`);
+        if (token.type === TokenType.eof) {
+            conzole.error(`parse error at (${token.line}): at end ${message}`);
         } else {
-            conzole.error(`Error in (${token.line}): at "${token.lexeme}" ${message}`);
+            conzole.error(`[line (${token.line}) parse error at "${token.lexeme}"] => ${message}`);
         }
 
         throw new Error ('Error parsing');
         // unreachable code
         return new Token('panic', 'error', 'error', 0);
+    }
+
+    private parseWarning(message: string): void {
+        const token = this.previous();
+        conzole.warn(`[line (${token.line}) parse warning at "${token.lexeme}"] => ${message}`);
     }
 
     private synchronize(): void {
@@ -131,6 +144,9 @@ export class Parser {
         }
 
         this.consume(TokenType.rightBrace, `Expected "}" after class "${name.literal}" methods`);
+        if (this.extraSemicolon()) {
+            this.parseWarning(`Unnecessary semicolon after class ${name.lexeme} declaration`);
+        }
         return new Stmt.Class(name, parent, methods);
     }
 
@@ -155,6 +171,9 @@ export class Parser {
 
         if (this.match(TokenType.leftBrace)) {
             const body: Stmt.Stmt[] = this.block();
+            if (name.type !== TokenType.lambda && this.extraSemicolon()) {
+                this.parseWarning(`Unnecessary semicolon after function ${name.lexeme} declaration`);
+            }
             return new Stmt.Func(name, params, body);
         }
 
@@ -281,7 +300,7 @@ export class Parser {
 
     private printStatement(): Stmt.Stmt {
         const value: Expr.Expr = this.expression();
-        this.consume(TokenType.semicolon, `Expected semicolon ";" after a value.`);
+        this.consume(TokenType.semicolon, `Expected semicolon ";" after expression.`);
         return new Stmt.Print(value);
     }
 
@@ -309,6 +328,11 @@ export class Parser {
     private expressionStatement(): Stmt.Stmt {
         const expression: Expr.Expr = this.expression();
         this.consume(TokenType.semicolon, `Expected semicolon ";" after ${expression} expression`);
+        if (this.match(TokenType.semicolon)) {
+            const token = this.previous();
+            conzole.warn(`[line (${token.line}) parse warning at "${token.lexeme}"] => unnecessary semicolon or empty statement`);
+            while(this.match(TokenType.semicolon));
+        }
         return new Stmt.Expression(expression);
     }
 

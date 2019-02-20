@@ -97,6 +97,7 @@ export class FunctionEntity extends CallableEntity {
             if (e instanceof Return) {
                 return e.value;
             }
+            throw new Error("Runtime error. Execution has been stopped");
         }
         return null;
     }

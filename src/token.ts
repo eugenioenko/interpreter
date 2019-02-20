@@ -87,7 +87,7 @@ export class Token {
     }
 
     public toString() {
-        return `${this.name}:  ${this.lexeme}  ${this.literal}`;
+        return `[(${this.line}):"${this.lexeme}"]`;
     }
 
 }

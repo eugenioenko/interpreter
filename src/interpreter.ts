@@ -34,6 +34,11 @@ export class Interpreter implements
         }
     }
 
+    private interpreterError(message: string): void {
+        conzole.log(`[interpreter error] => ${message}`);
+        throw new Error();
+    }
+
     public visitExpressionStmt(stmt: Stmt.Expression): void {
         this.evaluate(stmt.expression);
     }
@@ -206,8 +211,7 @@ export class Interpreter implements
         if (!(callee instanceof CallableEntity) &&
             !(callee instanceof InternalEntity)
         ) {
-            conzole.error(`${callee} is not a function`);
-            throw new Error();
+            this.interpreterError(`${callee} is not a function`);
         }
         const func = callee as CallableEntity;
         if (args.length !== func.arity() && func.arity() !== -1) {
@@ -245,8 +249,7 @@ export class Interpreter implements
         if (entity instanceof PrototypeEntity) {
             return entity.get(key);
         }
-        conzole.error(`${entity}.${key}: only instances have properties`);
-        throw new Error();
+        this.interpreterError(`${entity}.${key}: only instances have properties`);
     }
 
     public visitSetExpr(expr: Expr.Set): void {

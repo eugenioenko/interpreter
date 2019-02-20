@@ -12,13 +12,18 @@ export class Scope {
         this.parent = parent;
     }
 
+    private scopeError(message: string): void {
+        conzole.error(`[scope error] => ${message}`);
+        throw new Error();
+    }
+
     public set(name: string, value: any) {
         this.values.set(name, value);
     }
 
     public define(name: string, value: any) {
         if (this.values.has(name)) {
-            conzole.error(`identifier "${name}" has already been defined`);
+            this.scopeError(`identifier "${name}" has already been defined`);
         } else {
             this.set(name, value);
         }
@@ -31,7 +36,7 @@ export class Scope {
             if (this.parent !== null) {
                 return this.parent.assign(name, value);
             }
-            conzole.error(`Identifier "${name}" has not been defined`);
+            this.scopeError(`Identifier "${name}" has not been defined`);
         }
     }
 
@@ -42,7 +47,7 @@ export class Scope {
         if (this.parent !== null ) {
             return this.parent.get(name);
         }
-        conzole.error(`Error at (${name.line}): ${name.lexeme} is not defined`);
+        this.scopeError(`Error at (${name.line}): "${name.lexeme}" is not defined`);
     }
 
 }

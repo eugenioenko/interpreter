@@ -23,7 +23,8 @@ export class Prototype {
         if (this.prototype !== null ) {
             return this.prototype.get(key);
         }
-        conzole.error(`${key} is not defined in ${this.owner}`);
+        conzole.error(`[entity error] => ${key} is not defined in ${this.owner}`);
+        throw new Error();
     }
 
 }
