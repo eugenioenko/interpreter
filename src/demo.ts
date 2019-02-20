@@ -101,4 +101,11 @@ var literal = {
     }
 };
 print literal.records.prev;
+
+let x = [1, 20, 300];
+let y = [100, x[1]];
+print y[0];
+y.push(x);
+y.newProperty = "anything";
+print y.join(',');
 `;

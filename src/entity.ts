@@ -47,6 +47,8 @@ export class ArrayEntity extends PrototypeEntity {
         this.prototype.values.set('invoke', Runtime.invokeMethod(this));
         this.prototype.values.set('size', Runtime.arrayLengthMethod(this));
         this.prototype.values.set('join', Runtime.arrayJoinMethod(this));
+        this.prototype.values.set('push', Runtime.arrayPushMethod(this));
+        this.prototype.values.set('pop', Runtime.arrayPopMethod(this));
     }
 
     public get(key: string|number): any {
@@ -72,7 +74,7 @@ export class ArrayEntity extends PrototypeEntity {
 
     public call(interpreter: Interpreter, thiz: any, args: any[]): any { return; }
     public toString(): string {
-        return '<array entity>';
+        return `[${this.values.join(',')}]`;
     }
 
 }
