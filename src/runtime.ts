@@ -118,3 +118,11 @@ export function arrayPopMethod(that: any): InternalEntity {
     func.call = (int, thiz, args) => thiz.values.pop(args[0]);
     return func;
 }
+
+export function stringLengthMethod(that: any): InternalEntity {
+    const func = new InternalEntity();
+    func.toString = () => '<internal function size>';
+    func.arity = () => 0;
+    func.call = (int, thiz, args) => thiz.value.length;
+    return func;
+}

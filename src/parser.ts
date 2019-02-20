@@ -496,8 +496,11 @@ export class Parser {
         if (this.match(TokenType.null)) {
              return new Expr.Literal(null);
         }
-        if (this.match(TokenType.number, TokenType.string)) {
+        if (this.match(TokenType.number, TokenType.stringSingle)) {
             return new Expr.Literal(this.previous().literal);
+        }
+        if (this.match(TokenType.stringDouble)) {
+            return new Expr.Ztring(this.previous().literal);
         }
         if (this.match(TokenType.identifier)) {
             const identifier =  this.previous();
@@ -531,7 +534,7 @@ export class Parser {
         }
         const properties: Expr.Set[] = [];
         do {
-            if (this.match(TokenType.string, TokenType.identifier)) {
+            if (this.match(TokenType.stringSingle, TokenType.stringDouble, TokenType.identifier)) {
                 const key: Token = this.previous();
                 this.consume(TokenType.colon, `Expected ":" colon after member`);
                 const value = this.expression();

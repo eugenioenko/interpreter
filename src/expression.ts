@@ -20,6 +20,7 @@ export interface ExprVisitor<R> {
     visitNewExpr(expr: New): R;
     visitGroupingExpr(expr: Grouping): R;
     visitLiteralExpr(expr: Literal): R;
+    visitZtringExpr(expr: Ztring): R;
     visitUnaryExpr(expr: Unary): R;
     visitVariableExpr(expr: Variable): R;
     visitKeyExpr(expr: Key): R;
@@ -207,6 +208,22 @@ export class Literal extends Expr {
 
     public toString(): string {
         return 'Expr.Literal';
+    }
+}
+export class Ztring extends Expr {
+    public value: string;
+
+    constructor(value: string) {
+        super();
+        this.value = value;
+    }
+
+    public accept<R>(visitor: ExprVisitor<R>): R {
+        return visitor.visitZtringExpr(this);
+    }
+
+    public toString(): string {
+        return 'Expr.Ztring';
     }
 }
 export class Unary extends Expr {

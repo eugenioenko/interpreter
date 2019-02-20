@@ -45,7 +45,8 @@ export enum TokenType {
 
     // literals
     identifier,
-    string,
+    stringSingle,
+    stringDouble,
     number,
 
     // keywords

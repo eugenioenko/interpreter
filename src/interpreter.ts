@@ -1,12 +1,14 @@
 import * as Expr from './expression';
 import * as Stmt from './statement';
-import { FunctionEntity, CallableEntity, InternalEntity, InstanceEntity, PrototypeEntity, ArrayEntity } from './entity';
+import { FunctionEntity, CallableEntity, InternalEntity, InstanceEntity, PrototypeEntity } from './entity';
 import { Console } from './console';
 import { Return } from './return';
 import { Scope } from './scope';
 import { TokenType } from './token';
 import * as Runtime from './runtime';
 import { Prototype } from './prototype';
+import { ArrayEntity } from './array';
+import { StringEntity } from './string';
 declare var conzole: Console;
 
 export class Interpreter implements
@@ -75,6 +77,10 @@ export class Interpreter implements
             values.push(this.evaluate(expression));
         }
         return new ArrayEntity(values);
+    }
+
+    public visitZtringExpr(expr: Expr.Ztring): any {
+        return new StringEntity(expr.value);
     }
 
     public visitAssignExpr(expr: Expr.Assign): void {

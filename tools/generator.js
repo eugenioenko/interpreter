@@ -11,6 +11,7 @@ const ExpressionAST = {
     New: ['construct: Expr'],
     Grouping: ['expression: Expr'],
     Literal: ['value: any'],
+    Ztring: ['value: string'],
     Unary: ['operator: Token', 'right: Expr'],
     Variable: ['name: Token'],
     Key: ['name: Token'],
