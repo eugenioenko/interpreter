@@ -486,21 +486,6 @@ export class Parser {
         return expr;
     }
 
-    private array(): Expr.Expr {
-        if (this.match(TokenType.leftBracket)) {
-            const arr = [];
-            if (this.match(TokenType.rightBracket)) {
-                return new Expr.Literal([]);
-            }
-            do {
-                arr.push(this.expression());
-            } while (this.match(TokenType.comma));
-            this.consume(TokenType.rightBracket, `Expected "]" after array declaration`);
-            return new Expr.List(arr);
-        }
-        // return this.object();
-    }
-
     private primary(): Expr.Expr {
         if (this.match(TokenType.false)) {
             return new Expr.Literal(false);
@@ -526,11 +511,13 @@ export class Parser {
         if (this.match(TokenType.leftBrace)) {
             return this.entity();
         }
-
         if (this.match(TokenType.function)) {
             const token: Token = new Token('lambda', 'lambda', 'lambda', this.previous().line);
             const lambda: Stmt.Func = this.funcArgsBody(token, "lambda");
             return new Expr.Lambda(lambda);
+        }
+        if (this.match(TokenType.leftBracket)) {
+            return this.array();
         }
 
         throw this.parseError(this.peek(), `Expected expression`);
@@ -557,21 +544,13 @@ export class Parser {
         return new Expr.Entity(properties);
     }
 
-    /*
-    public indexes(identifier: Token) {
-        const indexes: Expr.Expr[] = [];
+    private array(): Expr.Expr {
+        const values = [];
         do {
-            const separator = this.previous();
-            if (separator.type === TokenType.leftBracket) {
-                indexes.push(this.expression());
-                this.consume(TokenType.rightBracket, `Expected bracket closing "]" after array`);
-             } else {
-                if (this.match(TokenType.identifier, TokenType.number)) {
-                    indexes.push(new Expr.Literal(this.previous().literal));
-                }
-            }
-        } while (this.match(TokenType.leftBracket, TokenType.dot));
-        return new Expr.Variable(identifier, indexes);
-    }*/
+            values.push(this.expression());
+        } while (this.match(TokenType.comma));
+        this.consume(TokenType.rightBracket, `Expected "]" after array declaration`);
+        return new Expr.List(values);
+    }
 
 }

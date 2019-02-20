@@ -1,6 +1,6 @@
 import * as Expr from './expression';
 import * as Stmt from './statement';
-import { FunctionEntity, CallableEntity, InternalEntity, InstanceEntity, PrototypeEntity } from './entity';
+import { FunctionEntity, CallableEntity, InternalEntity, InstanceEntity, PrototypeEntity, ArrayEntity } from './entity';
 import { Console } from './console';
 import { Return } from './return';
 import { Scope } from './scope';
@@ -44,7 +44,8 @@ export class Interpreter implements
     }
 
     public visitPrintStmt(stmt: Stmt.Print): void {
-        const value = this.evaluate(stmt.expression);
+        let value = this.evaluate(stmt.expression);
+        value = value === null ? "null" : value;
         conzole.log(value);
     }
 
@@ -68,12 +69,12 @@ export class Interpreter implements
         return this.scope.get(expr.name);
     }
 
-    public visitListExpr(expr: Expr.List): any[] {
-        const arr: any[] = [];
+    public visitListExpr(expr: Expr.List): any {
+        const values: any[] = [];
         for (const expression of expr.value) {
-            arr.push(this.evaluate(expression));
+            values.push(this.evaluate(expression));
         }
-        return arr;
+        return new ArrayEntity(values);
     }
 
     public visitAssignExpr(expr: Expr.Assign): void {

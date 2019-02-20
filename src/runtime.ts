@@ -86,3 +86,19 @@ export function randFunction(): InternalEntity {
     func.toString = () => '<native function>';
     return func;
 }
+
+export function arrayLengthMethod(that: any): InternalEntity {
+    const func = new InternalEntity();
+    func.toString = () => '<internal function size>';
+    func.arity = () => 0;
+    func.call = (int, thiz, args) => thiz.values.length;
+    return func;
+}
+
+export function arrayJoinMethod(that: any): InternalEntity {
+    const func = new InternalEntity();
+    func.toString = () => '<internal function size>';
+    func.arity = () => 1;
+    func.call = (int, thiz, args) => thiz.values.join(args[0]);
+    return func;
+}
