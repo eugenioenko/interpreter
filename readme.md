@@ -1,6 +1,6 @@
 
 ##  @script (at-script)
-This is a work in progress of an interpreter writen in typescript of  a scripting language which shares some similarities with javascript.
+This is a work in progress of an interpreter writen in typescript of a scripting language somewhat similar to javascript.
 
 ### > [Try it out in playground!](https://eugenioenko.github.io/interpreter/)
 
@@ -165,6 +165,14 @@ So far there are only a few methods defined for arrays:
 - push(value): adds an element at the end of the array
 - join(separator): returns a string representation of the array with value separated by separator
 
+### Strings
+There are two type of strings in atscript: Literal and Object.
+- Literal: are the once enclosed by single quotes 'literal'
+- Object: are the once enclosed by double quotes "string object"
+
+The literal string provide no methods withing them because they are not objects.
+They can be added together, to a number and printed but no manipulation of the content.
+Object string provide the utilities like: size, split and others;
 
 ### utility functions
 ```
