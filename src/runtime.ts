@@ -114,7 +114,7 @@ export function arrayPushMethod(that: any): InternalEntity {
 export function arrayPopMethod(that: any): InternalEntity {
     const func = new InternalEntity();
     func.toString = () => '<internal function size>';
-    func.arity = () => 1;
+    func.arity = () => 0;
     func.call = (int, thiz, args) => thiz.values.pop(args[0]);
     return func;
 }

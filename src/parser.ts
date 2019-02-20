@@ -546,6 +546,9 @@ export class Parser {
 
     private array(): Expr.Expr {
         const values = [];
+        if (this.match(TokenType.rightBracket)) {
+            return new Expr.List([]);
+        }
         do {
             values.push(this.expression());
         } while (this.match(TokenType.comma));
