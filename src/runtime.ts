@@ -1,4 +1,4 @@
-import { InternalEntity, ArrayEntity, StringEntity } from "./entity";
+import { InternalEntity, ArrayEntity, StringEntity, FunctionEntity } from "./entity";
 import { Prototype } from "./prototype";
 
 export function hasOwnProperty(that: any): InternalEntity {
@@ -116,6 +116,60 @@ export function arrayPopMethod(that: any): InternalEntity {
     func.toString = () => '<internal function size>';
     func.arity = () => 0;
     func.call = (int, thiz, args) => thiz.values.pop(args[0]);
+    return func;
+}
+
+export function arrayEachMethod(that: any): InternalEntity {
+    const func = new InternalEntity();
+    func.toString = () => '<internal function size>';
+    func.arity = () => -1;
+    func.call = (int, thiz, args) => {
+        for(let i = 0; i < thiz.values.length; ++i) {
+            <FunctionEntity>args[0].call(int, thiz, [thiz.values[i], i, thiz]);
+        }
+    };
+    return func;
+}
+
+export function arrayMapMethod(that: any): InternalEntity {
+    const func = new InternalEntity();
+    func.toString = () => '<internal function size>';
+    func.arity = () => -1;
+    func.call = (int, thiz, args) => {
+        for (let i = 0; i < thiz.values.length; ++i) {
+            thiz.values[i] = <FunctionEntity>args[0].call(int, thiz, [thiz.values[i], i, thiz]);
+        }
+    };
+    return func;
+}
+
+export function arrayFindMethod(that: any): InternalEntity {
+    const func = new InternalEntity();
+    func.toString = () => '<internal function size>';
+    func.arity = () => -1;
+    func.call = (int, thiz, args) => {
+        for (let i = 0; i < thiz.values.length; ++i) {
+            if (<FunctionEntity>args[0].call(int, thiz, [thiz.values[i], i, thiz])) {
+                return thiz.values[i];
+            }
+        }
+        return null;
+    };
+    return func;
+}
+
+export function arrayIndexOfMethod(that: any): InternalEntity {
+    const func = new InternalEntity();
+    func.toString = () => '<internal function size>';
+    func.arity = () => 1;
+    func.call = (int, thiz, args) => {
+        for (let i = 0; i < thiz.values.length; ++i) {
+            if (thiz.values[i] === args[0]) {
+                return i;
+            }
+        }
+        return null;
+    };
     return func;
 }
 

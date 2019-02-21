@@ -155,6 +155,10 @@ export class ArrayEntity extends PrototypeEntity {
         this.prototype.values.set('join', Runtime.arrayJoinMethod(this));
         this.prototype.values.set('push', Runtime.arrayPushMethod(this));
         this.prototype.values.set('pop', Runtime.arrayPopMethod(this));
+        this.prototype.values.set('each', Runtime.arrayEachMethod(this));
+        this.prototype.values.set('map', Runtime.arrayMapMethod(this));
+        this.prototype.values.set('find', Runtime.arrayFindMethod(this));
+        this.prototype.values.set('indexOf', Runtime.arrayIndexOfMethod(this));
     }
 
     public get(key: string | number): any {
