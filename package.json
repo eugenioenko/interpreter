@@ -8,7 +8,7 @@
     "lint": "npx tslint -c tslint.json 'src/*.ts'",
     "generator": "node tools/generator.js",
     "start2": "tsc --watch src/interpreter.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jasmine"
   },
   "keywords": [
     "javascript",
@@ -17,6 +17,7 @@
   "author": "eugenioenko",
   "license": "MIT",
   "devDependencies": {
+    "jasmine": "^3.3.1",
     "ts-loader": "^5.3.0",
     "tslint": "^5.12.0",
     "typescript": "^3.2.2",

@@ -62,9 +62,11 @@ export class Parser {
     }
 
     private extraSemicolon(): boolean {
-        const match = this.match(TokenType.semicolon);
-        if (match) {
-            while(this.match(TokenType.semicolon));
+        let match = this.match(TokenType.semicolon);
+        if (this.check(TokenType.semicolon)) {
+            while(this.check(TokenType.semicolon)) {
+                this.consume(TokenType.semicolon, '');
+            }
         }
         return match;
     }
@@ -131,6 +133,9 @@ export class Parser {
     }
 
     private classDeclaration(): Stmt.Class {
+        if (this.check(TokenType.function)) {
+            this.consume(TokenType.function, '');
+        }
         const name: Token = this.consume(TokenType.identifier, `Expected a class name`);
         let parent: Token = null;
         if (this.match(TokenType.extends)) {
@@ -140,6 +145,9 @@ export class Parser {
         const methods: Stmt.Func[] = [];
 
         while (!this.check(TokenType.rightBrace) && !this.eof()) {
+            if (this.check(TokenType.function)) {
+                this.consume(TokenType.function, '');
+            }
             methods.push(this.funcDeclaration("method"));
         }
 
@@ -152,7 +160,7 @@ export class Parser {
 
     private funcDeclaration(kind: string): Stmt.Func {
         const name: Token = this.consume(TokenType.identifier, `Expected a ${kind} name`);
-        return this.funcArgsBody(name, "function");
+        return this.funcArgsBody(name, kind);
     }
 
     private funcArgsBody(name: Token, kind: string): Stmt.Func {
