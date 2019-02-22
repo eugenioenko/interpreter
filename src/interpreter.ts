@@ -235,7 +235,7 @@ export class Interpreter implements
             conzole.error(`${thiz} is not an instance of an entity`);
         }
         const parent: FunctionEntity = clazz.parent;
-        if (!clazz) {
+        if (!parent) {
             conzole.error(`${thiz} entity has no parent`);
         }
         let method: FunctionEntity = null;
