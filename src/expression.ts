@@ -14,6 +14,7 @@ export interface ExprVisitor<R> {
     visitBinaryExpr(expr: Binary): R;
     visitTernaryExpr(expr: Ternary): R;
     visitCallExpr(expr: Call): R;
+    visitSuperExpr(expr: Super): R;
     visitEntityExpr(expr: Entity): R;
     visitGetExpr(expr: Get): R;
     visitSetExpr(expr: Set): R;
@@ -106,6 +107,24 @@ export class Call extends Expr {
 
     public toString(): string {
         return 'Expr.Call';
+    }
+}
+export class Super extends Expr {
+    public index: Token[];
+    public args: Expr[];
+
+    constructor(index: Token[], args: Expr[]) {
+        super();
+        this.index = index;
+        this.args = args;
+    }
+
+    public accept<R>(visitor: ExprVisitor<R>): R {
+        return visitor.visitSuperExpr(this);
+    }
+
+    public toString(): string {
+        return 'Expr.Super';
     }
 }
 export class Entity extends Expr {

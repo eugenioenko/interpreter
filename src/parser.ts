@@ -160,13 +160,11 @@ export class Parser {
 
     private funcDeclaration(kind: string): Stmt.Func {
         const name: Token = this.consume(TokenType.identifier, `Expected a ${kind} name`);
-        return this.funcArgsBody(name, kind);
+        return this.funcParamsBody(name, kind);
     }
 
-    private funcArgsBody(name: Token, kind: string): Stmt.Func {
-        this.consume(TokenType.leftParen, `Expected "(" after ${kind}`);
+    private funcParams(): Token[] {
         const params: Token[] = [];
-
         if (!this.check(TokenType.rightParen)) {
             do {
                 if (params.length >= 255) {
@@ -176,6 +174,12 @@ export class Parser {
             } while (this.match(TokenType.comma));
         }
         this.consume(TokenType.rightParen, `Expect ")" after parameters`);
+        return params;
+    }
+
+    private funcParamsBody(name: Token, kind: string): Stmt.Func {
+        this.consume(TokenType.leftParen, `Expected "(" after ${kind}`);
+        const params: Token[] = this.funcParams();
 
         if (this.match(TokenType.leftBrace)) {
             const body: Stmt.Stmt[] = this.block();
@@ -463,7 +467,6 @@ export class Parser {
 
     private call(): Expr.Expr {
         let expr: Expr.Expr = this.primary();
-
         while (true) {
             if (this.match(TokenType.leftParen)) {
                 let callee = expr;
@@ -524,8 +527,11 @@ export class Parser {
         }
         if (this.match(TokenType.function)) {
             const token: Token = new Token('lambda', 'lambda', 'lambda', this.previous().line);
-            const lambda: Stmt.Func = this.funcArgsBody(token, "lambda");
+            const lambda: Stmt.Func = this.funcParamsBody(token, "lambda");
             return new Expr.Lambda(lambda);
+        }
+        if (this.match(TokenType.super)) {
+            return this.superCall();
         }
         if (this.match(TokenType.leftBracket)) {
             return this.array();
@@ -552,6 +558,7 @@ export class Parser {
             }
         } while (this.match(TokenType.comma));
         this.consume(TokenType.rightBrace, `Expected "}" after object literal`);
+
         return new Expr.Entity(properties);
     }
 
@@ -564,7 +571,29 @@ export class Parser {
             values.push(this.expression());
         } while (this.match(TokenType.comma));
         this.consume(TokenType.rightBracket, `Expected "]" after array declaration`);
+
         return new Expr.List(values);
+    }
+
+    private superCall(): Expr.Expr {
+        const indexes: Token[] = [];
+        while (this.match(TokenType.dot)) {
+            const token = this.consume(TokenType.identifier, `Expected method name after super`);
+            indexes.push(token);
+        }
+
+        const args: Expr.Expr[] = [];
+        this.consume(TokenType.leftParen, `Expected function parameters or method name after super`);
+        do {
+            if (!this.check(TokenType.rightParen)) {
+                do {
+                    args.push(this.expression());
+                } while (this.match(TokenType.comma));
+            }
+            this.consume(TokenType.rightParen, `Expected ")" after super arguments`);
+        } while (this.match(TokenType.leftParen));
+
+        return new Expr.Super(indexes, args);
     }
 
 }

@@ -5,6 +5,7 @@ const ExpressionAST = {
     Binary: ['left: Expr', 'operator: Token', 'right: Expr'],
     Ternary: ['condition: Expr', 'thenExpr: Expr', 'elseExpr: Expr'],
     Call: ['callee: Expr', 'paren: Token', 'args: Expr[]', 'thiz: any'],
+    Super: ['index: Token[]', 'args: Expr[]'],
     Entity: ['properties: Expr[]'],
     Get: ['entity: Expr', 'key: Expr'],
     Set: ['entity: Expr', 'key: Expr', 'value: Expr'],

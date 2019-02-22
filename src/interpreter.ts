@@ -225,6 +225,34 @@ export class Interpreter implements
         return func.call(this, thiz, args);
     }
 
+    public visitSuperExpr(expr: Expr.Super): any {
+        const thiz: InstanceEntity = this.scope.first('this');
+        if (!thiz) {
+            conzole.error(`super can only be called on child instances`);
+        }
+        const clazz: FunctionEntity = this.scope.obtain(thiz.instanceof);
+        if (!clazz) {
+            conzole.error(`${thiz} is not an instance of an entity`);
+        }
+        const parent: FunctionEntity = clazz.parent;
+        if (!clazz) {
+            conzole.error(`${thiz} entity has no parent`);
+        }
+        let method: FunctionEntity = null;
+        for (let key of expr.index) {
+            method = parent.get(key.lexeme);
+        }
+        const args = [];
+        for (const argument of expr.args) {
+            args.push(this.evaluate(argument));
+        }
+        if (method) {
+            return method.call(this, thiz, args);
+        } else {
+            return parent.call(this, thiz, args);
+        }
+    }
+
     public visitNewExpr(expr: Expr.New): object {
         const construct = expr.construct as Expr.Call;
         const callee = this.evaluate(construct.callee);

@@ -68,7 +68,8 @@ export enum TokenType {
     true,
     var,
     let,
-    while
+    while,
+    super
 }
 
 export class Token {

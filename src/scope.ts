@@ -50,4 +50,21 @@ export class Scope {
         this.scopeError(`Error at (${name.line}): "${name.lexeme}" is not defined`);
     }
 
+    public first(key: string): any {
+        if (this.values.has(key)) {
+            return this.values.get(key);
+        }
+        return null;
+    }
+
+    public obtain(key: string): any {
+        if (this.values.has(key)) {
+            return this.values.get(key);
+        }
+        if (this.parent !== null) {
+            return this.parent.obtain(key);
+        }
+        return null;
+    }
+
 }

@@ -4,6 +4,7 @@ import { Return } from './return';
 import { Prototype } from './prototype';
 import * as Stmt from './statement';
 import * as Runtime from './runtime';
+declare var conzole: Console;
 
 export class InternalEntity {
     public call: (interpreter: Interpreter, thiz: any, args: any[]) => any;
@@ -89,7 +90,7 @@ export class FunctionEntity extends CallableEntity {
         }
         scope.set('this', thiz);
         if (this.parent) {
-            scope.set('super', Runtime.superCall(this, thiz));
+            //scope.set('super', Runtime.superCall(this, thiz));
         }
         try {
             interpreter.executeBlock(this.declaration.body, scope);
@@ -97,7 +98,11 @@ export class FunctionEntity extends CallableEntity {
             if (e instanceof Return) {
                 return e.value;
             }
+
+            conzole.error("Runtime error. Execution has been stopped");
+            conzole.error(e.message);
             throw new Error("Runtime error. Execution has been stopped");
+            debugger;
         }
         return null;
     }
@@ -105,7 +110,7 @@ export class FunctionEntity extends CallableEntity {
 }
 
 export class InstanceEntity extends CallableEntity {
-    private instanceof: string;
+    public instanceof: string;
     constructor(construct: FunctionEntity) {
         super();
         this.instanceof = construct.declaration.name.lexeme;
