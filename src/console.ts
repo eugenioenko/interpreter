@@ -49,6 +49,14 @@ export class Console {
         this.add(message, ConsoleMessageType.Info);
     }
 
+    public first(): any {
+        return this.messages[0].text;
+    }
+
+    public last(): any {
+        return this.messages[this.messages.length-1].text;
+    }
+
     public print(): any {
         return console.log(this.messages.map((cm) => cm.text));
     }
