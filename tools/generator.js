@@ -17,7 +17,8 @@ const ExpressionAST = {
     Variable: ['name: Token'],
     Key: ['name: Token'],
     Lambda: ['lambda: Stmt'],
-    List: ['value: Expr[]']
+    List: ['value: Expr[]'],
+    Range: ['start: Expr', 'end: Expr', 'step: Expr']
 };
 
 const StatementAST = {

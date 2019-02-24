@@ -482,19 +482,43 @@ export class Parser {
                 } while (this.match(TokenType.leftParen));
                 return callee;
             } else if (this.match(TokenType.dot)) {
-                const name: Token = this.consume(TokenType.identifier, `Expect property name after '.'`);
-                const key: Expr.Key = new Expr.Key(name);
-                expr = new Expr.Get(expr, key);
+                expr = this.dotGet(expr);
             } else if (this.match(TokenType.leftBracket)) {
-                const key: Expr.Expr = this.expression();
-                expr = new Expr.Get(expr, key);
-                this.consume(TokenType.rightBracket, `Expected "]" after property name expression`);
+                expr = this.bracketGet(expr);
             } else {
                 break;
             }
         }
 
         return expr;
+    }
+
+    private dotGet(expr: Expr.Expr): Expr.Expr {
+        const name: Token = this.consume(TokenType.identifier, `Expect property name after '.'`);
+        const key: Expr.Key = new Expr.Key(name);
+        return new Expr.Get(expr, key);
+    }
+
+    private bracketGet(expr: Expr.Expr): Expr.Expr {
+        let key: Expr.Expr = null;
+        let end: Expr.Expr = null;
+        let step: Expr.Expr = null;
+
+        if (!this.check(TokenType.colon)) {
+            key = this.expression();
+        }
+        if (this.match(TokenType.colon) && !this.check(TokenType.colon)) {
+            end = this.expression();
+        }
+        if (this.match(TokenType.colon) && !this.check(TokenType.rightBracket)) {
+            step = this.expression();
+        }
+        this.consume(TokenType.rightBracket, `Expected "]" after property name expression`);
+        if (!key || end || step) {
+            const range = new Expr.Range(key, end, step);
+            return new Expr.Get(expr, range);
+        }
+        return new Expr.Get(expr, key);
     }
 
     private primary(): Expr.Expr {
@@ -507,10 +531,10 @@ export class Parser {
         if (this.match(TokenType.null)) {
              return new Expr.Literal(null);
         }
-        if (this.match(TokenType.number, TokenType.stringSingle)) {
+        if (this.match(TokenType.number)) {
             return new Expr.Literal(this.previous().literal);
         }
-        if (this.match(TokenType.stringDouble)) {
+        if (this.match(TokenType.string)) {
             return new Expr.Ztring(this.previous().literal);
         }
         if (this.match(TokenType.identifier)) {
@@ -548,7 +572,7 @@ export class Parser {
         }
         const properties: Expr.Set[] = [];
         do {
-            if (this.match(TokenType.stringSingle, TokenType.stringDouble, TokenType.identifier)) {
+            if (this.match(TokenType.string, TokenType.identifier)) {
                 const key: Token = this.previous();
                 this.consume(TokenType.colon, `Expected ":" colon after member`);
                 const value = this.expression();

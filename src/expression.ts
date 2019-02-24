@@ -27,6 +27,7 @@ export interface ExprVisitor<R> {
     visitKeyExpr(expr: Key): R;
     visitLambdaExpr(expr: Lambda): R;
     visitListExpr(expr: List): R;
+    visitRangeExpr(expr: Range): R;
 }
 
 export class Assign extends Expr {
@@ -325,5 +326,25 @@ export class List extends Expr {
 
     public toString(): string {
         return 'Expr.List';
+    }
+}
+export class Range extends Expr {
+    public start: Expr;
+    public end: Expr;
+    public step: Expr;
+
+    constructor(start: Expr, end: Expr, step: Expr) {
+        super();
+        this.start = start;
+        this.end = end;
+        this.step = step;
+    }
+
+    public accept<R>(visitor: ExprVisitor<R>): R {
+        return visitor.visitRangeExpr(this);
+    }
+
+    public toString(): string {
+        return 'Expr.Range';
     }
 }

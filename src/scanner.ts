@@ -88,12 +88,7 @@ export class Scanner {
 
         // Trim the surrounding quotes.
         const value = this.source.substring(this.start + 1, this.current - 1);
-        if (type===TokenType.stringSingle) {
-            this.addToken('stringSingle', value);
-        } else {
-            this.addToken('stringDouble', value);
-        }
-
+        this.addToken('string', value);
     }
 
     private number() {
@@ -187,10 +182,9 @@ export class Scanner {
                 break;
             case '\n': this.line++; break;
             case `'`:
-                this.string(char, TokenType.stringSingle);
-                break;
             case `"`:
-                this.string(char, TokenType.stringDouble);
+            case '`':
+                this.string(char, TokenType.string);
                 break;
             // ignore cases
             case ' ':
