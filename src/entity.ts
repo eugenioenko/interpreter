@@ -206,7 +206,7 @@ export class StringEntity extends PrototypeEntity {
 }
 
 export class ArrayEntity extends PrototypeEntity {
-    private values: any[];
+    public values: any[];
     constructor(values: any[]) {
         super();
         this.values = values;

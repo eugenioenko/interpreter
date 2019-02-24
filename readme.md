@@ -161,6 +161,13 @@ Arrays are instances of ArrayEntinty objects.
     y.newProperty = "anything";
     print y.join(',');
     print x[::-1].join(','); // reverses array and prints it
+    print [1,2,3] + [4,5,6]; // joins to arrays
+```
+You can join two arays by using '+' operator.
+```
+let xArray = [1,2,3];
+let yArray = [4,5,6];
+let zArray = xArray + yArray;
 ```
 So far there are only a few methods defined for arrays:
 - pop(): removes last element from the array and returns it

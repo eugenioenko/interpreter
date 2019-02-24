@@ -104,6 +104,9 @@ export class Interpreter implements
                 if (!isNaN(left) && !isNaN(right)) {
                     return (left + right) as number;
                 }
+                if (left instanceof ArrayEntity && right instanceof ArrayEntity) {
+                    return new ArrayEntity(left.values.concat(right.values));
+                }
                 return new StringEntity(left as string + right as string);
             case TokenType.pipe:
                 return (left | right) as number;
