@@ -6,6 +6,18 @@ import * as Stmt from './statement';
 import * as Runtime from './runtime';
 declare var conzole: Console;
 
+export class IndexRange {
+    public start: number;
+    public end: number;
+    public step: number;
+
+    constructor(start: number, end: number, step: number) {
+        this.start = start;
+        this.end = end;
+        this.step = step;
+    }
+}
+
 export class InternalEntity {
     public call: (interpreter: Interpreter, thiz: any, args: any[]) => any;
     public toString: () => string = () => '<native function>';
@@ -136,6 +148,23 @@ export class StringEntity extends PrototypeEntity {
         this.prototype.values.set('split', Runtime.stringSplitMethod(this));
     }
 
+    public get(key: any): any {
+        if (typeof key === "number") {
+            return this.value[key];
+        } else if (key instanceof IndexRange) {
+            return this.range(key);
+        }else {
+            return super.get(key);
+        }
+
+    }
+
+    public set(key: string | number, value: any) {
+        if (typeof key !== "number") {
+            this.properties.set(key, value);
+        }
+    }
+
     public arity(): number {
         return 0;
     }
@@ -148,10 +177,36 @@ export class StringEntity extends PrototypeEntity {
         return this.value;
     }
 
+    private range(range: IndexRange): StringEntity {
+        if (range.step === null) {
+            range.step = 1;
+        }
+        if (range.end === null) {
+            range.end = range.step > 0 ? this.value.length - 1 : 0;
+        }
+        if (range.start === null) {
+            range.start = range.step > 0 ? 0 : this.value.length - 1;
+        }
+
+        let result = '';
+        if (range.step > 0) {
+            for (let i = range.start; i <= range.end; i += range.step) {
+                result += this.value[i];
+            }
+        }
+        if (range.step < 0) {
+            for (let i = range.start; i >= range.end; i += range.step) {
+                result += this.value[i];
+            }
+        }
+
+        return new StringEntity(result);
+    }
+
 }
 
 export class ArrayEntity extends PrototypeEntity {
-    private values: any[];
+    public values: any[];
     constructor(values: any[]) {
         super();
         this.values = values;
@@ -166,11 +221,13 @@ export class ArrayEntity extends PrototypeEntity {
         this.prototype.values.set('indexOf', Runtime.arrayIndexOfMethod(this));
     }
 
-    public get(key: string | number): any {
-        if (typeof key !== "number") {
-            return super.get(key);
-        } else {
+    public get(key: any): any {
+        if (typeof key === "number") {
             return this.values[key];
+        } else if (key instanceof IndexRange) {
+            return this.range(key);
+        } else {
+            return super.get(key);
         }
 
     }
@@ -181,6 +238,32 @@ export class ArrayEntity extends PrototypeEntity {
         } else {
             this.values[key] = value;
         }
+    }
+
+    private range(range: IndexRange): ArrayEntity {
+        if (range.step === null) {
+            range.step = 1;
+        }
+        if (range.end === null) {
+            range.end = range.step > 0 ? this.values.length - 1 : 0;
+        }
+        if (range.start === null) {
+            range.start = range.step > 0 ? 0 : this.values.length - 1;
+        }
+
+        let result = [];
+        if (range.step > 0) {
+            for (let i = range.start; i <= range.end; i += range.step) {
+                result.push(this.values[i]);
+            }
+        }
+        if (range.step < 0) {
+            for (let i = range.start; i >= range.end; i += range.step) {
+                result.push(this.values[i]);
+            }
+        }
+
+        return new ArrayEntity(result);
     }
 
     public arity(): number {

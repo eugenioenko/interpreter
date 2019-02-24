@@ -1,6 +1,6 @@
 import * as Expr from './expression';
 import * as Stmt from './statement';
-import { FunctionEntity, CallableEntity, InternalEntity, InstanceEntity, PrototypeEntity, ArrayEntity, StringEntity } from './entity';
+import { FunctionEntity, CallableEntity, InternalEntity, InstanceEntity, PrototypeEntity, ArrayEntity, StringEntity, IndexRange } from './entity';
 import { Console } from './console';
 import { Return } from './return';
 import { Scope } from './scope';
@@ -87,27 +87,31 @@ export class Interpreter implements
     }
 
     public visitBinaryExpr(expr: Expr.Binary): any {
-        const left = this.evaluate(expr.left);
-        const right = this.evaluate(expr.right);
+        let left = this.evaluate(expr.left);
+        let right = this.evaluate(expr.right);
+        left = left instanceof StringEntity ? left.toString() : left;
+        right = right instanceof StringEntity ? right.toString() : right;
         switch (expr.operator.type) {
             case TokenType.minus:
-                return <number> left - <number> right;
+                return (left - right) as number;
             case TokenType.slash:
-                return <number> left / <number> right;
+                return (left / right) as number;
             case TokenType.star:
-                return <number> left * <number> right;
+                return (left * right) as number;
             case TokenType.percent:
-                return <number> left % <number> right;
+                return (left % right) as number;
             case TokenType.plus:
-                if (typeof left === 'number' && typeof right === 'number') {
-                    return <number> (left + right);
-                } else {
-                    return <string> left + <string> right;
+                if (!isNaN(left) && !isNaN(right)) {
+                    return (left + right) as number;
                 }
+                if (left instanceof ArrayEntity && right instanceof ArrayEntity) {
+                    return new ArrayEntity(left.values.concat(right.values));
+                }
+                return new StringEntity(left as string + right as string);
             case TokenType.pipe:
-                return <number> left | <number> right;
+                return (left | right) as number;
             case TokenType.caret:
-                return <number> left ^ <number> right;
+                return (left ^ right) as number;
             case TokenType.greater:
                 return <number> left > <number> right;
             case TokenType.greaterEqual:
@@ -341,6 +345,14 @@ export class Interpreter implements
             value = this.evaluate(stmt.value);
         }
         throw new Return(value);
+    }
+
+    public visitRangeExpr(expr: Expr.Range): any {
+        return new IndexRange(
+            expr.start ? this.evaluate(expr.start) : null,
+            expr.end ? this.evaluate(expr.end) : null,
+            expr.step ? this.evaluate(expr.step) : null
+        );
     }
 
 }
