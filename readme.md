@@ -150,8 +150,9 @@ In essence this two would be equivalent:
 
 ### Arrays
 Arrays are instances of ArrayEntinty objects.
-- Accesing the indices with a number returns the array values.
-- Accesing the indices with a string returns the object property.
+- Accesing with a number index returns the array values.
+- Accesing with a range index returns a slice of the array.
+- Accesing with a string index returns the object property.
 ```
     let x = [1, 20, 300];
     let y = [100, x[1]];
@@ -159,21 +160,32 @@ Arrays are instances of ArrayEntinty objects.
     y.push(x);
     y.newProperty = "anything";
     print y.join(',');
+    print x[::-1].join(','); // reverses array and prints it
 ```
 So far there are only a few methods defined for arrays:
 - pop(): removes last element from the array and returns it
 - push(value): adds an element at the end of the array
 - join(separator): returns a string representation of the array with value separated by separator
 
+#### Range:
+array[start : end : step];
+Similar to python step provides the dirrection of the slice. Start provides from where to slice and end provides the end index of the slice
+
 ### Strings
-There are two type of strings in atscript: Literal and Object.
-- Literal: are the once enclosed by single quotes 'literal'
-- Object: are the once enclosed by double quotes "string object"
-
-The literal string provide no methods withing them because they are not objects.
-They can be added together, to a number and printed but no manipulation of the content.
-Object string provide the utilities like: size, split and others;
-
+Strings are instances of StringEntinty objects.
+- Accesing with a number index returns the string value.
+- Accesing with a range index returns a slice of the string.
+- Accesing with a string index returns the object property. (only for get, setting a property in string won't modify the property, similarly to javascript)
+```
+let s = "hello world";
+print s[1]; // prints 'e'
+print s[6::]; // prints 'world'
+print s[::-1] // prints 'dlrow olleh';
+let d = ("hello" + " world").size();
+```
+#### Range:
+array[start : end : step];
+Similar to python step provides the dirrection of the slice. Start provides from where to slice and end provides the end index of the slice
 ### utility functions
 ```
      echo(variable); // outputs variable in javascript console
