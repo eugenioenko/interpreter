@@ -355,30 +355,58 @@ export class Parser {
     private assignment(): Expr.Expr {
         const expr: Expr.Expr = this.ternary();
 
-        if (this.match(TokenType.equal)) {
-            const equals: Token = this.previous();
-            const value: Expr.Expr = this.ternary();
+        if (this.match(TokenType.equal, TokenType.plusEqual,
+            TokenType.minusEqual, TokenType.starEqual, TokenType.slashEqual)
+        ) {
+            const operator: Token = this.previous();
+            let value: Expr.Expr = this.assignment();
 
             if (expr instanceof Expr.Variable) {
                 const name: Token = expr.name;
+                if (operator.type !== TokenType.equal) {
+                    value = new Expr.Binary(new Expr.Variable(name), operator, value);
+                }
                 return new Expr.Assign(name, value);
             } else if (expr instanceof Expr.Get) {
+                if (operator.type !== TokenType.equal) {
+                    value = new Expr.Binary(new Expr.Get(expr.entity, expr.key), operator, value);
+                }
                 return new Expr.Set(expr.entity, expr.key, value);
             }
 
-            this.parseError(equals, `Invalid l-value, is not an assigning target.`);
+            this.parseError(operator, `Invalid l-value, is not an assigning target.`);
         }
 
         return expr;
     }
 
     private ternary(): Expr.Expr {
-        const expr = this.equality();
+        const expr = this.logicalOr();
         if (this.match(TokenType.question)) {
-            const thenExpr: Expr.Expr = this.equality();
+            const thenExpr: Expr.Expr = this.ternary();
             this.consume(TokenType.colon, `Expected ":" after ternary ? expression`);
-            const elseExpr: Expr.Expr = this.equality();
+            const elseExpr: Expr.Expr = this.ternary();
             return new Expr.Ternary(expr, thenExpr, elseExpr);
+        }
+        return expr;
+    }
+
+    private logicalOr(): Expr.Expr {
+        let expr = this.logicalAnd();
+        while (this.match(TokenType.or)) {
+            const operator: Token = this.previous();
+            const right: Expr.Expr = this.logicalAnd();
+            expr = new Expr.Logical(expr, operator, right);
+        }
+        return expr;
+    }
+
+    private logicalAnd(): Expr.Expr {
+        let expr = this.equality();
+        while (this.match(TokenType.and)) {
+            const operator: Token = this.previous();
+            const right: Expr.Expr = this.equality();
+            expr = new Expr.Logical(expr, operator, right);
         }
         return expr;
     }

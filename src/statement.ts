@@ -11,15 +11,15 @@ export abstract class Stmt {
 // tslint:disable-next-line
 export interface StmtVisitor<R> {
     visitBlockStmt(stmt: Block): R;
-    visitExpressionStmt(stmt: Expression): R;
-    visitIfStmt(stmt: If): R;
-    visitFuncStmt(stmt: Func): R;
     visitClassStmt(stmt: Class): R;
-    visitReturnStmt(stmt: Return): R;
-    visitWhileStmt(stmt: While): R;
     visitDoWhileStmt(stmt: DoWhile): R;
+    visitExpressionStmt(stmt: Expression): R;
+    visitFuncStmt(stmt: Func): R;
+    visitIfStmt(stmt: If): R;
     visitPrintStmt(stmt: Print): R;
+    visitReturnStmt(stmt: Return): R;
     visitVarStmt(stmt: Var): R;
+    visitWhileStmt(stmt: While): R;
 }
 
 export class Block extends Stmt {
@@ -36,62 +36,6 @@ export class Block extends Stmt {
 
     public toString(): string {
         return 'Stmt.Block';
-    }
-}
-export class Expression extends Stmt {
-    public expression: Expr;
-
-    constructor(expression: Expr) {
-        super();
-        this.expression = expression;
-    }
-
-    public accept<R>(visitor: StmtVisitor<R>): R {
-        return visitor.visitExpressionStmt(this);
-    }
-
-    public toString(): string {
-        return 'Stmt.Expression';
-    }
-}
-export class If extends Stmt {
-    public condition: Expr;
-    public thenStmt: Stmt;
-    public elseStmt: Stmt;
-
-    constructor(condition: Expr, thenStmt: Stmt, elseStmt: Stmt) {
-        super();
-        this.condition = condition;
-        this.thenStmt = thenStmt;
-        this.elseStmt = elseStmt;
-    }
-
-    public accept<R>(visitor: StmtVisitor<R>): R {
-        return visitor.visitIfStmt(this);
-    }
-
-    public toString(): string {
-        return 'Stmt.If';
-    }
-}
-export class Func extends Stmt {
-    public name: Token;
-    public params: Token[];
-    public body: Stmt[];
-
-    constructor(name: Token, params: Token[], body: Stmt[]) {
-        super();
-        this.name = name;
-        this.params = params;
-        this.body = body;
-    }
-
-    public accept<R>(visitor: StmtVisitor<R>): R {
-        return visitor.visitFuncStmt(this);
-    }
-
-    public toString(): string {
-        return 'Stmt.Func';
     }
 }
 export class Class extends Stmt {
@@ -114,42 +58,6 @@ export class Class extends Stmt {
         return 'Stmt.Class';
     }
 }
-export class Return extends Stmt {
-    public keyword: Token;
-    public value: Expr;
-
-    constructor(keyword: Token, value: Expr) {
-        super();
-        this.keyword = keyword;
-        this.value = value;
-    }
-
-    public accept<R>(visitor: StmtVisitor<R>): R {
-        return visitor.visitReturnStmt(this);
-    }
-
-    public toString(): string {
-        return 'Stmt.Return';
-    }
-}
-export class While extends Stmt {
-    public condition: Expr;
-    public loop: Stmt;
-
-    constructor(condition: Expr, loop: Stmt) {
-        super();
-        this.condition = condition;
-        this.loop = loop;
-    }
-
-    public accept<R>(visitor: StmtVisitor<R>): R {
-        return visitor.visitWhileStmt(this);
-    }
-
-    public toString(): string {
-        return 'Stmt.While';
-    }
-}
 export class DoWhile extends Stmt {
     public loop: Stmt;
     public condition: Expr;
@@ -168,6 +76,62 @@ export class DoWhile extends Stmt {
         return 'Stmt.DoWhile';
     }
 }
+export class Expression extends Stmt {
+    public expression: Expr;
+
+    constructor(expression: Expr) {
+        super();
+        this.expression = expression;
+    }
+
+    public accept<R>(visitor: StmtVisitor<R>): R {
+        return visitor.visitExpressionStmt(this);
+    }
+
+    public toString(): string {
+        return 'Stmt.Expression';
+    }
+}
+export class Func extends Stmt {
+    public name: Token;
+    public params: Token[];
+    public body: Stmt[];
+
+    constructor(name: Token, params: Token[], body: Stmt[]) {
+        super();
+        this.name = name;
+        this.params = params;
+        this.body = body;
+    }
+
+    public accept<R>(visitor: StmtVisitor<R>): R {
+        return visitor.visitFuncStmt(this);
+    }
+
+    public toString(): string {
+        return 'Stmt.Func';
+    }
+}
+export class If extends Stmt {
+    public condition: Expr;
+    public thenStmt: Stmt;
+    public elseStmt: Stmt;
+
+    constructor(condition: Expr, thenStmt: Stmt, elseStmt: Stmt) {
+        super();
+        this.condition = condition;
+        this.thenStmt = thenStmt;
+        this.elseStmt = elseStmt;
+    }
+
+    public accept<R>(visitor: StmtVisitor<R>): R {
+        return visitor.visitIfStmt(this);
+    }
+
+    public toString(): string {
+        return 'Stmt.If';
+    }
+}
 export class Print extends Stmt {
     public expression: Expr;
 
@@ -182,6 +146,24 @@ export class Print extends Stmt {
 
     public toString(): string {
         return 'Stmt.Print';
+    }
+}
+export class Return extends Stmt {
+    public keyword: Token;
+    public value: Expr;
+
+    constructor(keyword: Token, value: Expr) {
+        super();
+        this.keyword = keyword;
+        this.value = value;
+    }
+
+    public accept<R>(visitor: StmtVisitor<R>): R {
+        return visitor.visitReturnStmt(this);
+    }
+
+    public toString(): string {
+        return 'Stmt.Return';
     }
 }
 export class Var extends Stmt {
@@ -202,5 +184,23 @@ export class Var extends Stmt {
 
     public toString(): string {
         return 'Stmt.Var';
+    }
+}
+export class While extends Stmt {
+    public condition: Expr;
+    public loop: Stmt;
+
+    constructor(condition: Expr, loop: Stmt) {
+        super();
+        this.condition = condition;
+        this.loop = loop;
+    }
+
+    public accept<R>(visitor: StmtVisitor<R>): R {
+        return visitor.visitWhileStmt(this);
+    }
+
+    public toString(): string {
+        return 'Stmt.While';
     }
 }

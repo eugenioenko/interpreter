@@ -147,16 +147,17 @@ export class Scanner {
             case ',': this.addToken('comma', null); break;
             case '.': this.addToken('dot', null); break;
             case ';': this.addToken('semicolon', null); break;
-            case '*': this.addToken('star', null); break;
+            case '*': this.addToken(this.match('=') ? 'starEqual' : 'star', null); break;
             case '^': this.addToken('caret', null); break;
             case '?': this.addToken('question', null); break;
             case ':': this.addToken('colon', null); break;
-            case '%': this.addToken('percent', null); break;
+            case '%': this.addToken(this.match('=') ? 'percentEqual' : 'percent', null); break;
             case '$': this.addToken('dollar', null); break;
             case '@': this.addToken('function', null); break;
-            case '-': this.addToken(this.match('-') ? 'minusMinus' : this.match('>') ? 'return' : 'minus', null); break;
-            case '+': this.addToken(this.match('+') ? 'plusPlus' : 'plus', null); break;
+            case '-': this.addToken(this.match('-') ? 'minusMinus' : this.match('>') ? 'return' : this.match('=') ? 'minusEqual' : 'minus', null); break;
+            case '+': this.addToken(this.match('+') ? 'plusPlus' : this.match('=') ? 'plusEqual' : 'plus', null); break;
             case '|': this.addToken(this.match('|') ? 'or' : 'pipe', null); break;
+            case '&': this.addToken(this.match('&') ? 'and' : 'ampersand', null); break;
             case '<': this.addToken(this.match('=') ? 'lessEqual' : 'less', null); break;
             case '>': this.addToken(this.match('=') ? 'greaterEqual' : 'greater', null); break;
             case '!': this.addToken(this.match('=') ? this.match('=') ? 'bangEqualEqual' : 'bangEqual' : 'bang', null); break;
@@ -176,6 +177,8 @@ export class Scanner {
             case '/':
                 if (this.match('/')) {
                     this.comment();
+                } else if (this.match('=')) {
+                    this.addToken('slashEqual', null);
                 } else {
                     this.addToken('slash', null);
                 }

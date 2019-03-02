@@ -88,9 +88,10 @@ export class Interpreter implements
         return new StringEntity(expr.value);
     }
 
-    public visitAssignExpr(expr: Expr.Assign): void {
+    public visitAssignExpr(expr: Expr.Assign): any {
         const value = this.evaluate(expr.value);
         this.scope.assign(expr.name.lexeme, value);
+        return value;
     }
 
     public visitBinaryExpr(expr: Expr.Binary): any {
@@ -100,14 +101,19 @@ export class Interpreter implements
         right = right instanceof StringEntity ? right.toString() : right;
         switch (expr.operator.type) {
             case TokenType.minus:
+            case TokenType.minusEqual:
                 return (left - right) as number;
             case TokenType.slash:
+            case TokenType.slashEqual:
                 return (left / right) as number;
             case TokenType.star:
+            case TokenType.starEqual:
                 return (left * right) as number;
             case TokenType.percent:
+            case TokenType.percentEqual:
                 return (left % right) as number;
             case TokenType.plus:
+            case TokenType.plusEqual:
                 if (!isNaN(left) && !isNaN(right)) {
                     return (left + right) as number;
                 }
@@ -141,6 +147,14 @@ export class Interpreter implements
                 conzole.warn(expr);
                 return null; // unreachable
                 break;
+        }
+    }
+
+    public visitLogicalExpr(expr: Expr.Logical): any {
+        if (expr.operator.type === TokenType.and) {
+            return this.evaluate(expr.left) && this.evaluate(expr.right)
+        } else {
+            return this.evaluate(expr.left) || this.evaluate(expr.right)
         }
     }
 

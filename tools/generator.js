@@ -3,36 +3,37 @@ let fs = require('fs');
 const ExpressionAST = {
     Assign: ['name: Token', 'value: Expr'],
     Binary: ['left: Expr', 'operator: Token', 'right: Expr'],
-    Ternary: ['condition: Expr', 'thenExpr: Expr', 'elseExpr: Expr'],
     Call: ['callee: Expr', 'paren: Token', 'args: Expr[]', 'thiz: any'],
-    Super: ['index: Token[]', 'args: Expr[]'],
     Entity: ['properties: Expr[]'],
     Get: ['entity: Expr', 'key: Expr'],
-    Set: ['entity: Expr', 'key: Expr', 'value: Expr'],
-    New: ['construct: Expr'],
     Grouping: ['expression: Expr'],
-    Literal: ['value: any'],
-    Ztring: ['value: string'],
-    Unary: ['operator: Token', 'right: Expr'],
-    Variable: ['name: Token'],
     Key: ['name: Token'],
     Lambda: ['lambda: Stmt'],
+    Logical: ['left: Expr', 'operator: Token', 'right: Expr'],
     List: ['value: Expr[]'],
+    Literal: ['value: any'],
+    New: ['construct: Expr'],
+    Postfix: ['name: Token', 'increment: number'],
     Range: ['start: Expr', 'end: Expr', 'step: Expr'],
-    Postfix: ['name: Token', 'increment: number']
+    Set: ['entity: Expr', 'key: Expr', 'value: Expr'],
+    Super: ['index: Token[]', 'args: Expr[]'],
+    Ternary: ['condition: Expr', 'thenExpr: Expr', 'elseExpr: Expr'],
+    Unary: ['operator: Token', 'right: Expr'],
+    Variable: ['name: Token'],
+    Ztring: ['value: string']
 };
 
 const StatementAST = {
     Block: ['statements: Stmt[]'],
-    Expression : ['expression: Expr'],
-    If: ['condition: Expr', 'thenStmt: Stmt', 'elseStmt: Stmt'],
-    Func: ['name: Token', 'params: Token[]', 'body: Stmt[]'],
     Class: ['name: Token', 'parent: Token', 'methods: Func[]'],
-    Return: ['keyword: Token', 'value: Expr'],
-    While: ['condition: Expr', 'loop: Stmt'],
     DoWhile: ['loop: Stmt', 'condition: Expr'],
+    Expression : ['expression: Expr'],
+    Func: ['name: Token', 'params: Token[]', 'body: Stmt[]'],
+    If: ['condition: Expr', 'thenStmt: Stmt', 'elseStmt: Stmt'],
     Print : ['expression: Expr'],
-    Var : ['name: Token', 'type: Token', 'initializer: Expr']
+    Return: ['keyword: Token', 'value: Expr'],
+    Var : ['name: Token', 'type: Token', 'initializer: Expr'],
+    While: ['condition: Expr', 'loop: Stmt']
 };
 
 function generateAST(baseClass, AST, filename, imports = '') {
@@ -78,5 +79,5 @@ function generateAST(baseClass, AST, filename, imports = '') {
     });
 }
 
-generateAST('Expr', ExpressionAST, 'expression', `import { Token } from 'token';\n\nimport { Stmt } from 'statement';\n\n`);
+generateAST('Expr', ExpressionAST, 'expression', `import { Token, TokenType } from 'token';\n\nimport { Stmt } from 'statement';\n\n`);
 generateAST('Stmt', StatementAST, 'statement', `import { Token } from 'token';\n\nimport { Expr } from 'expression';\n\n`);
