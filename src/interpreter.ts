@@ -88,9 +88,10 @@ export class Interpreter implements
         return new StringEntity(expr.value);
     }
 
-    public visitAssignExpr(expr: Expr.Assign): void {
+    public visitAssignExpr(expr: Expr.Assign): any {
         const value = this.evaluate(expr.value);
         this.scope.assign(expr.name.lexeme, value);
+        return value;
     }
 
     public visitBinaryExpr(expr: Expr.Binary): any {

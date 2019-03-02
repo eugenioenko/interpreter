@@ -359,7 +359,7 @@ export class Parser {
             TokenType.minusEqual, TokenType.starEqual, TokenType.slashEqual)
         ) {
             const operator: Token = this.previous();
-            let value: Expr.Expr = this.ternary();
+            let value: Expr.Expr = this.assignment();
 
             if (expr instanceof Expr.Variable) {
                 const name: Token = expr.name;
@@ -383,9 +383,9 @@ export class Parser {
     private ternary(): Expr.Expr {
         const expr = this.equality();
         if (this.match(TokenType.question)) {
-            const thenExpr: Expr.Expr = this.equality();
+            const thenExpr: Expr.Expr = this.ternary();
             this.consume(TokenType.colon, `Expected ":" after ternary ? expression`);
-            const elseExpr: Expr.Expr = this.equality();
+            const elseExpr: Expr.Expr = this.ternary();
             return new Expr.Ternary(expr, thenExpr, elseExpr);
         }
         return expr;
