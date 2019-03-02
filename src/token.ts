@@ -5,6 +5,7 @@ export enum TokenType {
     lambda,
 
     // single character tokens
+    ampersand,
     atSign,
     caret,
     comma,

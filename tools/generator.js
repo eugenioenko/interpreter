@@ -9,6 +9,7 @@ const ExpressionAST = {
     Grouping: ['expression: Expr'],
     Key: ['name: Token'],
     Lambda: ['lambda: Stmt'],
+    Logical: ['left: Expr', 'operator: Token', 'right: Expr'],
     List: ['value: Expr[]'],
     Literal: ['value: any'],
     New: ['construct: Expr'],

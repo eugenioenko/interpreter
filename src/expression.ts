@@ -18,6 +18,7 @@ export interface ExprVisitor<R> {
     visitGroupingExpr(expr: Grouping): R;
     visitKeyExpr(expr: Key): R;
     visitLambdaExpr(expr: Lambda): R;
+    visitLogicalExpr(expr: Logical): R;
     visitListExpr(expr: List): R;
     visitLiteralExpr(expr: Literal): R;
     visitNewExpr(expr: New): R;
@@ -171,6 +172,26 @@ export class Lambda extends Expr {
 
     public toString(): string {
         return 'Expr.Lambda';
+    }
+}
+export class Logical extends Expr {
+    public left: Expr;
+    public operator: Token;
+    public right: Expr;
+
+    constructor(left: Expr, operator: Token, right: Expr) {
+        super();
+        this.left = left;
+        this.operator = operator;
+        this.right = right;
+    }
+
+    public accept<R>(visitor: ExprVisitor<R>): R {
+        return visitor.visitLogicalExpr(this);
+    }
+
+    public toString(): string {
+        return 'Expr.Logical';
     }
 }
 export class List extends Expr {

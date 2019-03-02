@@ -157,6 +157,7 @@ export class Scanner {
             case '-': this.addToken(this.match('-') ? 'minusMinus' : this.match('>') ? 'return' : this.match('=') ? 'minusEqual' : 'minus', null); break;
             case '+': this.addToken(this.match('+') ? 'plusPlus' : this.match('=') ? 'plusEqual' : 'plus', null); break;
             case '|': this.addToken(this.match('|') ? 'or' : 'pipe', null); break;
+            case '&': this.addToken(this.match('&') ? 'and' : 'ampersand', null); break;
             case '<': this.addToken(this.match('=') ? 'lessEqual' : 'less', null); break;
             case '>': this.addToken(this.match('=') ? 'greaterEqual' : 'greater', null); break;
             case '!': this.addToken(this.match('=') ? this.match('=') ? 'bangEqualEqual' : 'bangEqual' : 'bang', null); break;

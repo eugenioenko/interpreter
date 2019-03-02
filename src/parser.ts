@@ -381,12 +381,32 @@ export class Parser {
     }
 
     private ternary(): Expr.Expr {
-        const expr = this.equality();
+        const expr = this.logicalOr();
         if (this.match(TokenType.question)) {
             const thenExpr: Expr.Expr = this.ternary();
             this.consume(TokenType.colon, `Expected ":" after ternary ? expression`);
             const elseExpr: Expr.Expr = this.ternary();
             return new Expr.Ternary(expr, thenExpr, elseExpr);
+        }
+        return expr;
+    }
+
+    private logicalOr(): Expr.Expr {
+        let expr = this.logicalAnd();
+        while (this.match(TokenType.or)) {
+            const operator: Token = this.previous();
+            const right: Expr.Expr = this.logicalAnd();
+            expr = new Expr.Logical(expr, operator, right);
+        }
+        return expr;
+    }
+
+    private logicalAnd(): Expr.Expr {
+        let expr = this.equality();
+        while (this.match(TokenType.and)) {
+            const operator: Token = this.previous();
+            const right: Expr.Expr = this.equality();
+            expr = new Expr.Logical(expr, operator, right);
         }
         return expr;
     }

@@ -150,6 +150,14 @@ export class Interpreter implements
         }
     }
 
+    public visitLogicalExpr(expr: Expr.Logical): any {
+        if (expr.operator.type === TokenType.and) {
+            return this.evaluate(expr.left) && this.evaluate(expr.right)
+        } else {
+            return this.evaluate(expr.left) || this.evaluate(expr.right)
+        }
+    }
+
     public visitTernaryExpr(expr: Expr.Ternary): any {
         return this.evaluate(expr.condition) ? this.evaluate(expr.thenExpr) : this.evaluate(expr.elseExpr);
     }
