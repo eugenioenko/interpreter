@@ -100,14 +100,19 @@ export class Interpreter implements
         right = right instanceof StringEntity ? right.toString() : right;
         switch (expr.operator.type) {
             case TokenType.minus:
+            case TokenType.minusEqual:
                 return (left - right) as number;
             case TokenType.slash:
+            case TokenType.slashEqual:
                 return (left / right) as number;
             case TokenType.star:
+            case TokenType.starEqual:
                 return (left * right) as number;
             case TokenType.percent:
+            case TokenType.percentEqual:
                 return (left % right) as number;
             case TokenType.plus:
+            case TokenType.plusEqual:
                 if (!isNaN(left) && !isNaN(right)) {
                     return (left + right) as number;
                 }

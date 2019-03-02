@@ -355,18 +355,26 @@ export class Parser {
     private assignment(): Expr.Expr {
         const expr: Expr.Expr = this.ternary();
 
-        if (this.match(TokenType.equal)) {
-            const equals: Token = this.previous();
-            const value: Expr.Expr = this.ternary();
+        if (this.match(TokenType.equal, TokenType.plusEqual,
+            TokenType.minusEqual, TokenType.starEqual, TokenType.slashEqual)
+        ) {
+            const operator: Token = this.previous();
+            let value: Expr.Expr = this.ternary();
 
             if (expr instanceof Expr.Variable) {
                 const name: Token = expr.name;
+                if (operator.type !== TokenType.equal) {
+                    value = new Expr.Binary(new Expr.Variable(name), operator, value);
+                }
                 return new Expr.Assign(name, value);
             } else if (expr instanceof Expr.Get) {
+                if (operator.type !== TokenType.equal) {
+                    value = new Expr.Binary(new Expr.Get(expr.entity, expr.key), operator, value);
+                }
                 return new Expr.Set(expr.entity, expr.key, value);
             }
 
-            this.parseError(equals, `Invalid l-value, is not an assigning target.`);
+            this.parseError(operator, `Invalid l-value, is not an assigning target.`);
         }
 
         return expr;
