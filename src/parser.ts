@@ -539,6 +539,12 @@ export class Parser {
         }
         if (this.match(TokenType.identifier)) {
             const identifier =  this.previous();
+            if (this.match(TokenType.plusPlus)) {
+                return new Expr.Postfix(identifier, 1);
+            }
+            if (this.match(TokenType.minusMinus)) {
+                return new Expr.Postfix(identifier, -1);
+            }
             return new Expr.Variable(identifier);
         }
         if (this.match(TokenType.leftParen)) {

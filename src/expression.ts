@@ -28,6 +28,7 @@ export interface ExprVisitor<R> {
     visitLambdaExpr(expr: Lambda): R;
     visitListExpr(expr: List): R;
     visitRangeExpr(expr: Range): R;
+    visitPostfixExpr(expr: Postfix): R;
 }
 
 export class Assign extends Expr {
@@ -346,5 +347,23 @@ export class Range extends Expr {
 
     public toString(): string {
         return 'Expr.Range';
+    }
+}
+export class Postfix extends Expr {
+    public name: Token;
+    public increment: number;
+
+    constructor(name: Token, increment: number) {
+        super();
+        this.name = name;
+        this.increment = increment;
+    }
+
+    public accept<R>(visitor: ExprVisitor<R>): R {
+        return visitor.visitPostfixExpr(this);
+    }
+
+    public toString(): string {
+        return 'Expr.Postfix';
     }
 }

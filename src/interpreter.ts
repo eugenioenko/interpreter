@@ -69,6 +69,13 @@ export class Interpreter implements
         return this.scope.get(expr.name);
     }
 
+    public visitPostfixExpr(expr: Expr.Postfix): any {
+        const value = this.scope.get(expr.name);
+        const newValue = value + expr.increment;
+        this.scope.assign(expr.name.lexeme, newValue);
+        return value;
+    }
+
     public visitListExpr(expr: Expr.List): any {
         const values: any[] = [];
         for (const expression of expr.value) {
