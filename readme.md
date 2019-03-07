@@ -1,5 +1,6 @@
 
 ##  @script (at-script)
+[![Build Status](https://travis-ci.org/eugenioenko/interpreter.svg?branch=master)](https://travis-ci.org/eugenioenko/interpreter)
 This is a work in progress of an interpreter writen in typescript of a scripting language somewhat similar to javascript.
 
 ### > [Try it out in playground!](https://eugenioenko.github.io/interpreter/)
