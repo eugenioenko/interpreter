@@ -24,8 +24,19 @@ export class Interpreter implements
         return expr.accept(this);
     }
 
-    private execute(stmt: Stmt.Stmt): void {
-        stmt.accept(this);
+    private execute(stmt: Stmt.Stmt): any {
+        return stmt.accept(this);
+    }
+
+    public eval(statements: Stmt.Stmt[]): any {
+        for (let i = 0; i < statements.length; ++i) {
+            const statement = statements[i];
+            if (i !== statements.length -1 ) {
+                this.execute(statement);
+            } else {
+                return this.execute(statement);
+            }
+        }
     }
 
     public interpet(statements: Stmt.Stmt[]): any {
@@ -39,14 +50,15 @@ export class Interpreter implements
         throw new Error();
     }
 
-    public visitExpressionStmt(stmt: Stmt.Expression): void {
-        this.evaluate(stmt.expression);
+    public visitExpressionStmt(stmt: Stmt.Expression): any {
+        return this.evaluate(stmt.expression);
     }
 
-    public visitPrintStmt(stmt: Stmt.Print): void {
+    public visitPrintStmt(stmt: Stmt.Print): any {
         let value = this.evaluate(stmt.expression);
         value = value === null ? "null" : value;
         conzole.log(value);
+        return value;
     }
 
     public visitVarStmt(stmt: Stmt.Var): void {

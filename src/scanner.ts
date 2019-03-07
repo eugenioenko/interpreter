@@ -107,6 +107,18 @@ export class Scanner {
             this.advance();
         }
 
+        // checks for exponent
+        if (this.peek().toLowerCase() === 'e') {
+            this.advance();
+            if (this.peek() === '-' || this.peek() === '+') {
+                this.advance();
+            }
+        }
+
+        while (isDigit(this.peek())) {
+            this.advance();
+        }
+
         const value = this.source.substring(this.start , this.current);
         this.addToken('number', Number(value));
     }
