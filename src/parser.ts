@@ -1,7 +1,7 @@
-import { Token, TokenType } from './token';
 import * as Expr from './expression';
 import * as Stmt from './statement';
 import { Console } from './console';
+import { Token, TokenType } from './token';
 declare var conzole: Console;
 
 export class Parser {

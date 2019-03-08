@@ -1,12 +1,15 @@
 import * as Expr from './expression';
+import * as Runtime from './runtime';
 import * as Stmt from './statement';
-import { FunctionEntity, CallableEntity, InternalEntity, InstanceEntity, PrototypeEntity, ArrayEntity, StringEntity, IndexRange } from './entity';
+import { ArrayEntity } from './array';
 import { Console } from './console';
+import { FunctionEntity, CallableEntity, InternalEntity, InstanceEntity, PrototypeEntity } from './entity';
+import { IndexRange } from './range';
+import { Prototype } from './prototype';
 import { Return } from './return';
 import { Scope } from './scope';
+import { StringEntity } from './string';
 import { TokenType } from './token';
-import * as Runtime from './runtime';
-import { Prototype } from './prototype';
 declare var conzole: Console;
 
 export class Interpreter implements
