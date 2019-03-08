@@ -153,11 +153,11 @@ export class Scanner {
 
         // The closing #.
         this.advance();
-        const regex = this.source.substring(this.start + 1, this.current -1);
+        const regex = this.source.substring(this.start + 1, this.current - 1);
 
         let flags = '';
         if (['g', 'i', 's', 'u', 'y'].indexOf(this.peek()) !== -1) {
-            let start = this.current;
+            const start = this.current;
             while (this.peek() !== '#' && !this.eof()) {
                 if (this.peek() === '\n') {
                     this.line++;
