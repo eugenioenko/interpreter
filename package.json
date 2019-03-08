@@ -7,6 +7,7 @@
     "start": "npx webpack",
     "build": "webpack --config webpack.prod.js",
     "lint": "npx tslint -c tslint.json 'src/*.ts'",
+    "travis": "npm run build && npm run lint",
     "generator": "node tools/generator.js",
     "start2": "tsc --watch src/interpreter.ts",
     "test": "jasmine"

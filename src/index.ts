@@ -16,7 +16,6 @@ window.execute = (source: string): Console => {
     return (new Interpreter().interpet((new Parser((new Scanner(source)).scan())).parse()));
 };
 
-
 window.atscript = (source: string) => {
     return (new Interpreter().eval((new Parser((new Scanner(source)).scan())).parse()));
-}
+};

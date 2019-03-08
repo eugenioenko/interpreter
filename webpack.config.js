@@ -19,7 +19,7 @@ module.exports = {
         ]
     },
     output: {
-        filename: 'bundle.js',
+        filename: 'atscript.js',
         path: path.resolve(__dirname, 'dist')
     }
 };

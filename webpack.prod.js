@@ -3,7 +3,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
     entry: './src/index.ts',
-    devtool: false,
+    devtool: 'source-map',
     mode: 'production',
     watch: false,
     module: {
@@ -20,7 +20,7 @@ module.exports = {
         ]
     },
     output: {
-        filename: 'bundle.min.js',
+        filename: 'atscript.min.js',
         path: path.resolve(__dirname, 'dist')
     },
     optimization: {

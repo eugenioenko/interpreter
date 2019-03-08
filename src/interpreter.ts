@@ -31,7 +31,7 @@ export class Interpreter implements
     public eval(statements: Stmt.Stmt[]): any {
         for (let i = 0; i < statements.length; ++i) {
             const statement = statements[i];
-            if (i !== statements.length -1 ) {
+            if (i !== statements.length - 1 ) {
                 this.execute(statement);
             } else {
                 return this.execute(statement);
@@ -164,9 +164,9 @@ export class Interpreter implements
 
     public visitLogicalExpr(expr: Expr.Logical): any {
         if (expr.operator.type === TokenType.and) {
-            return this.evaluate(expr.left) && this.evaluate(expr.right)
+            return this.evaluate(expr.left) && this.evaluate(expr.right);
         } else {
-            return this.evaluate(expr.left) || this.evaluate(expr.right)
+            return this.evaluate(expr.left) || this.evaluate(expr.right);
         }
     }
 
@@ -276,7 +276,7 @@ export class Interpreter implements
             conzole.error(`${thiz} entity has no parent`);
         }
         let method: FunctionEntity = null;
-        for (let key of expr.index) {
+        for (const key of expr.index) {
             method = parent.get(key.lexeme);
         }
         const args = [];
@@ -340,8 +340,8 @@ export class Interpreter implements
     }
 
     public visitClassStmt(stmt: Stmt.Class): any {
-        let construct = stmt.methods.find(method => method.name.lexeme === "constructor");
-        const methods = stmt.methods.filter(method => method.name.lexeme !== "constructor");
+        let construct = stmt.methods.find((method) => method.name.lexeme === "constructor");
+        const methods = stmt.methods.filter((method) => method.name.lexeme !== "constructor");
 
         if (!construct) {
             construct = new Stmt.Func(stmt.name, [], []);
@@ -358,7 +358,7 @@ export class Interpreter implements
                 func.prototype = new Prototype(parent.properties, parent.prototype, func);
             }
         }
-        for (let method of methods) {
+        for (const method of methods) {
             func.properties.set(method.name.lexeme, new FunctionEntity(method, this.scope, parent));
         }
 

@@ -54,7 +54,7 @@ export class Console {
     }
 
     public last(): any {
-        return this.messages[this.messages.length-1].text;
+        return this.messages[this.messages.length - 1].text;
     }
 
     public print(): any {

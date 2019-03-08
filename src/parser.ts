@@ -62,9 +62,9 @@ export class Parser {
     }
 
     private extraSemicolon(): boolean {
-        let match = this.match(TokenType.semicolon);
+        const match = this.match(TokenType.semicolon);
         if (this.check(TokenType.semicolon)) {
-            while(this.check(TokenType.semicolon)) {
+            while (this.check(TokenType.semicolon)) {
                 this.consume(TokenType.semicolon, '');
             }
         }
@@ -343,7 +343,9 @@ export class Parser {
         if (this.match(TokenType.semicolon)) {
             const token = this.previous();
             conzole.warn(`[line (${token.line}) parse warning at "${token.lexeme}"] => unnecessary semicolon or empty statement`);
-            while(this.match(TokenType.semicolon));
+            // consume all semicolons
+            // tslint:disable-next-line
+            while (this.match(TokenType.semicolon)){ };
         }
         return new Stmt.Expression(expression);
     }
@@ -506,7 +508,7 @@ export class Parser {
                         } while (this.match(TokenType.comma));
                     }
                     const paren: Token = this.consume(TokenType.rightParen, `Expected ")" after arguments`);
-                    callee = new Expr.Call(callee, paren, args, null)
+                    callee = new Expr.Call(callee, paren, args, null);
                 } while (this.match(TokenType.leftParen));
                 return callee;
             } else if (this.match(TokenType.dot)) {

@@ -7,7 +7,7 @@ export function hasOwnProperty(that: any): InternalEntity {
     func.arity = () => 1;
     func.call = (int, thiz, args) => thiz.properties.has(args[0]);
     return func;
-};
+}
 
 export function lengthProperty(that: any): InternalEntity {
     const func = new InternalEntity();
@@ -124,8 +124,8 @@ export function arrayEachMethod(that: any): InternalEntity {
     func.toString = () => '<internal function size>';
     func.arity = () => -1;
     func.call = (int, thiz, args) => {
-        for(let i = 0; i < thiz.values.length; ++i) {
-            <FunctionEntity>args[0].call(int, thiz, [thiz.values[i], i, thiz]);
+        for (let i = 0; i < thiz.values.length; ++i) {
+            args[0].call(int, thiz, [thiz.values[i], i, thiz]);
         }
     };
     return func;
@@ -137,7 +137,7 @@ export function arrayMapMethod(that: any): InternalEntity {
     func.arity = () => -1;
     func.call = (int, thiz, args) => {
         for (let i = 0; i < thiz.values.length; ++i) {
-            thiz.values[i] = <FunctionEntity>args[0].call(int, thiz, [thiz.values[i], i, thiz]);
+            thiz.values[i] = <FunctionEntity> args[0].call(int, thiz, [thiz.values[i], i, thiz]);
         }
     };
     return func;
@@ -149,7 +149,7 @@ export function arrayFindMethod(that: any): InternalEntity {
     func.arity = () => -1;
     func.call = (int, thiz, args) => {
         for (let i = 0; i < thiz.values.length; ++i) {
-            if (<FunctionEntity>args[0].call(int, thiz, [thiz.values[i], i, thiz])) {
+            if (<FunctionEntity> args[0].call(int, thiz, [thiz.values[i], i, thiz])) {
                 return thiz.values[i];
             }
         }

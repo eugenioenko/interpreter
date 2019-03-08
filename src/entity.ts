@@ -101,9 +101,6 @@ export class FunctionEntity extends CallableEntity {
             scope.define(this.declaration.params[i].lexeme, args[i]);
         }
         scope.set('this', thiz);
-        if (this.parent) {
-            //scope.set('super', Runtime.superCall(this, thiz));
-        }
         try {
             interpreter.executeBlock(this.declaration.body, scope);
         } catch (e) {
@@ -114,7 +111,6 @@ export class FunctionEntity extends CallableEntity {
             conzole.error("Runtime error. Execution has been stopped");
             conzole.error(e.message);
             throw new Error("Runtime error. Execution has been stopped");
-            debugger;
         }
         return null;
     }
@@ -135,7 +131,6 @@ export class InstanceEntity extends CallableEntity {
     }
 }
 
-
 export class StringEntity extends PrototypeEntity {
     private value: string;
 
@@ -153,13 +148,13 @@ export class StringEntity extends PrototypeEntity {
             return this.value[key];
         } else if (key instanceof IndexRange) {
             return this.range(key);
-        }else {
+        } else {
             return super.get(key);
         }
 
     }
 
-    public set(key: string | number, value: any) {
+    public set(key: string | number, value: any): void {
         if (typeof key !== "number") {
             this.properties.set(key, value);
         }
@@ -251,7 +246,7 @@ export class ArrayEntity extends PrototypeEntity {
             range.start = range.step > 0 ? 0 : this.values.length - 1;
         }
 
-        let result = [];
+        const result = [];
         if (range.step > 0) {
             for (let i = range.start; i <= range.end; i += range.step) {
                 result.push(this.values[i]);
