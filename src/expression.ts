@@ -24,6 +24,7 @@ export interface ExprVisitor<R> {
     visitNewExpr(expr: New): R;
     visitPostfixExpr(expr: Postfix): R;
     visitRangeExpr(expr: Range): R;
+    visitRegExExpr(expr: RegEx): R;
     visitSetExpr(expr: Set): R;
     visitSuperExpr(expr: Super): R;
     visitTernaryExpr(expr: Ternary): R;
@@ -278,6 +279,22 @@ export class Range extends Expr {
 
     public toString(): string {
         return 'Expr.Range';
+    }
+}
+export class RegEx extends Expr {
+    public value: RegExp;
+
+    constructor(value: RegExp) {
+        super();
+        this.value = value;
+    }
+
+    public accept<R>(visitor: ExprVisitor<R>): R {
+        return visitor.visitRegExExpr(this);
+    }
+
+    public toString(): string {
+        return 'Expr.RegEx';
     }
 }
 export class Set extends Expr {

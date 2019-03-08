@@ -137,6 +137,45 @@ export class Scanner {
         }
     }
 
+    private regex() {
+        while (this.peek() !== '#' && !this.eof()) {
+            if (this.peek() === '\n') {
+                this.line++;
+            }
+            this.advance();
+        }
+
+        // Unterminated regex.
+        if (this.eof()) {
+            this.scanError(`Unterminated RegEx, expecting closing #`);
+            return;
+        }
+
+        // The closing #.
+        this.advance();
+        const regex = this.source.substring(this.start + 1, this.current -1);
+
+        let flags = '';
+        if (['g', 'i', 's', 'u', 'y'].indexOf(this.peek()) !== -1) {
+            let start = this.current;
+            while (this.peek() !== '#' && !this.eof()) {
+                if (this.peek() === '\n') {
+                    this.line++;
+                }
+                this.advance();
+            }
+            if (this.eof()) {
+                this.scanError(`Unterminated RegEx, expecting closing # after flags`);
+                return;
+            }
+            flags = this.source.substring(start, this.current);
+        }
+        // The closing # after flags.
+        this.advance();
+
+        this.addToken('regex', new RegExp(regex, flags));
+    }
+
     public scan() {
         while (!this.eof()) {
             this.start = this.current;
@@ -201,6 +240,8 @@ export class Scanner {
             case '`':
                 this.string(char, TokenType.string);
                 break;
+            case '#':
+                this.regex();
             // ignore cases
             case ' ':
             case '\r':

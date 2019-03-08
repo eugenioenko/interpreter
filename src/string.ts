@@ -13,6 +13,7 @@ export class StringEntity extends PrototypeEntity {
         this.prototype.values.set('size', Runtime.stringLengthMethod(this));
         this.prototype.values.set('substr', Runtime.stringSubStrMethod(this));
         this.prototype.values.set('split', Runtime.stringSplitMethod(this));
+        this.prototype.values.set('match', Runtime.stringMatchMethod(this));
     }
 
     public get(key: any): any {
@@ -45,9 +46,8 @@ export class StringEntity extends PrototypeEntity {
     }
 
     private range(range: IndexRange): StringEntity {
-        range.normalize(this.value.length);
         let result = '';
-        range.iterate((i) => {
+        range.iterate(this.value.length, (i) => {
             result += this.value[i];
         });
         return new StringEntity(result);

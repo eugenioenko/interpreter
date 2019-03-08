@@ -39,9 +39,8 @@ export class ArrayEntity extends PrototypeEntity {
     }
 
     private range(range: IndexRange): ArrayEntity {
-        range.normalize(this.values.length);
         const result: any[] = [];
-        range.iterate((i) => {
+        range.iterate(this.values.length, (i) => {
             result.push(this.values[i]);
         });
         return new ArrayEntity(result);

@@ -567,6 +567,9 @@ export class Parser {
         if (this.match(TokenType.string)) {
             return new Expr.Ztring(this.previous().literal);
         }
+        if (this.match(TokenType.regex)) {
+            return new Expr.RegEx(this.previous().literal);
+        }
         if (this.match(TokenType.identifier)) {
             const identifier =  this.previous();
             if (this.match(TokenType.plusPlus)) {
