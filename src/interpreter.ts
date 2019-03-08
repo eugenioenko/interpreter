@@ -10,6 +10,7 @@ import { Return } from './return';
 import { Scope } from './scope';
 import { StringEntity } from './string';
 import { TokenType } from './token';
+import { RegExEntity } from './regex';
 declare var conzole: Console;
 
 export class Interpreter implements
@@ -101,6 +102,10 @@ export class Interpreter implements
 
     public visitZtringExpr(expr: Expr.Ztring): any {
         return new StringEntity(expr.value);
+    }
+
+    public visitRegExExpr(expr: Expr.RegEx): any {
+        return new RegExEntity(expr.value);
     }
 
     public visitAssignExpr(expr: Expr.Assign): any {

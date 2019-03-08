@@ -5,7 +5,7 @@ import { StringEntity } from "./string";
 
 export function hasOwnProperty(that: any): InternalEntity {
     const func = new InternalEntity();
-    func.toString = () => '<internal function hasOwnProperty>';
+    func.toString = () => '<internal function>';
     func.arity = () => 1;
     func.call = (int, thiz, args) => thiz.properties.has(args[0]);
     return func;
@@ -13,7 +13,7 @@ export function hasOwnProperty(that: any): InternalEntity {
 
 export function lengthProperty(that: any): InternalEntity {
     const func = new InternalEntity();
-    func.toString = () => '<internal function size>';
+    func.toString = () => '<internal function>';
     func.arity = () => 0;
     func.call = (int, thiz, args) => thiz.properties.size;
     return func;
@@ -21,7 +21,7 @@ export function lengthProperty(that: any): InternalEntity {
 
 export function invokeMethod(that: any): InternalEntity {
     const func = new InternalEntity();
-    func.toString = () => '<internal function invoke>';
+    func.toString = () => '<internal function>';
     func.arity = () => -1;
     func.call = (int, thiz, args) => thiz.call(int, args[0], args.slice(1));
     return func;
@@ -91,7 +91,7 @@ export function randFunction(): InternalEntity {
 
 export function arrayLengthMethod(that: any): InternalEntity {
     const func = new InternalEntity();
-    func.toString = () => '<internal function size>';
+    func.toString = () => '<internal function>';
     func.arity = () => 0;
     func.call = (int, thiz, args) => thiz.values.length;
     return func;
@@ -99,7 +99,7 @@ export function arrayLengthMethod(that: any): InternalEntity {
 
 export function arrayJoinMethod(that: any): InternalEntity {
     const func = new InternalEntity();
-    func.toString = () => '<internal function size>';
+    func.toString = () => '<internal function>';
     func.arity = () => 1;
     func.call = (int, thiz, args) => new StringEntity(thiz.values.join(args[0]));
     return func;
@@ -107,7 +107,7 @@ export function arrayJoinMethod(that: any): InternalEntity {
 
 export function arrayPushMethod(that: any): InternalEntity {
     const func = new InternalEntity();
-    func.toString = () => '<internal function size>';
+    func.toString = () => '<internal function>';
     func.arity = () => 1;
     func.call = (int, thiz, args) => thiz.values.push(args[0]);
     return func;
@@ -115,7 +115,7 @@ export function arrayPushMethod(that: any): InternalEntity {
 
 export function arrayPopMethod(that: any): InternalEntity {
     const func = new InternalEntity();
-    func.toString = () => '<internal function size>';
+    func.toString = () => '<internal function>';
     func.arity = () => 0;
     func.call = (int, thiz, args) => thiz.values.pop(args[0]);
     return func;
@@ -123,7 +123,7 @@ export function arrayPopMethod(that: any): InternalEntity {
 
 export function arrayEachMethod(that: any): InternalEntity {
     const func = new InternalEntity();
-    func.toString = () => '<internal function size>';
+    func.toString = () => '<internal function>';
     func.arity = () => -1;
     func.call = (int, thiz, args) => {
         for (let i = 0; i < thiz.values.length; ++i) {
@@ -135,7 +135,7 @@ export function arrayEachMethod(that: any): InternalEntity {
 
 export function arrayMapMethod(that: any): InternalEntity {
     const func = new InternalEntity();
-    func.toString = () => '<internal function size>';
+    func.toString = () => '<internal function>';
     func.arity = () => -1;
     func.call = (int, thiz, args) => {
         for (let i = 0; i < thiz.values.length; ++i) {
@@ -147,7 +147,7 @@ export function arrayMapMethod(that: any): InternalEntity {
 
 export function arrayFindMethod(that: any): InternalEntity {
     const func = new InternalEntity();
-    func.toString = () => '<internal function size>';
+    func.toString = () => '<internal function>';
     func.arity = () => -1;
     func.call = (int, thiz, args) => {
         for (let i = 0; i < thiz.values.length; ++i) {
@@ -162,7 +162,7 @@ export function arrayFindMethod(that: any): InternalEntity {
 
 export function arrayIndexOfMethod(that: any): InternalEntity {
     const func = new InternalEntity();
-    func.toString = () => '<internal function size>';
+    func.toString = () => '<internal function>';
     func.arity = () => 1;
     func.call = (int, thiz, args) => {
         for (let i = 0; i < thiz.values.length; ++i) {
@@ -177,7 +177,7 @@ export function arrayIndexOfMethod(that: any): InternalEntity {
 
 export function stringLengthMethod(that: any): InternalEntity {
     const func = new InternalEntity();
-    func.toString = () => '<internal function size>';
+    func.toString = () => '<internal function>';
     func.arity = () => 0;
     func.call = (int, thiz, args) => thiz.value.length;
     return func;
@@ -185,7 +185,7 @@ export function stringLengthMethod(that: any): InternalEntity {
 
 export function stringSubStrMethod(that: any): InternalEntity {
     const func = new InternalEntity();
-    func.toString = () => '<internal function size>';
+    func.toString = () => '<internal function>';
     func.arity = () => -1;
     func.call = (int, thiz, args) => new StringEntity(thiz.value.substr(args[0], args[1]));
     return func;
@@ -193,8 +193,32 @@ export function stringSubStrMethod(that: any): InternalEntity {
 
 export function stringSplitMethod(that: any): InternalEntity {
     const func = new InternalEntity();
-    func.toString = () => '<internal function size>';
+    func.toString = () => '<internal function>';
     func.arity = () => 1;
     func.call = (int, thiz, args) => new ArrayEntity(thiz.value.split(args[0]));
+    return func;
+}
+
+export function stringMatchMethod(that: any): InternalEntity {
+    const func = new InternalEntity();
+    func.toString = () => '<internal function>';
+    func.arity = () => 1;
+    func.call = (int, thiz, args) => new ArrayEntity(thiz.value.match(args[0].regex));
+    return func;
+}
+
+export function regexTestMethod(that: any): InternalEntity {
+    const func = new InternalEntity();
+    func.toString = () => '<internal function>';
+    func.arity = () => 1;
+    func.call = (int, thiz, args) => thiz.regex.test(args[0]);
+    return func;
+}
+
+export function regexExecMethod(that: any): InternalEntity {
+    const func = new InternalEntity();
+    func.toString = () => '<internal function>';
+    func.arity = () => 1;
+    func.call = (int, thiz, args) => thiz.regex.exec(args[0]);
     return func;
 }

@@ -12,7 +12,7 @@ export class IndexRange {
         this.step = step;
     }
 
-    public normalize(length: number): void {
+    private normalize(length: number): void {
         if (this.step === null) {
             this.step = 1;
         }
@@ -24,7 +24,8 @@ export class IndexRange {
         }
     }
 
-    public iterate(callback: (index: number) => void): void {
+    public iterate(length: number, callback: (index: number) => void): void {
+        this.normalize(length);
         if (this.step > 0) {
             for (let i = this.start; i <= this.end; i += this.step) {
                callback(i);

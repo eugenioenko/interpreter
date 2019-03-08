@@ -15,6 +15,7 @@ const ExpressionAST = {
     New: ['construct: Expr'],
     Postfix: ['name: Token', 'increment: number'],
     Range: ['start: Expr', 'end: Expr', 'step: Expr'],
+    RegEx: ['value: RegExp'],
     Set: ['entity: Expr', 'key: Expr', 'value: Expr'],
     Super: ['index: Token[]', 'args: Expr[]'],
     Ternary: ['condition: Expr', 'thenExpr: Expr', 'elseExpr: Expr'],

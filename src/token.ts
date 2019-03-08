@@ -11,6 +11,7 @@ export enum TokenType {
     comma,
     dollar,
     dot,
+    hash,
     leftBrace,
     leftBracket,
     leftParen,
@@ -53,6 +54,7 @@ export enum TokenType {
     identifier,
     string,
     number,
+    regex,
 
     // keywords
     and,
