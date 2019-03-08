@@ -1,4 +1,4 @@
-require('../dist/bundle.js');
+require('../dist/atscript.min.js');
 
 describe("atscript interpreter", () => {
 
