@@ -36,7 +36,7 @@ export class PrototypeEntity {
     }
 
     public toString(): string {
-        return '<prototype entity>';
+        return `{${[...this.properties].join(', ')}}`;
     }
 }
 
