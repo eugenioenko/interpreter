@@ -6,9 +6,9 @@ import { Interpreter } from './interpreter';
 export class StringEntity extends PrototypeEntity {
     private value: string;
 
-    constructor(values: string) {
+    constructor(value: string) {
         super();
-        this.value = values;
+        this.value = value;
         this.prototype.values.set('invoke', Runtime.invokeMethod(this));
         this.prototype.values.set('size', Runtime.stringLengthMethod(this));
         this.prototype.values.set('substr', Runtime.stringSubStrMethod(this));
@@ -18,7 +18,7 @@ export class StringEntity extends PrototypeEntity {
 
     public get(key: any): any {
         if (typeof key === "number") {
-            return this.value[key];
+            return new StringEntity(this.value[key]);
         } else if (key instanceof IndexRange) {
             return this.range(key);
         } else {
