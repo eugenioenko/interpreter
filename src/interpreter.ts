@@ -17,7 +17,7 @@ export class Interpreter implements
     Expr.ExprVisitor<any>,
     Stmt.StmtVisitor<void> {
     public global = new Scope();
-    private scope = this.global;
+    public scope = this.global;
 
     constructor( ) {
         this.global.define('echo', Runtime.echoFunction());

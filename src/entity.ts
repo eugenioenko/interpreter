@@ -89,10 +89,15 @@ export class FunctionEntity extends CallableEntity {
             scope.define(this.declaration.params[i].lexeme, args[i]);
         }
         scope.set('this', thiz);
+        let restoreScope: Scope = null;
         try {
+            restoreScope = interpreter.scope;
             interpreter.executeBlock(this.declaration.body, scope);
         } catch (e) {
             if (e instanceof Return) {
+                if (restoreScope) {
+                    interpreter.scope = restoreScope;
+                }
                 return e.value;
             }
 
