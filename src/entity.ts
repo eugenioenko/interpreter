@@ -36,7 +36,11 @@ export class PrototypeEntity {
     }
 
     public toString(): string {
-        return `{${[...this.properties].join(', ')}}`;
+        const result: any[] = [];
+        this.properties.forEach((value, key) => {
+            result.push(`${key}: ${value}`);
+        });
+        return `{${result.join('; ')}}`;
     }
 }
 
