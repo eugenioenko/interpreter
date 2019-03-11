@@ -7,7 +7,7 @@ export class ArrayEntity extends PrototypeEntity {
     public values: any[];
     constructor(values: any[]) {
         super();
-        this.values = values;
+        this.values = values ? values : [];
         this.prototype.values.set('invoke', Runtime.invokeMethod(this));
         this.prototype.values.set('size', Runtime.arrayLengthMethod(this));
         this.prototype.values.set('join', Runtime.arrayJoinMethod(this));
