@@ -169,10 +169,15 @@ let xArray = [1,2,3];
 let yArray = [4,5,6];
 let zArray = xArray + yArray;
 ```
-So far there are only a few methods defined for arrays:
-- pop(): removes last element from the array and returns it
-- push(value): adds an element at the end of the array
-- join(separator): returns a string representation of the array with value separated by separator
+#### Implemented methods:
+- .pop(): removes last element from the array and returns it
+- .push(value): adds an element at the end of the array
+- .join(separator): returns a string representation of the array with value separated by separator
+- .size(): returns length of the array
+- .each(@(value, index, array){}): executes callback passing value, index and array as argument
+- .map(@(value, index, array){}): remaps the values of the array by executing mapping funciton passing value, index and array as argument
+- .find (@value, index, array){}): returns value from the array which if callback returns true
+- .indexOf(value): returns the index of the value inside the array
 
 #### Range:
 array[start : end : step];
@@ -190,9 +195,28 @@ print s[6::]; // prints 'world'
 print s[::-1] // prints 'dlrow olleh';
 let d = ("hello" + " world").size();
 ```
+#### Implemented methods:
+- .size(): returns size of the string
+- .substr(start, end*): returns a substring
+- .split(char): splits string into array using char as separator
+- .replace(needle, replacer): replaces the needle in the string with replacer
+- .alter(regex): replaces tring values using regex as argument (pending test)
+
+
 #### Range:
 array[start : end : step];
 Similar to python step provides the dirrection of the slice. Start provides from where to slice and end provides the end index of the slice
+
+### RegEx:
+- #{regex}#{flags}#
+- Accepted flags are g,i,m,s and u
+let alpha = #[a-z]#g#;
+#### Implemented methods:
+- exec("string"): executes a search and returns array result or null
+- test("string"): executes a search and returns true or false if found
+- "string".aleter(regex): replaces string values using regex as argument (pending test)
+
+
 ### utility functions
 ```
      echo(variable); // outputs variable in javascript console

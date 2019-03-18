@@ -92,7 +92,6 @@ export class Token {
         this.lexeme = lexeme;
         this.literal = literal;
         this.line = line;
-
     }
 
     public toString() {

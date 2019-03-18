@@ -14,6 +14,8 @@ export class StringEntity extends PrototypeEntity {
         this.prototype.values.set('substr', Runtime.stringSubStrMethod(this));
         this.prototype.values.set('split', Runtime.stringSplitMethod(this));
         this.prototype.values.set('match', Runtime.stringMatchMethod(this));
+        this.prototype.values.set('replace', Runtime.stringReplaceMethod(this));
+        this.prototype.values.set('alter', Runtime.stringAlterMethod(this));
     }
 
     public get(key: any): any {

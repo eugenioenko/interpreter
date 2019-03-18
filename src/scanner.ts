@@ -169,9 +169,9 @@ export class Scanner {
                 return;
             }
             flags = this.source.substring(start, this.current);
+            // The closing # after flags.
+            this.advance();
         }
-        // The closing # after flags.
-        this.advance();
 
         this.addToken('regex', new RegExp(regex, flags));
     }
