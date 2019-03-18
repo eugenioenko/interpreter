@@ -8,15 +8,18 @@ export class ArrayEntity extends PrototypeEntity {
     constructor(values: any[]) {
         super();
         this.values = values ? values : [];
-        this.prototype.values.set('invoke', Runtime.invokeMethod(this));
-        this.prototype.values.set('size', Runtime.arrayLengthMethod(this));
-        this.prototype.values.set('join', Runtime.arrayJoinMethod(this));
-        this.prototype.values.set('push', Runtime.arrayPushMethod(this));
-        this.prototype.values.set('pop', Runtime.arrayPopMethod(this));
+        this.prototype.values.set('concat', Runtime.arrayConcatMethod(this));
         this.prototype.values.set('each', Runtime.arrayEachMethod(this));
-        this.prototype.values.set('map', Runtime.arrayMapMethod(this));
         this.prototype.values.set('find', Runtime.arrayFindMethod(this));
         this.prototype.values.set('indexOf', Runtime.arrayIndexOfMethod(this));
+        this.prototype.values.set('invoke', Runtime.invokeMethod(this));
+        this.prototype.values.set('join', Runtime.arrayJoinMethod(this));
+        this.prototype.values.set('map', Runtime.arrayMapMethod(this));
+        this.prototype.values.set('pop', Runtime.arrayPopMethod(this));
+        this.prototype.values.set('push', Runtime.arrayPushMethod(this));
+        this.prototype.values.set('reverse', Runtime.arrayReverseMethod(this));
+        this.prototype.values.set('size', Runtime.arrayLengthMethod(this));
+        this.prototype.values.set('slice', Runtime.arraySliceMethod(this));
     }
 
     public get(key: any): any {

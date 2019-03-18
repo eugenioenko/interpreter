@@ -150,6 +150,7 @@ In essence this two would be equivalent:
 
 ### Arrays
 Arrays are instances of ArrayEntinty objects.
+To construct an empty array use "[]" as a value;
 - Accesing with a number index returns the array values.
 - Accesing with a range index returns a slice of the array.
 - Accesing with a string index returns the object property.
@@ -163,21 +164,25 @@ Arrays are instances of ArrayEntinty objects.
     print x[::-1].join(','); // reverses array and prints it
     print [1,2,3] + [4,5,6]; // joins to arrays
 ```
-You can join two arays by using '+' operator.
+You can concat two arays by using '+' operator.
 ```
 let xArray = [1,2,3];
 let yArray = [4,5,6];
 let zArray = xArray + yArray;
 ```
 #### Implemented methods:
-- .pop(): removes last element from the array and returns it
-- .push(value): adds an element at the end of the array
-- .join(separator): returns a string representation of the array with value separated by separator
-- .size(): returns length of the array
-- .each(@(value, index, array){}): executes callback passing value, index and array as argument
-- .map(@(value, index, array){}): remaps the values of the array by executing mapping funciton passing value, index and array as argument
-- .find (@value, index, array){}): returns value from the array which if callback returns true
-- .indexOf(value): returns the index of the value inside the array
+- *.pop()*: removes last element from the array and returns it
+- *.push(value)*: adds an element at the end of the array
+- *.join(separator)*: returns a string representation of the array with value separated by separator
+- *.size()*: returns length of the array
+- *.each(@(value, index, array){})*: executes callback passing value, index and array as argument
+- *.map(@(value, index, array){})*: remaps the values of the array by executing mapping funciton passing value, index and array as argument
+- *.find (@value, index, array){})*: returns value from the array which if callback returns true
+- *.indexOf(value)*: returns the index of the value inside the array
+- *+* you can join to arrays by using plus operator, alternatively there is a concat method
+- *.concat(array)*: returns a new array with values of two joiner arrays.
+- *.reverse()*: returns the array reversed
+- *.slice(start, end)*: returns a slice of the array
 
 #### Range:
 array[start : end : step];
@@ -196,11 +201,11 @@ print s[::-1] // prints 'dlrow olleh';
 let d = ("hello" + " world").size();
 ```
 #### Implemented methods:
-- .size(): returns size of the string
-- .substr(start, end*): returns a substring
-- .split(char): splits string into array using char as separator
-- .replace(needle, replacer): replaces the needle in the string with replacer
-- .alter(regex): replaces tring values using regex as argument (pending test)
+- *.size()*: returns size of the string
+- *.substr(start, end)*: returns a substring
+- *.split(char)*: splits string into array using char as separator
+- *.replace(needle, replacer)*: replaces the needle in the string with replacer
+- *.alter(regex)*: replaces tring values using regex as argument (pending test)
 
 
 #### Range:
@@ -212,9 +217,9 @@ Similar to python step provides the dirrection of the slice. Start provides from
 - Accepted flags are g,i,m,s and u
 let alpha = #[a-z]#g#;
 #### Implemented methods:
-- exec("string"): executes a search and returns array result or null
-- test("string"): executes a search and returns true or false if found
-- "string".aleter(regex): replaces string values using regex as argument (pending test)
+- *.exec("string")*: executes a search and returns array result or null
+- *.test("string")*: executes a search and returns true or false if found
+- *"string".aleter(regex)*: replaces string values using regex as argument (pending test)
 
 
 ### utility functions

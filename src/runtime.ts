@@ -121,6 +121,22 @@ export function arrayPopMethod(that: any): InternalEntity {
     return func;
 }
 
+export function arrayReverseMethod(that: any): InternalEntity {
+    const func = new InternalEntity();
+    func.toString = () => '<internal function>';
+    func.arity = () => 0;
+    func.call = (int, thiz, args) => new ArrayEntity(thiz.values.reverse());
+    return func;
+}
+
+export function arraySliceMethod(that: any): InternalEntity {
+    const func = new InternalEntity();
+    func.toString = () => '<internal function>';
+    func.arity = () => -1;
+    func.call = (int, thiz, args) => new ArrayEntity(thiz.values.slice(args[0], args[1]));
+    return func;
+}
+
 export function arrayEachMethod(that: any): InternalEntity {
     const func = new InternalEntity();
     func.toString = () => '<internal function>';
@@ -172,6 +188,14 @@ export function arrayIndexOfMethod(that: any): InternalEntity {
         }
         return null;
     };
+    return func;
+}
+
+export function arrayConcatMethod(that: any): InternalEntity {
+    const func = new InternalEntity();
+    func.toString = () => '<internal function>';
+    func.arity = () => 1;
+    func.call = (int, thiz, args) => new ArrayEntity(thiz.values.concat(args[0].values));
     return func;
 }
 
