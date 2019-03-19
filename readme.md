@@ -244,3 +244,6 @@ Inside tools folder there is a handy generator to create statement and expressio
 This project is designed with fun and discovery in mind. Typescript transpiles to javascript making this interpreter be almost a js like language interpreter running on js. 
 
 If you want to have some fun with it, implement an interesting feature,  tried it out and noticed an anoying bug,  or just have a question: please contact me and I'll answer asap. Pull requests are very welcome.
+
+### thanks and kudos
+to @munificent for publishing the book on [lox interpreter](http://www.craftinginterpreters.com/)
