@@ -228,6 +228,11 @@ let alpha = #[a-z]#g#;
      rand(); // returns a random number
      print variable; // prints in the interperter console.
 ```
+
+#### random notes:
+ - semicolons are required after each expression statement;
+
+
 ### contents, compiling, installing
 The package consist of a tokenizer/scanner, a parser and an interpreter.
 To compile the contents download the repo and:
@@ -241,7 +246,7 @@ Inside tools folder there is a handy generator to create statement and expressio
 ### > [Try it out in playground!](https://eugenioenko.github.io/interpreter/)
 
 ## collaboration
-This project is designed with fun and discovery in mind. Typescript transpiles to javascript making this interpreter be almost a js like language interpreter running on js. 
+This project is designed with fun and discovery in mind. Typescript transpiles to javascript making this interpreter be almost a js like language interpreter running on js.
 
 If you want to have some fun with it, implement an interesting feature,  tried it out and noticed an anoying bug,  or just have a question: please contact me and I'll answer asap. Pull requests are very welcome.
 
