@@ -2,13 +2,13 @@ import { Token, TokenType } from '../src/token';
 import { Console } from './console';
 declare var conzole: Console;
 
-const isDigit = (char: string) => char >= '0' && char <= '9';
+const isDigit = (char: string): boolean => char >= '0' && char <= '9';
 
-const isAlpha = (char: string ) => (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z');
+const isAlpha = (char: string ): boolean => (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z');
 
-const isAlphaNumeric = (char: string) => isAlpha(char) || isDigit(char);
+const isAlphaNumeric = (char: string): boolean => isAlpha(char) || isDigit(char);
 
-const isKeyword = (word: string) => TokenType[word] >= 23;
+const isKeyword = (word: string): boolean => TokenType[word] >= 23;
 
 export class Scanner {
 
@@ -22,21 +22,21 @@ export class Scanner {
         this.source = source;
     }
 
-    private eof() {
+    private eof(): boolean {
         return this.current >= this.source.length;
     }
 
-    private advance() {
+    private advance(): string {
         this.current++;
         return this.source.charAt(this.current - 1);
     }
 
-    private addToken(tokenName: string, literal: any) {
+    private addToken(tokenName: string, literal: any): void {
         const text = this.source.substring(this.start, this.current);
         this.tokens.push(new Token(tokenName, text, literal, this.line));
     }
 
-    private match(expected: string) {
+    private match(expected: string): boolean {
         if (this.eof()) {
             return false;
         }
@@ -49,27 +49,27 @@ export class Scanner {
         return true;
     }
 
-    private peek() {
+    private peek(): string {
         if (this.eof()) {
             return '\0';
         }
         return this.source.charAt(this.current);
     }
 
-    private peekNext() {
+    private peekNext(): string {
         if (this.current + 1 >= this.source.length) {
             return '\0';
         }
         return this.source.charAt(this.current + 1);
     }
 
-    private comment() {
+    private comment(): void {
         while (this.peek() !== '\n' && !this.eof()) {
             this.advance();
         }
     }
 
-    private string(quote: string, type: TokenType) {
+    private string(quote: string, type: TokenType): void {
         while (this.peek() !== quote && !this.eof()) {
             if (this.peek() === '\n') {
                 this.line++;
@@ -91,7 +91,7 @@ export class Scanner {
         this.addToken('string', value);
     }
 
-    private number() {
+    private number(): void {
         // gets integer part
         while (isDigit(this.peek())) {
             this.advance();
@@ -123,7 +123,7 @@ export class Scanner {
         this.addToken('number', Number(value));
     }
 
-    private identifier() {
+    private identifier(): void {
         while (isAlphaNumeric(this.peek())) {
             this.advance();
         }
@@ -137,7 +137,7 @@ export class Scanner {
         }
     }
 
-    private regex() {
+    private regex(): void {
         while (this.peek() !== '#' && !this.eof()) {
             if (this.peek() === '\n') {
                 this.line++;
@@ -176,7 +176,7 @@ export class Scanner {
         this.addToken('regex', new RegExp(regex, flags));
     }
 
-    public scan() {
+    public scan(): Token[] {
         while (!this.eof()) {
             this.start = this.current;
             this.scanToken();
@@ -186,7 +186,7 @@ export class Scanner {
         return this.tokens;
     }
 
-    private scanToken() {
+    private scanToken(): void {
         const char = this.advance();
         switch (char) {
             case '(': this.addToken('leftParen', null); break;
