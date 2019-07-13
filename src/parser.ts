@@ -133,9 +133,6 @@ export class Parser {
     }
 
     private classDeclaration(): Stmt.Class {
-        if (this.check(TokenType.function)) {
-            this.consume(TokenType.function, '');
-        }
         const name: Token = this.consume(TokenType.identifier, `Expected a class name`);
         let parent: Token = null;
         if (this.match(TokenType.extends)) {
