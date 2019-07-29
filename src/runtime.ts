@@ -157,6 +157,7 @@ export function arrayMapMethod(that: any): InternalEntity {
         for (let i = 0; i < thiz.values.length; ++i) {
             thiz.values[i] = <FunctionEntity> args[0].call(int, thiz, [thiz.values[i], i, thiz]);
         }
+        return thiz;
     };
     return func;
 }
