@@ -204,6 +204,8 @@ let d = ("hello" + " world").size();
 - *.size()*: returns size of the string
 - *.substr(start, end)*: returns a substring
 - *.split(char)*: splits string into array using char as separator
+- *.toLowerCase(): returns new string converted to lower case
+- *.toUpperCase(): returns new string converted to upper case
 - *.replace(needle, replacer)*: replaces the needle in the string with replacer
 - *.alter(regex, replacer)*: replaces string values using regex as argument by replacer(string) (pending test)
 

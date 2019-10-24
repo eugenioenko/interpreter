@@ -248,6 +248,22 @@ export function stringAlterMethod(that: any): InternalEntity {
     return func;
 }
 
+export function stringToUpperCase(that: any): InternalEntity {
+    const func = new InternalEntity();
+    func.toString = () => '<internal function>';
+    func.arity = () => 0;
+    func.call = (int, thiz, args) => new StringEntity(thiz.value.toUpperCase());
+    return func;
+}
+
+export function stringToLowercase(that: any): InternalEntity {
+    const func = new InternalEntity();
+    func.toString = () => '<internal function>';
+    func.arity = () => 0;
+    func.call = (int, thiz, args) => new StringEntity(thiz.value.toLowerCase());
+    return func;
+}
+
 export function regexTestMethod(that: any): InternalEntity {
     const func = new InternalEntity();
     func.toString = () => '<internal function>';

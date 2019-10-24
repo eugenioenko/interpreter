@@ -16,6 +16,8 @@ export class StringEntity extends PrototypeEntity {
         this.prototype.values.set('match', Runtime.stringMatchMethod(this));
         this.prototype.values.set('replace', Runtime.stringReplaceMethod(this));
         this.prototype.values.set('alter', Runtime.stringAlterMethod(this));
+        this.prototype.values.set('toUpperCase', Runtime.stringToUpperCase(this));
+        this.prototype.values.set('toLowerCase', Runtime.stringToLowercase(this));
     }
 
     public get(key: any): any {
