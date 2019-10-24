@@ -243,8 +243,8 @@ export function stringReplaceMethod(that: any): InternalEntity {
 export function stringAlterMethod(that: any): InternalEntity {
     const func = new InternalEntity();
     func.toString = () => '<internal function>';
-    func.arity = () => 1;
-    func.call = (int, thiz, args) => new ArrayEntity(thiz.value.replace(args[0].regex));
+    func.arity = () => 2;
+    func.call = (int, thiz, args) => new StringEntity(thiz.value.replace(args[0].regex, args[1]));
     return func;
 }
 

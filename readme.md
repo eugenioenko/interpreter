@@ -205,7 +205,7 @@ let d = ("hello" + " world").size();
 - *.substr(start, end)*: returns a substring
 - *.split(char)*: splits string into array using char as separator
 - *.replace(needle, replacer)*: replaces the needle in the string with replacer
-- *.alter(regex)*: replaces tring values using regex as argument (pending test)
+- *.alter(regex, replacer)*: replaces string values using regex as argument by replacer(string) (pending test)
 
 
 #### Range:
@@ -219,7 +219,7 @@ let alpha = #[a-z]#g#;
 #### Implemented methods:
 - *.exec("string")*: executes a search and returns array result or null
 - *.test("string")*: executes a search and returns true or false if found
-- *"string".aleter(regex)*: replaces string values using regex as argument (pending test)
+- *"string".alter(regex, replacer)*: replaces string values using regex as argument (pending test)
 
 
 ### utility functions
