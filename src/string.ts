@@ -21,8 +21,10 @@ export class StringEntity extends PrototypeEntity {
     }
 
     public get(key: any): any {
-        if (typeof key === "number") {
+        if (typeof key === 'number') {
             return new StringEntity(this.value[key]);
+        } else if (key === 'length') {
+            return this.value.length;
         } else if (key instanceof IndexRange) {
             return this.range(key);
         } else {
@@ -32,7 +34,7 @@ export class StringEntity extends PrototypeEntity {
     }
 
     public set(key: string | number, value: any): void {
-        if (typeof key !== "number") {
+        if (typeof key !== 'number') {
             this.properties.set(key, value);
         }
     }

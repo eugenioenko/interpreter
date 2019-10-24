@@ -201,6 +201,7 @@ print s[::-1] // prints 'dlrow olleh';
 let d = ("hello" + " world").size();
 ```
 #### Implemented methods:
+- #.length: proeprty returns size of the string
 - *.size()*: returns size of the string
 - *.substr(start, end)*: returns a substring
 - *.split(char)*: splits string into array using char as separator
