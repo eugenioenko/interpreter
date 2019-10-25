@@ -1,6 +1,6 @@
-import { Token } from 'token';
+import { Token } from './token';
 
-import { Expr } from 'expression';
+import { Expr } from './expression';
 
 export abstract class Stmt {
     // tslint:disable-next-line

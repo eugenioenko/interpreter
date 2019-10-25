@@ -1,9 +1,9 @@
-import { Interpreter } from './interpreter';
-import { Scope } from './scope';
-import { Return } from './return';
-import { Prototype } from './prototype';
-import * as Stmt from './statement';
-import * as Runtime from './runtime';
+import { Interpreter } from '../interpreter';
+import { Scope } from '../structs/scope';
+import { Return } from '../structs/return';
+import { Prototype } from '../structs/prototype';
+import * as Stmt from '../structs/statement';
+import * as Runtime from '../runtime';
 declare var conzole: Console;
 
 export class InternalEntity {

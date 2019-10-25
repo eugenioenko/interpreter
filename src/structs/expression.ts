@@ -1,4 +1,4 @@
-import { Token, TokenType } from 'token';
+import { Token, TokenType } from './token';
 
 import { Stmt } from 'statement';
 

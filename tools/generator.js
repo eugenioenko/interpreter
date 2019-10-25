@@ -74,7 +74,7 @@ function generateAST(baseClass, AST, filename, imports = '') {
         file += '}\n'
     });
 
-    fs.writeFile(`src/${filename}.ts`, file, function (err, data) {
+    fs.writeFile(`src/structs/${filename}.ts`, file, function (err, data) {
         if (err) console.log(err);
         console.log(`${filename}.ts generated`);
     });

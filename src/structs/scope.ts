@@ -1,5 +1,5 @@
 import { Token } from './token';
-import { Console } from './console';
+import { Console } from '../console';
 declare var conzole: Console;
 
 export class Scope {
