@@ -1,14 +1,7 @@
 import { Token, TokenType } from './structs/token';
 import { Console } from './console';
+import * as Utils from './structs/utils';
 declare var conzole: Console;
-
-const isDigit = (char: string): boolean => char >= '0' && char <= '9';
-
-const isAlpha = (char: string ): boolean => (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z');
-
-const isAlphaNumeric = (char: string): boolean => isAlpha(char) || isDigit(char);
-
-const isKeyword = (word: string): boolean => TokenType[word] >= 23;
 
 export class Scanner {
 
@@ -31,9 +24,9 @@ export class Scanner {
         return this.source.charAt(this.current - 1);
     }
 
-    private addToken(tokenName: string, literal: any): void {
+    private addToken(tokenType: TokenType, literal: any): void {
         const text = this.source.substring(this.start, this.current);
-        this.tokens.push(new Token(tokenName, text, literal, this.line));
+        this.tokens.push(new Token(tokenType, text, literal, this.line));
     }
 
     private match(expected: string): boolean {
@@ -88,22 +81,22 @@ export class Scanner {
 
         // Trim the surrounding quotes.
         const value = this.source.substring(this.start + 1, this.current - 1);
-        this.addToken('string', value);
+        this.addToken(TokenType.String, value);
     }
 
     private number(): void {
         // gets integer part
-        while (isDigit(this.peek())) {
+        while (Utils.isDigit(this.peek())) {
             this.advance();
         }
 
         // checks for fraction
-        if (this.peek() === '.' && isDigit(this.peekNext())) {
+        if (this.peek() === '.' && Utils.isDigit(this.peekNext())) {
             this.advance();
         }
 
         // gets fraction part
-        while (isDigit(this.peek())) {
+        while (Utils.isDigit(this.peek())) {
             this.advance();
         }
 
@@ -115,25 +108,25 @@ export class Scanner {
             }
         }
 
-        while (isDigit(this.peek())) {
+        while (Utils.isDigit(this.peek())) {
             this.advance();
         }
 
         const value = this.source.substring(this.start , this.current);
-        this.addToken('number', Number(value));
+        this.addToken(TokenType.Number, Number(value));
     }
 
     private identifier(): void {
-        while (isAlphaNumeric(this.peek())) {
+        while (Utils.isAlphaNumeric(this.peek())) {
             this.advance();
         }
 
-        let value = this.source.substring(this.start, this.current);
-        value = value === 'func' ? 'function' : value;
-        if (isKeyword(value)) {
-            this.addToken(value, null);
+        const value = this.source.substring(this.start, this.current);
+        const capitalized = value.charAt(0).toUpperCase() + value.substr(1).toLowerCase();
+        if (Utils.isKeyword(capitalized)) {
+            this.addToken(TokenType[capitalized], value);
         } else {
-            this.addToken('identifier', value);
+            this.addToken(TokenType.Identifier, value);
         }
     }
 
@@ -173,7 +166,7 @@ export class Scanner {
             this.advance();
         }
 
-        this.addToken('regex', new RegExp(regex, flags));
+        this.addToken(TokenType.Regex, new RegExp(regex, flags));
     }
 
     public scan(): Token[] {
@@ -182,63 +175,43 @@ export class Scanner {
             this.scanToken();
         }
 
-        this.tokens.push(new Token('eof', '', null, this.line));
+        this.tokens.push(new Token(TokenType.Eof, '', null, this.line));
         return this.tokens;
     }
 
     private scanToken(): void {
         const char = this.advance();
         switch (char) {
-            case '(': this.addToken('leftParen', null); break;
-            case ')': this.addToken('rightParen', null); break;
-            case '[': this.addToken('leftBracket', null); break;
-            case ']': this.addToken('rightBracket', null); break;
-            case '{': this.addToken('leftBrace', null); break;
-            case '}': this.addToken('rightBrace', null); break;
-            case ',': this.addToken('comma', null); break;
-            case '.': this.addToken('dot', null); break;
-            case ';': this.addToken('semicolon', null); break;
-            case '*': this.addToken(this.match('=') ? 'starEqual' : 'star', null); break;
-            case '^': this.addToken('caret', null); break;
-            case '?': this.addToken('question', null); break;
-            case ':': this.addToken('colon', null); break;
-            case '%': this.addToken(this.match('=') ? 'percentEqual' : 'percent', null); break;
-            case '$': this.addToken('dollar', null); break;
-            case '@': this.addToken('function', null); break;
-            case '-': this.addToken(this.match('-') ? 'minusMinus' : this.match('>') ? 'return' : this.match('=') ? 'minusEqual' : 'minus', null); break;
-            case '+': this.addToken(this.match('+') ? 'plusPlus' : this.match('=') ? 'plusEqual' : 'plus', null); break;
-            case '|': this.addToken(this.match('|') ? 'or' : 'pipe', null); break;
-            case '&': this.addToken(this.match('&') ? 'and' : 'ampersand', null); break;
-            case '<': this.addToken(this.match('=') ? 'lessEqual' : 'less', null); break;
-            case '>': this.addToken(this.match('=') ? 'greaterEqual' : 'greater', null); break;
-            case '!': this.addToken(this.match('=') ? this.match('=') ? 'bangEqualEqual' : 'bangEqual' : 'bang', null); break;
-            case '=':
-                if (this.match('=')) {
-                    if (this.match('=')) {
-                        this.addToken('equalEqualEqual', null);
-                    } else {
-                        this.addToken('equalEqual', null);
-                    }
-                } else if (this.match('>')) {
-                    this.addToken('arrow', null);
-                } else {
-                    this.addToken('equal', null);
-                }
-                break;
-            case '/':
-                if (this.match('/')) {
-                    this.comment();
-                } else if (this.match('=')) {
-                    this.addToken('slashEqual', null);
-                } else {
-                    this.addToken('slash', null);
-                }
-                break;
+            case '(': this.addToken(TokenType.LeftParen, null); break;
+            case ')': this.addToken(TokenType.RightParen, null); break;
+            case '[': this.addToken(TokenType.LeftBracket, null); break;
+            case ']': this.addToken(TokenType.RightBracket, null); break;
+            case '{': this.addToken(TokenType.LeftBrace, null); break;
+            case '}': this.addToken(TokenType.RightBrace, null); break;
+            case ',': this.addToken(TokenType.Comma, null); break;
+            case '.': this.addToken(TokenType.Dot, null); break;
+            case ';': this.addToken(TokenType.Semicolon, null); break;
+            case '^': this.addToken(TokenType.Caret, null); break;
+            case '?': this.addToken(TokenType.Question, null); break;
+            case ':': this.addToken(TokenType.Colon, null); break;
+            case '$': this.addToken(TokenType.Dollar, null); break;
+            case '@': this.addToken(TokenType.Function, '@'); break;
+            case '*': this.addToken(this.match('=') ? TokenType.StarEqual : TokenType.Star, null); break;
+            case '%': this.addToken(this.match('=') ? TokenType.PercentEqual : TokenType.Percent, null); break;
+            case '|': this.addToken(this.match('|') ? TokenType.Or : TokenType.Pipe, null); break;
+            case '&': this.addToken(this.match('&') ? TokenType.And : TokenType.Ampersand, null); break;
+            case '<': this.addToken(this.match('=') ? TokenType.LessEqual : TokenType.Less, null); break;
+            case '>': this.addToken(this.match('=') ? TokenType.GreaterEqual : TokenType.Greater, null); break;
+            case '!': this.addToken(this.match('=') ? TokenType.BangEqual : TokenType.Bang, null); break;
+            case '=': this.addToken(this.match('=') ? TokenType.EqualEqual : this.match('>') ? TokenType.Arrow : TokenType.Equal, null); break;
+            case '+': this.addToken(this.match('+') ? TokenType.PlusPlus : this.match('=') ? TokenType.PlusEqual : TokenType.Plus, null); break;
+            case '-': this.addToken(this.match('-') ? TokenType.MinusMinus : this.match('>') ? TokenType.Return : this.match('=') ? TokenType.MinusEqual : TokenType.Minus, null); break;
+            case '/': this.match('/') ? this.comment() : this.addToken(this.match('=') ? TokenType.SlashEqual : TokenType.Slash, null); break;
             case '\n': this.line++; break;
             case `'`:
             case `"`:
             case '`':
-                this.string(char, TokenType.string);
+                this.string(char, TokenType.String);
                 break;
             case '#':
                 this.regex();
@@ -249,9 +222,9 @@ export class Scanner {
                 break;
             // compex cases
             default:
-                if (isDigit(char)) {
+                if (Utils.isDigit(char)) {
                     this.number();
-                } else if (isAlpha(char)) {
+                } else if (Utils.isAlpha(char)) {
                     this.identifier();
                 } else {
                     this.scanError(`Unexpected character '${char}'`);

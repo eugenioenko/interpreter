@@ -16,7 +16,7 @@ MyClass.count = @(times) {
     @nested(num) {
         return num * num;
     }
-    for (let i = 0; i < times; ++i) {
+    for (var i = 0; i < times; ++i) {
         print nested(i);
     }
 };
@@ -31,7 +31,7 @@ class MyClassClass {
         this.something = 'anything' + alfa;
     }
 }
-let testClassClass = new MyClassClass(' is something');
+var testClassClass = new MyClassClass(' is something');
 print testClassClass.something;
 
 // shallow multiple inheritance
@@ -53,7 +53,7 @@ Handle.hold = @() {
 }
 Knife.merge(Blade);
 Knife.merge(Handle);
-let knife = new Knife();
+var knife = new Knife();
 knife.cut();
 knife.hold();
 
@@ -80,9 +80,9 @@ print factorialize2(12);
 @add(a) => @(b) => @(c) => a + b + c;
 print add(100)(20)(3);
 
-func sub(a) {
-    return func (b) {
-        return func (c) {
+function sub(a) {
+    return function (b) {
+        return function (c) {
             return a - b - c;
         };
     };
@@ -90,7 +90,7 @@ func sub(a) {
 print sub(100)(10)(1);
 
 // while loop and ternary operator
-let i = 0;
+var i = 0;
 while (i <= 4) {
     print i % 2 ? 'odd' : 'even';
     i = i + 1;
@@ -106,11 +106,11 @@ var literal = {
 };
 print literal.records.prev;
 
-let x = [1, 20, 300];
-let y = [100, x[1]];
+var x = [1, 20, 300];
+var y = [100, x[1]];
 print y[0];
 y.push(x);
 y.newProperty = "anything";
 print y.join(',');
-let z = y.join('-');
+var z = y.join('-');
 `;

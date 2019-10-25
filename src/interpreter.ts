@@ -74,11 +74,7 @@ export class Interpreter implements
             value.name = stmt.name.lexeme;
             value.prototype.set('name', value.name);
         }
-        if (stmt.type.type === TokenType.var)  {
-            this.scope.set(stmt.name.lexeme, value);
-        } else {
-            this.scope.define(stmt.name.lexeme, value);
-        }
+        this.scope.define(stmt.name.lexeme, value);
     }
 
     public visitVariableExpr(expr: Expr.Variable): any {
@@ -120,20 +116,20 @@ export class Interpreter implements
         left = left instanceof StringEntity ? left.toString() : left;
         right = right instanceof StringEntity ? right.toString() : right;
         switch (expr.operator.type) {
-            case TokenType.minus:
-            case TokenType.minusEqual:
+            case TokenType.Minus:
+            case TokenType.MinusEqual:
                 return (left - right) as number;
-            case TokenType.slash:
-            case TokenType.slashEqual:
+            case TokenType.Slash:
+            case TokenType.SlashEqual:
                 return (left / right) as number;
-            case TokenType.star:
-            case TokenType.starEqual:
+            case TokenType.Star:
+            case TokenType.StarEqual:
                 return (left * right) as number;
-            case TokenType.percent:
-            case TokenType.percentEqual:
+            case TokenType.Percent:
+            case TokenType.PercentEqual:
                 return (left % right) as number;
-            case TokenType.plus:
-            case TokenType.plusEqual:
+            case TokenType.Plus:
+            case TokenType.PlusEqual:
                 if (!isNaN(left) && !isNaN(right)) {
                     return (left + right) as number;
                 }
@@ -141,27 +137,21 @@ export class Interpreter implements
                     return new ArrayEntity(left.values.concat(right.values));
                 }
                 return new StringEntity(left as string + right as string);
-            case TokenType.pipe:
+            case TokenType.Pipe:
                 return (left | right) as number;
-            case TokenType.caret:
+            case TokenType.Caret:
                 return (left ^ right) as number;
-            case TokenType.greater:
+            case TokenType.Greater:
                 return <number> left > <number> right;
-            case TokenType.greaterEqual:
+            case TokenType.GreaterEqual:
                 return <number> left >= <number> right;
-            case TokenType.less:
+            case TokenType.Less:
                 return <number> left < <number> right;
-            case TokenType.lessEqual:
+            case TokenType.LessEqual:
                 return <number> left <= <number> right;
-            case TokenType.equalEqual:
-                // tslint:disable-next-line
-                return left == right;
-            case TokenType.equalEqualEqual:
+            case TokenType.EqualEqual:
                 return left === right;
-            case TokenType.bangEqual:
-                // tslint:disable-next-line
-                return left != right;
-            case TokenType.bangEqualEqual:
+            case TokenType.BangEqual:
                 return left !== right;
             default:
                 conzole.warn(expr);
@@ -171,7 +161,7 @@ export class Interpreter implements
     }
 
     public visitLogicalExpr(expr: Expr.Logical): any {
-        if (expr.operator.type === TokenType.and) {
+        if (expr.operator.type === TokenType.And) {
             return this.evaluate(expr.left) && this.evaluate(expr.right);
         } else {
             return this.evaluate(expr.left) || this.evaluate(expr.right);
@@ -193,17 +183,17 @@ export class Interpreter implements
     public visitUnaryExpr(expr: Expr.Unary): any {
         const right = this.evaluate(expr.right);
         switch (expr.operator.type) {
-            case TokenType.minus:
+            case TokenType.Minus:
                 return -Number(right);
-            case TokenType.bang:
+            case TokenType.Bang:
                 return !Boolean(right);
-            case TokenType.dollar:
+            case TokenType.Dollar:
                 return right.length;
-            case TokenType.plusPlus:
+            case TokenType.PlusPlus:
                 const incValue = Number(right) + 1;
                 this.scope.assign((<Expr.Variable> expr.right).name.lexeme, incValue);
                 return incValue;
-            case TokenType.minusMinus:
+            case TokenType.MinusMinus:
                 const decValue = Number(right) - 1;
                 this.scope.assign((<Expr.Variable> expr.right).name.lexeme, decValue);
                 return decValue;

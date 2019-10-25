@@ -7,15 +7,15 @@ This is a work in progress of an interpreter writen in typescript of a scripting
 ### variable definition
 ```
     var variable = "string";
-    let number = 1;
-    let object = {
+    var number = 1;
+    var object = {
 	    property: "property"
 	};
 ```
-While *var* definition lets you override a variable, *let* will throw an error.
+variables can't be defined twice with the same name, the interpreter will throw an error
 ```
-    let variable = 1;
-    let variable = 2; // illegal
+    var variable = 1;
+    var variable = 2; // illegal, identifier has the same name
 ```
 ### conditional statements
 ```
@@ -55,19 +55,16 @@ While *var* definition lets you override a variable, *let* will throw an error.
     function name(alfa, beta) {
          return alfa + beta;
     }
-    func name(alfa, beta) {
-       return alfa + beta;
-    }
     @ name(alfa, beta) {
        return alfa + beta;
     }
     @name(alfa, beta) {
        return alfa + beta;
     }
-    let name = function(alfa, beta) {
+    var name = function(alfa, beta) {
        return alfa + beta;
     }
-    let name = @(alfa, beta) {
+    var name = @(alfa, beta) {
        return alfa + beta;
     }
     @name(alfa, beta) {
@@ -96,7 +93,7 @@ While *var* definition lets you override a variable, *let* will throw an error.
     MyClass.method = @(){
        print this.arg;
     };
-    let myClass = new MyClass('foo');
+    var myClass = new MyClass('foo');
 ```
 
 *new* will copy all the properties of the class into its prototype and call the constructor function.
@@ -125,9 +122,9 @@ In essence this two would be equivalent:
         this.name = 'name';
     }
 
-    let myClassA = {};
+    var myClassA = {};
     MyClass.invoke(myClassA);
-    let myClassB = new myClass();
+    var myClassB = new myClass();
 
     print myClassA.name;
     print myClassB.name;
@@ -144,7 +141,7 @@ In essence this two would be equivalent:
             super('nothing');
         }
     }
-    let c = new MyClass();
+    var c = new MyClass();
     print c.something;
 ```
 
@@ -155,8 +152,8 @@ To construct an empty array use "[]" as a value;
 - Accesing with a range index returns a slice of the array.
 - Accesing with a string index returns the object property.
 ```
-    let x = [1, 20, 300];
-    let y = [100, x[1]];
+    var x = [1, 20, 300];
+    var y = [100, x[1]];
     print y[0];
     y.push(x);
     y.newProperty = "anything";
@@ -166,9 +163,9 @@ To construct an empty array use "[]" as a value;
 ```
 You can concat two arays by using '+' operator.
 ```
-let xArray = [1,2,3];
-let yArray = [4,5,6];
-let zArray = xArray + yArray;
+var xArray = [1,2,3];
+var yArray = [4,5,6];
+var zArray = xArray + yArray;
 ```
 #### Implemented methods:
 - *.pop()*: removes last element from the array and returns it
@@ -194,11 +191,11 @@ Strings are instances of StringEntinty objects.
 - Accesing with a range index returns a slice of the string.
 - Accesing with a string index returns the object property. (only for get, setting a property in string won't modify the property, similarly to javascript)
 ```
-let s = "hello world";
+var s = "hello world";
 print s[1]; // prints 'e'
 print s[6::]; // prints 'world'
 print s[::-1] // prints 'dlrow olleh';
-let d = ("hello" + " world").size();
+var d = ("hello" + " world").size();
 ```
 #### Implemented methods:
 - #.length: proeprty returns size of the string
@@ -218,7 +215,7 @@ Similar to python step provides the dirrection of the slice. Start provides from
 ### RegEx:
 - #{regex}#{flags}#
 - Accepted flags are g,i,m,s and u
-let alpha = #[a-z]#g#;
+var alpha = #[a-z]#g#;
 #### Implemented methods:
 - *.exec("string")*: executes a search and returns array result or null
 - *.test("string")*: executes a search and returns true or false if found

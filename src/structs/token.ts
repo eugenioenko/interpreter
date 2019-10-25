@@ -1,82 +1,76 @@
 export enum TokenType {
-    // parser tokens
-    eof,
-    panic,
-    lambda,
+    // Parser Tokens
+    Eof,
+    Panic,
+    Lambda,
 
-    // single character tokens
-    ampersand,
-    atSign,
-    caret,
-    comma,
-    dollar,
-    dot,
-    hash,
-    leftBrace,
-    leftBracket,
-    leftParen,
-    percent,
-    pipe,
-    rightBrace,
-    rightBracket,
-    rightParen,
-    semicolon,
-    slash,
-    star,
+    // Single Character Tokens
+    Ampersand,
+    AtSign,
+    Caret,
+    Comma,
+    Dollar,
+    Dot,
+    Hash,
+    LeftBrace,
+    LeftBracket,
+    LeftParen,
+    Percent,
+    Pipe,
+    RightBrace,
+    RightBracket,
+    RightParen,
+    Semicolon,
+    Slash,
+    Star,
 
-    // one or two character tokens
-    arrow,
-    bang,
-    bangEqual,
-    colon,
-    equal,
-    equalEqual,
-    greater,
-    greaterEqual,
-    less,
-    lessEqual,
-    minus,
-    minusEqual,
-    minusMinus,
-    percentEqual,
-    plus,
-    plusEqual,
-    plusPlus,
-    question,
-    slashEqual,
-    starEqual,
+    // One Or Two Character Tokens
+    Arrow,
+    Bang,
+    BangEqual,
+    Colon,
+    Equal,
+    EqualEqual,
+    Greater,
+    GreaterEqual,
+    Less,
+    LessEqual,
+    Minus,
+    MinusEqual,
+    MinusMinus,
+    PercentEqual,
+    Plus,
+    PlusEqual,
+    PlusPlus,
+    Question,
+    SlashEqual,
+    StarEqual,
 
-    // three character tokens
-    bangEqualEqual,
-    equalEqualEqual,
+    // Literals
+    Identifier,
+    String,
+    Number,
+    Regex,
 
-    // literals
-    identifier,
-    string,
-    number,
-    regex,
-
-    // keywords
-    and,
-    class,
-    do,
-    else,
-    extends,
-    false,
-    for,
-    func,
-    function,
-    if,
-    let,
-    new,
-    null,
-    or,
-    print,
-    return,
-    super,
-    true,
-    var,
-    while
+    // Keywords
+    And,
+    Class,
+    Do,
+    Else,
+    Extends,
+    False,
+    For,
+    Function,
+    If,
+    New,
+    Null,
+    Or,
+    Print,
+    Return,
+    Super,
+    True,
+    Var,
+    While
 }
 
 export class Token {
@@ -86,9 +80,9 @@ export class Token {
     public literal: any;
     public lexeme: string;
 
-    constructor(name: string, lexeme: string, literal: any, line: number) {
-        this.name = name;
-        this.type = TokenType[name];
+    constructor(type: TokenType, lexeme: string, literal: any, line: number) {
+        this.name = TokenType[type];
+        this.type = type;
         this.lexeme = lexeme;
         this.literal = literal;
         this.line = line;
