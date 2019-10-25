@@ -4,7 +4,7 @@ const ExpressionAST = {
     Assign: ['name: Token', 'value: Expr'],
     Binary: ['left: Expr', 'operator: Token', 'right: Expr'],
     Call: ['callee: Expr', 'paren: Token', 'args: Expr[]', 'thiz: $Any'],
-    Entity: ['properties: Expr[]'],
+    Dictionary: ['properties: Expr[]'],
     Get: ['entity: Expr', 'key: Expr'],
     Grouping: ['expression: Expr'],
     Key: ['name: Token'],
@@ -40,8 +40,8 @@ const StatementAST = {
 function generateAST(baseClass, AST, filename, imports = '') {
     let file = imports +
 `export abstract class ${baseClass} {
-    // tslint:disable-next-line
     public result: any;
+    // tslint:disable-next-line
     constructor() {}
     public abstract accept<R>(visitor: ${baseClass}Visitor<R>): R;
 }\n\n`;
@@ -75,11 +75,11 @@ function generateAST(baseClass, AST, filename, imports = '') {
         file += '}\n'
     });
 
-    fs.writeFile(`src/structs/${filename}.ts`, file, function (err, data) {
+    fs.writeFile(`src/${filename}.ts`, file, function (err, data) {
         if (err) console.log(err);
         console.log(`${filename}.ts generated`);
     });
 }
 
-generateAST('Expr', ExpressionAST, 'expression', `import { Token, TokenType } from 'token';\nimport { Stmt } from 'statement';\nimport { $Any } from '../types/types';\n\n`);
+generateAST('Expr', ExpressionAST, 'expression', `import { Token, TokenType } from 'token';\nimport { Stmt } from 'statement';\nimport { $Any } from 'types';\n\n`);
 generateAST('Stmt', StatementAST, 'statement', `import { Token } from 'token';\n\nimport { Expr } from 'expression';\n\n`);

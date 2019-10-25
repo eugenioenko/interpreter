@@ -6,7 +6,7 @@ import { Prototype } from './structs/prototype';
 import { Return } from './structs/return';
 import { Scope } from './structs/scope';
 import { TokenType } from './token';
-import { $Any, $Void, $String, $Number, $Null, $Boolean, RangeValue, $Range } from './types';
+import { $Any, $Void, $String, $Number, $Null, $Boolean, RangeValue, $Range, $Dictionary, $List } from './types';
 declare var conzole: Console;
 
 export class Interpreter implements
@@ -46,7 +46,8 @@ export class Interpreter implements
 
     public visitPrintStmt(stmt: Stmt.Print): $Any {
         const data = this.evaluate(stmt.expression);
-        conzole.log(data);
+        console.log(data.toString());
+        conzole.log(data.toString());
         return data;
     }
 
@@ -74,16 +75,13 @@ export class Interpreter implements
         return value;
     }
 
-
-    public visitListExpr(expr: Expr.List): $Any {/*
-        const values: any[] = [];
+    public visitListExpr(expr: Expr.List): $Any {
+        const values: $Any[] = [];
         for (const expression of expr.value) {
             values.push(this.evaluate(expression));
         }
-        return new ArrayEntity(values);
-        */ return new $Null();
+        return new $List(values);
     }
-
 
     public visitZtringExpr(expr: Expr.Ztring): $Any {
         return new $String(expr.value);
@@ -298,16 +296,14 @@ export class Interpreter implements
         */ return new $Null();
     }
 
-    public visitEntityExpr(expr: Expr.Entity) {
-        /*
-        const entity = new PrototypeEntity();
+    public visitDictionaryExpr(expr: Expr.Dictionary) {
+        const dict = new $Dictionary(new Map());
         for (const property of expr.properties) {
             const key  = this.evaluate((property as Expr.Set).key);
             const value = this.evaluate((property as Expr.Set).value);
-            entity.set(key.value, value);
+            dict.set(key, value);
         }
-        return entity;
-        */ return new $Null();
+        return dict;
     }
 
     public visitKeyExpr(expr: Expr.Key): $Any {
@@ -323,16 +319,11 @@ export class Interpreter implements
 
 
     public visitSetExpr(expr: Expr.Set): $Any {
-        /*
         const entity = this.evaluate(expr.entity);
         const key = this.evaluate(expr.key);
-        if (!(entity instanceof PrototypeEntity)) {
-            conzole.warn(`${entity} is not a runtime Object`);
-        }
         const value = this.evaluate(expr.value);
-        (entity as PrototypeEntity).set(key.value, value);
+        entity.set(key, value);
         return value.value;
-        */ return new $Null();
     }
 
     public visitFuncStmt(stmt: Stmt.Func): $Any {

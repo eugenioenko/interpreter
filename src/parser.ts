@@ -589,7 +589,7 @@ export class Parser {
             return new Expr.Grouping(expr);
         }
         if (this.match(TokenType.LeftBrace)) {
-            return this.entity();
+            return this.dictionary();
         }
         if (this.match(TokenType.Function)) {
             const token: Token = new Token(TokenType.Lambda, 'lambda', 'lambda', this.previous().line);
@@ -600,7 +600,7 @@ export class Parser {
             return this.superCall();
         }
         if (this.match(TokenType.LeftBracket)) {
-            return this.array();
+            return this.list();
         }
 
         throw this.parseError(this.peek(), `Expected expression`);
@@ -608,10 +608,9 @@ export class Parser {
         return new Expr.Literal(null);
     }
 
-    public entity(): Expr.Expr {
-        /*
+    public dictionary(): Expr.Expr {
         if (this.match(TokenType.RightBrace)) {
-            return new Expr.Entity([]);
+            return new Expr.Dictionary([]);
         }
         const properties: Expr.Set[] = [];
         do {
@@ -626,12 +625,10 @@ export class Parser {
         } while (this.match(TokenType.Comma));
         this.consume(TokenType.RightBrace, `Expected "}" after object literal`);
 
-        return new Expr.Entity(properties);
-        */ return null;
+        return new Expr.Dictionary(properties);
     }
 
-    private array(): Expr.Expr {
-        /*
+    private list(): Expr.Expr {
         const values = [];
         if (this.match(TokenType.RightBracket)) {
             return new Expr.List([]);
@@ -642,7 +639,6 @@ export class Parser {
         this.consume(TokenType.RightBracket, `Expected "]" after array declaration`);
 
         return new Expr.List(values);
-        */ return null;
     }
 
     private superCall(): Expr.Expr {

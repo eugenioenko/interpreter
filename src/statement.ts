@@ -3,8 +3,8 @@ import { Token } from 'token';
 import { Expr } from 'expression';
 
 export abstract class Stmt {
-    // tslint:disable-next-line
     public result: any;
+    // tslint:disable-next-line
     constructor() {}
     public abstract accept<R>(visitor: StmtVisitor<R>): R;
 }

@@ -75,6 +75,11 @@ export class $Any {
         throw new Error("Error in Any getter");
     }
 
+    public set(key: $Any, value: $Any): $Any {
+        conzole.error(`key ${key} does not exist in ${this}`);
+        throw new Error("Error in Any setter");
+    }
+
     public toString(): string {
         return this.value.toString();
     }
@@ -200,10 +205,11 @@ export class $String extends $Any {
 
     }
 
-    public set(key: string | number, value: any): void {
+    public set(key: $Any, value: any): $Any {
         if (typeof key !== 'number') {
             // this.properties.set(key, value);
         }
+        return new $Null();
     }
 
     public arity(): number {
@@ -223,4 +229,71 @@ export class $String extends $Any {
         return new $String(result);
     }
 
+}
+
+export class $List extends $Any {
+    public value: $Any[];
+    constructor(value: $Any[]) {
+        super(value, DataType.List);
+    }
+
+    public get(key: $Any): $Any {
+        if (key.isNumber()) {
+            return this.value[key.value];
+        } else if (key.isRange) {
+            return this.range(<$Range> key);
+        } else {
+            // return super.get(key);
+            return new $Null();
+        }
+
+    }
+
+    public set(key: $Any, value: $Any): $Any {
+        if (key.isNumber()) {
+            this.value[key.value] = value;
+        }
+        return value;
+    }
+
+    private range(range: $Range): $List {
+        const result: $Any[] = [];
+        range.iterate(this.value.length, (i) => {
+            result.push(this.value[i]);
+        });
+        return new $List(result);
+    }
+
+    public toString(): string {
+        return `[${this.value.join(',')}]`;
+    }
+
+}
+
+export class $Dictionary extends $Any {
+    public value: Map<any, $Any>;
+
+    constructor(value: Map<any, $Any>) {
+        super(value, DataType.Dictionary);
+    }
+
+    public get(key: $Any): any {
+        if (this.value.has(key.value)) {
+            return this.value.get(key.value);
+        }
+        return new $Null();
+    }
+
+    public set(key: $Any, value: $Any): $Any {
+        this.value.set(key.value, value);
+        return value;
+    }
+
+    public toString(): string {
+        const result: any[] = [];
+        this.value.forEach((value, key) => {
+            result.push(`${key}: ${value}`);
+        });
+        return `{${result.join('; ')}}`;
+    }
 }

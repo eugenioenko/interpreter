@@ -13,5 +13,5 @@ if (typeof window === 'undefined') {
 window.conzole = new Console();
 window.demoSourceCode = DemoSourceCode;
 window.atscript = (source: string)  => {
-     return (new Interpreter().interpet((new Parser((new Scanner(source)).scan())).parse()));
+    return (new Interpreter().interpet((new Parser((new Scanner(source)).scan())).parse()));
 };

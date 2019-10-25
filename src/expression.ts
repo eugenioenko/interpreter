@@ -1,10 +1,10 @@
-import { Token, TokenType } from './token';
+import { Token, TokenType } from 'token';
 import { Stmt } from 'statement';
 import { $Any } from 'types';
 
 export abstract class Expr {
-    // tslint:disable-next-line
     public result: any;
+    // tslint:disable-next-line
     constructor() {}
     public abstract accept<R>(visitor: ExprVisitor<R>): R;
 }
@@ -14,7 +14,7 @@ export interface ExprVisitor<R> {
     visitAssignExpr(expr: Assign): R;
     visitBinaryExpr(expr: Binary): R;
     visitCallExpr(expr: Call): R;
-    visitEntityExpr(expr: Entity): R;
+    visitDictionaryExpr(expr: Dictionary): R;
     visitGetExpr(expr: Get): R;
     visitGroupingExpr(expr: Grouping): R;
     visitKeyExpr(expr: Key): R;
@@ -94,7 +94,7 @@ export class Call extends Expr {
         return 'Expr.Call';
     }
 }
-export class Entity extends Expr {
+export class Dictionary extends Expr {
     public properties: Expr[];
 
     constructor(properties: Expr[]) {
@@ -103,11 +103,11 @@ export class Entity extends Expr {
     }
 
     public accept<R>(visitor: ExprVisitor<R>): R {
-        return visitor.visitEntityExpr(this);
+        return visitor.visitDictionaryExpr(this);
     }
 
     public toString(): string {
-        return 'Expr.Entity';
+        return 'Expr.Dictionary';
     }
 }
 export class Get extends Expr {
