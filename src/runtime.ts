@@ -1,8 +1,5 @@
-import { ArrayEntity } from "./types/array";
-import { InternalEntity, FunctionEntity } from "./types/entity";
-import { Prototype } from "./structs/prototype";
-import { StringEntity } from "./types/string";
 
+/*
 export function hasOwnProperty(that: any): InternalEntity {
     const func = new InternalEntity();
     func.toString = () => '<internal function>';
@@ -37,7 +34,6 @@ export function superCall(that: any, instance: any): InternalEntity {
 
 export function mergeMethod(that: any): InternalEntity {
     const func = new InternalEntity();
-    /** merge(Parent, override=false) */
     func.call = (int, thiz, args) => {
         that.properties = args[1] ?
             new Map([...that.properties, ...args[0].properties]) :
@@ -101,7 +97,7 @@ export function arrayJoinMethod(that: any): InternalEntity {
     const func = new InternalEntity();
     func.toString = () => '<internal function>';
     func.arity = () => 1;
-    func.call = (int, thiz, args) => new StringEntity(thiz.values.join(args[0]));
+    func.call = (int, thiz, args) => new $String(thiz.values.join(args[0]));
     return func;
 }
 
@@ -212,7 +208,7 @@ export function stringSubStrMethod(that: any): InternalEntity {
     const func = new InternalEntity();
     func.toString = () => '<internal function>';
     func.arity = () => -1;
-    func.call = (int, thiz, args) => new StringEntity(thiz.value.substr(args[0], args[1]));
+    func.call = (int, thiz, args) => new $String(thiz.value.substr(args[0], args[1]));
     return func;
 }
 
@@ -236,7 +232,7 @@ export function stringReplaceMethod(that: any): InternalEntity {
     const func = new InternalEntity();
     func.toString = () => '<internal function>';
     func.arity = () => 2;
-    func.call = (int, thiz, args) => new StringEntity(thiz.value.replace(args[0], args[1]));
+    func.call = (int, thiz, args) => new $String(thiz.value.replace(args[0], args[1]));
     return func;
 }
 
@@ -244,7 +240,7 @@ export function stringAlterMethod(that: any): InternalEntity {
     const func = new InternalEntity();
     func.toString = () => '<internal function>';
     func.arity = () => 2;
-    func.call = (int, thiz, args) => new StringEntity(thiz.value.replace(args[0].regex, args[1]));
+    func.call = (int, thiz, args) => new $String(thiz.value.replace(args[0].regex, args[1]));
     return func;
 }
 
@@ -252,7 +248,7 @@ export function stringToUpperCase(that: any): InternalEntity {
     const func = new InternalEntity();
     func.toString = () => '<internal function>';
     func.arity = () => 0;
-    func.call = (int, thiz, args) => new StringEntity(thiz.value.toUpperCase());
+    func.call = (int, thiz, args) => new $String(thiz.value.toUpperCase());
     return func;
 }
 
@@ -260,7 +256,7 @@ export function stringToLowercase(that: any): InternalEntity {
     const func = new InternalEntity();
     func.toString = () => '<internal function>';
     func.arity = () => 0;
-    func.call = (int, thiz, args) => new StringEntity(thiz.value.toLowerCase());
+    func.call = (int, thiz, args) => new $String(thiz.value.toLowerCase());
     return func;
 }
 
@@ -279,3 +275,4 @@ export function regexExecMethod(that: any): InternalEntity {
     func.call = (int, thiz, args) => thiz.regex.exec(args[0]);
     return func;
 }
+*/

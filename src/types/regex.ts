@@ -1,4 +1,4 @@
-import { PrototypeEntity } from './entity';
+/* import { PrototypeEntity } from './entity';
 import * as Runtime from '../runtime';
 import { Interpreter } from '../interpreter';
 
@@ -25,3 +25,4 @@ export class RegExEntity extends PrototypeEntity {
     }
 
 }
+*/

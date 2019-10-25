@@ -18,7 +18,7 @@ function randStringGenerator(length) {
 
 describe("atscript string and string methods", () => {
 
-    it("atscript should concatanate strings", () => {
+    xit("atscript should concatanate strings", () => {
 
         function randConcatanationGenerator(length) {
             let concatanation = '';
@@ -29,7 +29,7 @@ describe("atscript string and string methods", () => {
             return concatanation;
         }
 
-        for (let i = 0; i <= 100; ++i) {
+        for (let i = 0; i <= 10; ++i) {
             const concatanation = randConcatanationGenerator();
             expect(atscript(concatanation + ";").value).toEqual(eval(`${concatanation}`));
         }

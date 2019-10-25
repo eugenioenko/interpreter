@@ -1,7 +1,8 @@
-import * as Expr from './structs/expression';
-import * as Stmt from './structs/statement';
+import * as Expr from './expression';
+import * as Stmt from './statement';
 import { Console } from './console';
-import { Token, TokenType } from './structs/token';
+import { Token, TokenType } from './token';
+import { $Boolean, $Number, $Null } from './types';
 declare var conzole: Console;
 
 export class Parser {
@@ -133,6 +134,7 @@ export class Parser {
     }
 
     private classDeclaration(): Stmt.Class {
+        /*
         const name: Token = this.consume(TokenType.Identifier, `Expected a class name`);
         let parent: Token = null;
         if (this.match(TokenType.Extends)) {
@@ -153,11 +155,14 @@ export class Parser {
             this.parseWarning(`Unnecessary semicolon after class ${name.lexeme} declaration`);
         }
         return new Stmt.Class(name, parent, methods);
+        */ return null;
     }
 
     private funcDeclaration(kind: string): Stmt.Func {
+        /*
         const name: Token = this.consume(TokenType.Identifier, `Expected a ${kind} name`);
         return this.funcParamsBody(name, kind);
+        */ return null;
     }
 
     private funcParams(): Token[] {
@@ -175,6 +180,7 @@ export class Parser {
     }
 
     private funcParamsBody(name: Token, kind: string): Stmt.Func {
+        /*
         this.consume(TokenType.LeftParen, `Expected "(" after ${kind}`);
         const params: Token[] = this.funcParams();
 
@@ -198,6 +204,7 @@ export class Parser {
             return new Stmt.Func(name, params, body);
         }
         this.consume(TokenType.LeftBrace, `Expect "{" before ${kind} body`);
+        */ return null;
     }
 
     private varDeclaration(): Stmt.Stmt {
@@ -285,7 +292,7 @@ export class Parser {
             ]);
         }
         if (condition === null) {
-            condition = new Expr.Literal(true);
+            condition = new Expr.Literal(new $Boolean(true));
         }
         body = new Stmt.While(condition, body);
         if (initializer !== null) {
@@ -549,16 +556,16 @@ export class Parser {
 
     private primary(): Expr.Expr {
         if (this.match(TokenType.False)) {
-            return new Expr.Literal(false);
+            return new Expr.Literal(new $Boolean(false));
         }
         if (this.match(TokenType.True)) {
-            return new Expr.Literal(true);
+            return new Expr.Literal(new $Boolean(true));
         }
         if (this.match(TokenType.Null)) {
-             return new Expr.Literal(null);
+            return new Expr.Literal(new $Null());
         }
         if (this.match(TokenType.Number)) {
-            return new Expr.Literal(this.previous().literal);
+            return new Expr.Literal(new $Number(this.previous().literal));
         }
         if (this.match(TokenType.String)) {
             return new Expr.Ztring(this.previous().literal);
@@ -602,6 +609,7 @@ export class Parser {
     }
 
     public entity(): Expr.Expr {
+        /*
         if (this.match(TokenType.RightBrace)) {
             return new Expr.Entity([]);
         }
@@ -619,9 +627,11 @@ export class Parser {
         this.consume(TokenType.RightBrace, `Expected "}" after object literal`);
 
         return new Expr.Entity(properties);
+        */ return null;
     }
 
     private array(): Expr.Expr {
+        /*
         const values = [];
         if (this.match(TokenType.RightBracket)) {
             return new Expr.List([]);
@@ -632,9 +642,11 @@ export class Parser {
         this.consume(TokenType.RightBracket, `Expected "]" after array declaration`);
 
         return new Expr.List(values);
+        */ return null;
     }
 
     private superCall(): Expr.Expr {
+        /*
         const indexes: Token[] = [];
         while (this.match(TokenType.Dot)) {
             const token = this.consume(TokenType.Identifier, `Expected method name after super`);
@@ -653,6 +665,7 @@ export class Parser {
         } while (this.match(TokenType.LeftParen));
 
         return new Expr.Super(indexes, args);
+        */ return null;
     }
 
 }

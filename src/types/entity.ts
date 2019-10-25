@@ -2,10 +2,11 @@ import { Interpreter } from '../interpreter';
 import { Scope } from '../structs/scope';
 import { Return } from '../structs/return';
 import { Prototype } from '../structs/prototype';
-import * as Stmt from '../structs/statement';
-import * as Runtime from '../runtime';
+import * as Stmt from '../statement';
+// import * as Runtime from '../runtime';
 declare var conzole: Console;
 
+/*
 export class InternalEntity {
     public call: (interpreter: Interpreter, thiz: any, args: any[]) => any;
     public toString: () => string = () => '<native function>';
@@ -127,3 +128,4 @@ export class InstanceEntity extends CallableEntity {
         return '<' + this.instanceof + " instance>";
     }
 }
+*/

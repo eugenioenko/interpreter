@@ -1,4 +1,4 @@
-import { TokenType } from './token';
+import { TokenType } from '../token';
 
 export function isDigit(char: string): boolean {
     return char >= '0' && char <= '9';

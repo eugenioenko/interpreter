@@ -1,9 +1,10 @@
 import { Token, TokenType } from './token';
-
 import { Stmt } from 'statement';
+import { $Any } from 'types';
 
 export abstract class Expr {
     // tslint:disable-next-line
+    public result: any;
     constructor() {}
     public abstract accept<R>(visitor: ExprVisitor<R>): R;
 }
@@ -75,9 +76,9 @@ export class Call extends Expr {
     public callee: Expr;
     public paren: Token;
     public args: Expr[];
-    public thiz: any;
+    public thiz: $Any;
 
-    constructor(callee: Expr, paren: Token, args: Expr[], thiz: any) {
+    constructor(callee: Expr, paren: Token, args: Expr[], thiz: $Any) {
         super();
         this.callee = callee;
         this.paren = paren;
@@ -212,9 +213,9 @@ export class List extends Expr {
     }
 }
 export class Literal extends Expr {
-    public value: any;
+    public value: $Any;
 
-    constructor(value: any) {
+    constructor(value: $Any) {
         super();
         this.value = value;
     }

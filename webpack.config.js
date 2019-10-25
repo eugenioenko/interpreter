@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-    entry: './src/index.ts',
+    entry: './src/atscript.ts',
     devtool: 'inline-source-map',
     mode: 'development',
     watch: true,

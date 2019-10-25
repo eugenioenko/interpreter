@@ -3,7 +3,7 @@ let fs = require('fs');
 const ExpressionAST = {
     Assign: ['name: Token', 'value: Expr'],
     Binary: ['left: Expr', 'operator: Token', 'right: Expr'],
-    Call: ['callee: Expr', 'paren: Token', 'args: Expr[]', 'thiz: any'],
+    Call: ['callee: Expr', 'paren: Token', 'args: Expr[]', 'thiz: $Any'],
     Entity: ['properties: Expr[]'],
     Get: ['entity: Expr', 'key: Expr'],
     Grouping: ['expression: Expr'],
@@ -11,7 +11,7 @@ const ExpressionAST = {
     Lambda: ['lambda: Stmt'],
     Logical: ['left: Expr', 'operator: Token', 'right: Expr'],
     List: ['value: Expr[]'],
-    Literal: ['value: any'],
+    Literal: ['value: $Any'],
     New: ['construct: Expr'],
     Postfix: ['name: Token', 'increment: number'],
     Range: ['start: Expr', 'end: Expr', 'step: Expr'],
@@ -41,6 +41,7 @@ function generateAST(baseClass, AST, filename, imports = '') {
     let file = imports +
 `export abstract class ${baseClass} {
     // tslint:disable-next-line
+    public result: any;
     constructor() {}
     public abstract accept<R>(visitor: ${baseClass}Visitor<R>): R;
 }\n\n`;
@@ -80,5 +81,5 @@ function generateAST(baseClass, AST, filename, imports = '') {
     });
 }
 
-generateAST('Expr', ExpressionAST, 'expression', `import { Token, TokenType } from 'token';\n\nimport { Stmt } from 'statement';\n\n`);
+generateAST('Expr', ExpressionAST, 'expression', `import { Token, TokenType } from 'token';\nimport { Stmt } from 'statement';\nimport { $Any } from '../types/types';\n\n`);
 generateAST('Stmt', StatementAST, 'statement', `import { Token } from 'token';\n\nimport { Expr } from 'expression';\n\n`);
