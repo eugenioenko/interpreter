@@ -1,3 +1,8 @@
+import { Interpreter } from "./interpreter";
+import * as Stmt from './statement';
+import { Scope } from "./structs/scope";
+import { Return } from "./structs/return";
+
 declare var conzole: Console;
 
 export enum DataType {
@@ -11,7 +16,8 @@ export enum DataType {
     Dictionary,
     Object,
     Function,
-    Range
+    Range,
+    Return
 }
 
 export class $Any {
@@ -42,6 +48,10 @@ export class $Any {
 
     public isRange(): boolean {
         return this.type === DataType.Range;
+    }
+
+    public isFunction(): boolean {
+        return this.type === DataType.Function;
     }
 
     public isTruthy(): boolean {
@@ -295,5 +305,80 @@ export class $Dictionary extends $Any {
             result.push(`${key}: ${value}`);
         });
         return `{${result.join('; ')}}`;
+    }
+}
+
+type FunctionCall = (interpreter: Interpreter, thiz: $Any, args: $Any[]) => $Any;
+
+export class $Callable extends $Any {
+
+    public value: FunctionCall;
+
+    constructor(value: FunctionCall) {
+        super(value, DataType.Function);
+    }
+
+    public call(interpreter: Interpreter, thiz: any, args: any[]): $Any {
+        return this.value(interpreter, thiz, args);
+    }
+
+    public toString(): string {
+        return '<internal function>';
+    }
+
+}
+
+export class $Function extends $Callable {
+    public declaration: Stmt.Func;
+    public name: string;
+    private closure: Scope;
+
+    constructor(declaration: Stmt.Func, closure: Scope) {
+        super(null);
+        this.declaration = declaration;
+        this.closure = closure;
+        this.name = this.declaration.name.lexeme;
+
+    }
+
+    public toString(): string {
+        return `<${this.name}  function>`;
+    }
+
+    public arity(): number {
+        return this.declaration.params.length;
+    }
+
+    public call(interpreter: Interpreter, thiz: any, args: any[]): $Any {
+        const scope = new Scope(this.closure);
+        for (let i = 0; i < this.declaration.params.length; i++) {
+            scope.define(this.declaration.params[i].lexeme, args[i]);
+        }
+        scope.set('this', thiz);
+        let restoreScope: Scope = null;
+        try {
+            restoreScope = interpreter.scope;
+            interpreter.executeBlock(this.declaration.body, scope);
+        } catch (e) {
+            if (e instanceof $Return) {
+                if (restoreScope) {
+                    interpreter.scope = restoreScope;
+                }
+                return e.value;
+            }
+            conzole.error("Runtime error. Execution has been stopped");
+            conzole.error(e.message);
+            throw new Error("Runtime error. Execution has been stopped");
+        }
+        return null;
+    }
+
+}
+
+export class $Return extends $Any {
+    public value: $Any;
+
+    constructor(value: $Any) {
+        super(value, DataType.Return);
     }
 }

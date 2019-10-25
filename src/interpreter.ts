@@ -3,10 +3,9 @@ import * as Expr from './expression';
 import * as Stmt from './statement';
 import { Console } from './console';
 import { Prototype } from './structs/prototype';
-import { Return } from './structs/return';
 import { Scope } from './structs/scope';
 import { TokenType } from './token';
-import { $Any, $Void, $String, $Number, $Null, $Boolean, RangeValue, $Range, $Dictionary, $List } from './types';
+import { $Any, $Void, $String, $Number, $Null, $Boolean, RangeValue, $Range, $Dictionary, $List, $Function, $Return } from './types';
 declare var conzole: Console;
 
 export class Interpreter implements
@@ -229,7 +228,6 @@ export class Interpreter implements
     }
 
     public visitCallExpr(expr: Expr.Call): $Any {
-        /*
         const callee = this.evaluate(expr.callee);
         const args = [];
         let thiz: any = null;
@@ -242,17 +240,15 @@ export class Interpreter implements
             args.push(this.evaluate(argument));
         }
 
-        if (!(callee instanceof CallableEntity) &&
-            !(callee instanceof InternalEntity)
-        ) {
+        if (!callee.isFunction()) {
             this.interpreterError(`${callee} is not a function`);
         }
-        const func = callee as CallableEntity;
+        const func = callee as $Function;
+        /*
         if (args.length !== func.arity() && func.arity() !== -1) {
             conzole.warn(`Warning at (${expr.paren.line}): ${callee} mismatched argument length; \n Expected ${func.arity()} but got ${args.length} `);
-        }
+        }*/
         return func.call(this, thiz, args);
-        */ return new $Null();
     }
 
     public visitSuperExpr(expr: Expr.Super): $Any {
@@ -327,11 +323,9 @@ export class Interpreter implements
     }
 
     public visitFuncStmt(stmt: Stmt.Func): $Any {
-        /*
-        const func: FunctionEntity = new FunctionEntity(stmt, this.scope);
+        const func = new $Function(stmt, this.scope);
         this.scope.define(stmt.name.lexeme, func);
-        return null;
-        */ return new $Null();
+        return new $Null();
     }
 
     public visitClassStmt(stmt: Stmt.Class): $Any {
@@ -364,21 +358,17 @@ export class Interpreter implements
     }
 
     public visitLambdaExpr(expr: Expr.Lambda): $Any {
-        /*
         const lambda: Stmt.Func = expr.lambda as Stmt.Func;
-        const func: FunctionEntity = new FunctionEntity(lambda, this.scope);
+        const func: $Function = new $Function(lambda, this.scope);
         return func;
-        */ return new $Null();
     }
 
     public visitReturnStmt(stmt: Stmt.Return): $Any {
-        /*
-        let value = null;
+        let value = new $Null();
         if (stmt.value) {
             value = this.evaluate(stmt.value);
         }
-        throw new Return(value);
-        */ return new $Null();
+        throw new $Return(value);
     }
 
     public visitRangeExpr(expr: Expr.Range): $Any {

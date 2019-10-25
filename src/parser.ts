@@ -159,10 +159,8 @@ export class Parser {
     }
 
     private funcDeclaration(kind: string): Stmt.Func {
-        /*
         const name: Token = this.consume(TokenType.Identifier, `Expected a ${kind} name`);
         return this.funcParamsBody(name, kind);
-        */ return null;
     }
 
     private funcParams(): Token[] {
@@ -180,7 +178,6 @@ export class Parser {
     }
 
     private funcParamsBody(name: Token, kind: string): Stmt.Func {
-        /*
         this.consume(TokenType.LeftParen, `Expected "(" after ${kind}`);
         const params: Token[] = this.funcParams();
 
@@ -204,7 +201,6 @@ export class Parser {
             return new Stmt.Func(name, params, body);
         }
         this.consume(TokenType.LeftBrace, `Expect "{" before ${kind} body`);
-        */ return null;
     }
 
     private varDeclaration(): Stmt.Stmt {
