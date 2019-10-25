@@ -1,16 +1,16 @@
-import * as Expr from './expression';
+import * as Expr from './structs/expression';
 import * as Runtime from './runtime';
-import * as Stmt from './statement';
-import { ArrayEntity } from './array';
+import * as Stmt from './structs/statement';
+import { ArrayEntity } from './types/array';
 import { Console } from './console';
-import { FunctionEntity, CallableEntity, InternalEntity, InstanceEntity, PrototypeEntity } from './entity';
-import { IndexRange } from './range';
-import { Prototype } from './prototype';
-import { Return } from './return';
-import { Scope } from './scope';
-import { StringEntity } from './string';
-import { TokenType } from './token';
-import { RegExEntity } from './regex';
+import { FunctionEntity, CallableEntity, InternalEntity, InstanceEntity, PrototypeEntity } from './types/entity';
+import { IndexRange } from './types/range';
+import { Prototype } from './structs/prototype';
+import { Return } from './structs/return';
+import { Scope } from './structs/scope';
+import { StringEntity } from './types/string';
+import { TokenType } from './structs/token';
+import { RegExEntity } from './types/regex';
 declare var conzole: Console;
 
 export class Interpreter implements

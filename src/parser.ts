@@ -1,7 +1,7 @@
-import * as Expr from './expression';
-import * as Stmt from './statement';
+import * as Expr from './structs/expression';
+import * as Stmt from './structs/statement';
 import { Console } from './console';
-import { Token, TokenType } from './token';
+import { Token, TokenType } from './structs/token';
 declare var conzole: Console;
 
 export class Parser {

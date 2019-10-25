@@ -1,6 +1,6 @@
-import * as Runtime from './runtime';
+import * as Runtime from '../runtime';
 import { IndexRange } from './range';
-import { Interpreter } from './interpreter';
+import { Interpreter } from '../interpreter';
 import { PrototypeEntity } from './entity';
 
 export class ArrayEntity extends PrototypeEntity {

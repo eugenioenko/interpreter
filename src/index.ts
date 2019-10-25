@@ -2,7 +2,7 @@ import { Scanner } from './scanner';
 import { Parser } from './parser';
 import { Interpreter } from './interpreter';
 import { Console } from './console';
-import { DemoSourceCode } from './demo';
+import { DemoSourceCode } from './demos/demo';
 declare var window: any;
 declare var global: any;
 

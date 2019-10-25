@@ -1,7 +1,7 @@
 import { IndexRange } from './range';
 import { PrototypeEntity } from './entity';
-import * as Runtime from './runtime';
-import { Interpreter } from './interpreter';
+import * as Runtime from '../runtime';
+import { Interpreter } from '../interpreter';
 
 export class StringEntity extends PrototypeEntity {
     private value: string;

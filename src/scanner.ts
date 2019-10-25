@@ -1,4 +1,4 @@
-import { Token, TokenType } from '../src/token';
+import { Token, TokenType } from './structs/token';
 import { Console } from './console';
 declare var conzole: Console;
 

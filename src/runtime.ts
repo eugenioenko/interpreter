@@ -1,7 +1,7 @@
-import { ArrayEntity } from "./array";
-import { InternalEntity, FunctionEntity } from "./entity";
-import { Prototype } from "./prototype";
-import { StringEntity } from "./string";
+import { ArrayEntity } from "./types/array";
+import { InternalEntity, FunctionEntity } from "./types/entity";
+import { Prototype } from "./structs/prototype";
+import { StringEntity } from "./types/string";
 
 export function hasOwnProperty(that: any): InternalEntity {
     const func = new InternalEntity();

@@ -1,6 +1,6 @@
 import { PrototypeEntity } from './entity';
-import * as Runtime from './runtime';
-import { Interpreter } from './interpreter';
+import * as Runtime from '../runtime';
+import { Interpreter } from '../interpreter';
 
 export class RegExEntity extends PrototypeEntity {
     private regex: RegExp;
