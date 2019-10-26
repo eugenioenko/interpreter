@@ -5,6 +5,7 @@ import { Console } from './console';
 import { Scope } from './scope';
 import { TokenType, Token } from './token';
 import { $Any, $Void, $String, $Number, $Null, $Boolean, RangeValue, $Range, $Dictionary, $List, $Function, $Return, $Class, $Object } from './types';
+import { Runtime } from './runtime';
 declare var conzole: Console;
 
 export class Interpreter implements
@@ -16,6 +17,11 @@ export class Interpreter implements
     constructor( ) {
         // this.global.define('echo', Runtime.echoFunction());
         // this.global.define('rand', Runtime.randFunction());
+        const math = new $Dictionary(new Map());
+        math.set(new $String('pi'), new $Number(Math.PI));
+        this.global.set('math', new $Dictionary(Runtime.Math));
+        this.global.set('string', new $Dictionary(Runtime.String));
+
     }
 
     private evaluate(expr: Expr.Expr): $Any {
@@ -44,7 +50,6 @@ export class Interpreter implements
 
     public visitPrintStmt(stmt: Stmt.Print): $Any {
         const data = this.evaluate(stmt.expression);
-        console.log(data.toString());
         conzole.log(data.toString());
         return data;
     }
@@ -224,8 +229,13 @@ export class Interpreter implements
     }
 
     public visitCallExpr(expr: Expr.Call): $Any {
+        // verify callee is a function
         const callee = this.evaluate(expr.callee);
-        const args = [];
+        if (!callee.isFunction()) {
+            this.interpreterError(`${callee} is not a function`);
+        }
+
+        // set this in function scope
         let thiz: any = null;
         if (expr.callee instanceof Expr.Get) {
             if (expr.callee.entity instanceof Expr.Super) {
@@ -236,13 +246,14 @@ export class Interpreter implements
         } else if (expr.thiz !== null) {
             thiz = expr.thiz;
         }
+
+        // evaluate function arguments
+        const args = [];
         for (const argument of expr.args) {
             args.push(this.evaluate(argument));
         }
 
-        if (!callee.isFunction()) {
-            this.interpreterError(`${callee} is not a function`);
-        }
+        // pass arguments to function
         const func = callee as $Function;
         if (args.length !== func.arity && func.arity !== -1) {
             conzole.warn(`Warning at (${expr.paren.line}): ${callee} mismatched argument length; \n Expected ${func.arity} but got ${args.length} `);
@@ -252,7 +263,8 @@ export class Interpreter implements
                 }
             }
         }
-        return func.call(this, thiz, args);
+        // execute function
+        return func.call(thiz, args, this);
     }
 
     public visitSuperExpr(expr: Expr.Super): $Any {
@@ -293,8 +305,8 @@ export class Interpreter implements
             */
            this.evaluate(
                new Expr.Call(
-                   new Expr.Get(new Expr.Literal(entity), new Expr.Key(conztructor.name)),
-                   conztructor.name,
+                   new Expr.Get(new Expr.Literal(entity), new Expr.Key(conztructor.declaration.name)),
+                   conztructor.declaration.name,
                    newCall.args,
                    entity
                 )

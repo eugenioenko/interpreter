@@ -219,13 +219,12 @@ export class $String extends $Any {
     public get(key: $Any): $Any {
         if (key.isNumber()) {
             return new $String(this.value[key.value]);
-        } else if (key.value === 'length') {
-            return new $Number(this.value.length);
         } else if (key.isRange()) {
             return this.range(<$Range> key);
-        } else {
-            return; //return super.get(key);
+        } else if (key.value === 'length') {
+            return new $Number(this.value.length);
         }
+        return new $Null();
 
     }
 
@@ -322,46 +321,42 @@ export class $Dictionary extends $Any {
     }
 }
 
-type FunctionCall = (interpreter: Interpreter, thiz: $Any, args: $Any[]) => $Any;
+export type FunctionCall = (thiz: $Any, args: $Any[], interpreter: Interpreter) => $Any;
 
 export class $Callable extends $Any {
 
     public value: FunctionCall;
     public arity: number;
+    public name: string;
 
-    constructor(value: FunctionCall, arity: number) {
+    constructor(name: string,  arity: number, value: FunctionCall) {
         super(value, DataType.Function);
         this.arity = arity;
+        this.name = name;
     }
 
-    public call(interpreter: Interpreter, thiz: any, args: any[]): $Any {
-        return this.value(interpreter, thiz, args);
+    public call(thiz: any, args: any[], interpreter: Interpreter, ): $Any {
+        return this.value(thiz, args, interpreter);
     }
 
     public toString(): string {
-        return '<internal function>';
+        return `<${this.name}  function>`;
     }
 
 }
 
 export class $Function extends $Callable {
     public declaration: Stmt.Func;
-    public name: Token;
+    public name: string;
     private closure: Scope;
 
-
     constructor(declaration: Stmt.Func, closure: Scope) {
-        super(null, declaration.params.length);
+        super(declaration.name.lexeme, declaration.params.length, null);
         this.declaration = declaration;
         this.closure = closure;
-        this.name = this.declaration.name;
     }
 
-    public toString(): string {
-        return `<${this.name.lexeme}  function>`;
-    }
-
-    public call(interpreter: Interpreter, thiz: any, args: any[]): $Any {
+    public call(thiz: any, args: any[], interpreter: Interpreter): $Any {
         const scope = new Scope(this.closure);
         for (let i = 0; i < this.declaration.params.length; i++) {
             scope.define(this.declaration.params[i].lexeme, args[i]);
@@ -416,7 +411,7 @@ export class $Class extends $Any {
     }
 
     public toString(): string {
-        return `<Class '${this.name}>'`;
+        return `<${this.name} class>`;
     }
 }
 
@@ -449,11 +444,12 @@ export class $Object extends $Any {
     }
 
     public toString(): string {
-        return `<Object '${this.constructor.name}>'`;
+        return `<${this.constructor.name} object>`;
     }
 }
 
 export class $Return extends $Any {
+
     public value: $Any;
 
     constructor(value: $Any) {

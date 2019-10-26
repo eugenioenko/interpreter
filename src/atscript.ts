@@ -16,6 +16,6 @@ window.atscript = (source: string)  => {
     try {
         return (new Interpreter().interpet((new Parser((new Scanner(source)).scan())).parse()));
     } catch (e) {
-        console.warn(e);
+        console.error(e);
     }
 };

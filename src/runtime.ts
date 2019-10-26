@@ -1,4 +1,50 @@
+import { $Callable, FunctionCall, $Null, $Any, $Number, $String, $List } from './types';
 
+class StringRT {
+
+    public static size(thiz: $Any, args: $Any[]): $Any {
+        if (!args || !args.length || !args[0].isString() || args[0].value === null || typeof args[0].value.length === 'undefined') {
+            return new $Null();
+        }
+        return new $Number(args[0].value.length);
+    }
+
+    public static toUpperCase(thiz: $Any, args: $Any[]): $Any {
+        return new $Number(args[0].value.toUpperCase());
+    }
+
+    public static toLowerCase(thiz: $Any, args: $Any[]): $Any {
+        return new $Number(args[0].value.toLowerCase());
+    }
+
+    public static split(thiz: $Any, args: $Any[]): $Any {
+        return new $List(args[0].value.split(args[1].value));
+    }
+
+    public static join(thiz: $Any, args: $Any[]): $Any {
+        return new $List(args[0].value.join(args[1].value));
+    }
+
+}
+
+export const Runtime = {
+    Math: new Map([
+        ['pi', new $Number(Math.PI)],
+        ['test', new $Any(Math.PI)],
+        ['rand', new $Callable('rand', 0, (thiz: $Any, args: $Any[]) => new $Number(Math.PI))]
+    ]),
+    String: new Map([
+        ['toUpper', new $Callable('toUpper', 1, StringRT.toUpperCase)],
+        ['toLower', new $Callable('toLower', 1, StringRT.toLowerCase)],
+        ['size', new $Callable('size', 1, StringRT.size)],
+        ['split', new $Callable('split', 2, StringRT.split)],
+        ['join', new $Callable('join', 2, StringRT.join)]
+    ])
+};
+
+/*
+
+*/
 /*
 export function hasOwnProperty(that: any): InternalEntity {
     const func = new InternalEntity();
@@ -74,14 +120,6 @@ export function echoFunction(): InternalEntity {
     func.arity = () => 1;
     func.toString = () => '<native function>';
     func.call = (interpreter, thiz, args) => console.log(args[0]);
-    return func;
-}
-
-export function randFunction(): InternalEntity {
-    const func = new InternalEntity();
-    func.arity = () => 0;
-    func.call = () => Math.random();
-    func.toString = () => '<native function>';
     return func;
 }
 
