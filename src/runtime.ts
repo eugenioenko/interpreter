@@ -1,6 +1,9 @@
 import { $Callable, FunctionCall, $Null, $Any, $Number, $String, $List } from './types';
 
-class StringRT {
+export class StringRuntime {
+    public static methods = {
+        size: new $Callable('size', 1, StringRuntime.size)
+    };
 
     public static size(thiz: $Any, args: $Any[]): $Any {
         if (!args || !args.length || !args[0].isString() || args[0].value === null || typeof args[0].value.length === 'undefined') {
@@ -22,7 +25,7 @@ class StringRT {
     }
 
     public static join(thiz: $Any, args: $Any[]): $Any {
-        return new $List(args[0].value.join(args[1].value));
+        return new $String(args[0].value.join(args[1].value));
     }
 
 }
@@ -34,11 +37,11 @@ export const Runtime = {
         ['rand', new $Callable('rand', 0, (thiz: $Any, args: $Any[]) => new $Number(Math.PI))]
     ]),
     String: new Map([
-        ['toUpper', new $Callable('toUpper', 1, StringRT.toUpperCase)],
-        ['toLower', new $Callable('toLower', 1, StringRT.toLowerCase)],
-        ['size', new $Callable('size', 1, StringRT.size)],
-        ['split', new $Callable('split', 2, StringRT.split)],
-        ['join', new $Callable('join', 2, StringRT.join)]
+        ['toUpper', new $Callable('toUpper', 1, StringRuntime.toUpperCase)],
+        ['toLower', new $Callable('toLower', 1, StringRuntime.toLowerCase)],
+        ['size', new $Callable('size', 1, StringRuntime.size)],
+        ['split', new $Callable('split', 2, StringRuntime.split)],
+        ['join', new $Callable('join', 2, StringRuntime.join)]
     ])
 };
 

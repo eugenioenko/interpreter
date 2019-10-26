@@ -322,7 +322,7 @@ export class Parser {
             value = this.expression();
         }
 
-        this.consume(TokenType.Semicolon, `Exected ";" after return statement`);
+        this.consume(TokenType.Semicolon, `Exected semicolon ";" after return statement`);
         return new Stmt.Return(keyword, value);
     }
 
@@ -331,7 +331,7 @@ export class Parser {
         while (!this.check(TokenType.RightBrace) && !this.eof()) {
             statements.push(this.declaration());
         }
-        this.consume(TokenType.RightBrace, `Expected closing block "}"`);
+        this.consume(TokenType.RightBrace, `Expected closing brace "}" after block statement`);
         return statements;
     }
 

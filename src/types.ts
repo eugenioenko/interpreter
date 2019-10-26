@@ -1,7 +1,6 @@
-import { Interpreter } from "./interpreter";
+import { Interpreter } from './interpreter';
 import * as Stmt from './statement';
-import { Scope } from "./scope";
-import { Token } from "./token";
+import { Scope } from './scope';
 
 declare var conzole: Console;
 
