@@ -17,7 +17,7 @@ const ExpressionAST = {
     Range: ['start: Expr', 'end: Expr', 'step: Expr'],
     RegEx: ['value: RegExp'],
     Set: ['entity: Expr', 'key: Expr', 'value: Expr'],
-    Super: ['index: Token[]', 'args: Expr[]'],
+    Super: ['paren: Token'],
     Ternary: ['condition: Expr', 'thenExpr: Expr', 'elseExpr: Expr'],
     Unary: ['operator: Token', 'right: Expr'],
     Variable: ['name: Token'],

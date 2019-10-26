@@ -1,5 +1,6 @@
 import { Token } from './token';
 import { Console } from './console';
+import { $Any } from './types';
 declare var conzole: Console;
 
 export class Scope {
@@ -17,11 +18,11 @@ export class Scope {
         throw new Error();
     }
 
-    public set(name: string, value: any) {
+    public set(name: string, value: $Any) {
         this.values.set(name, value);
     }
 
-    public define(name: string, value: any) {
+    public define(name: string, value: $Any) {
         if (this.values.has(name)) {
             this.scopeError(`identifier "${name}" has already been defined`);
         } else {
@@ -29,7 +30,7 @@ export class Scope {
         }
     }
 
-    public assign(name: string, value: any): void {
+    public assign(name: string, value: $Any): void {
         if (this.values.has(name)) {
             this.set(name, value);
         } else {
@@ -40,7 +41,7 @@ export class Scope {
         }
     }
 
-    public get(name: Token): any {
+    public get(name: Token): $Any {
         if (this.values.has(name.lexeme)) {
             return this.values.get(name.lexeme);
         }
@@ -48,23 +49,6 @@ export class Scope {
             return this.parent.get(name);
         }
         this.scopeError(`Error at (${name.line}): "${name.lexeme}" is not defined`);
-    }
-
-    public first(key: string): any {
-        if (this.values.has(key)) {
-            return this.values.get(key);
-        }
-        return null;
-    }
-
-    public obtain(key: string): any {
-        if (this.values.has(key)) {
-            return this.values.get(key);
-        }
-        if (this.parent !== null) {
-            return this.parent.obtain(key);
-        }
-        return null;
     }
 
 }

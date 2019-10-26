@@ -64,6 +64,10 @@ export class $Any {
         return this.type === DataType.Function && (this as any).name === '@';
     }
 
+    public isObject(): boolean {
+        return this.type === DataType.Object;
+    }
+
     public isTruthy(): boolean {
         if (this.isNull()) {
             return false;
@@ -412,11 +416,7 @@ export class $Class extends $Any {
     }
 
     public toString(): string {
-        const result: any[] = [];
-        this.value.forEach((value, key) => {
-            result.push(`${key}: ${value}`);
-        });
-        return `{${result.join('; ')}}`;
+        return `<Class '${this.name}>'`;
     }
 }
 
@@ -449,11 +449,7 @@ export class $Object extends $Any {
     }
 
     public toString(): string {
-        const result: any[] = [];
-        this.value.forEach((value, key) => {
-            result.push(`${key}: ${value}`);
-        });
-        return `{${result.join('; ')}}`;
+        return `<Object '${this.constructor.name}>'`;
     }
 }
 

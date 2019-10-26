@@ -319,13 +319,11 @@ export class Set extends Expr {
     }
 }
 export class Super extends Expr {
-    public index: Token[];
-    public args: Expr[];
+    public paren: Token;
 
-    constructor(index: Token[], args: Expr[]) {
+    constructor(paren: Token) {
         super();
-        this.index = index;
-        this.args = args;
+        this.paren = paren;
     }
 
     public accept<R>(visitor: ExprVisitor<R>): R {

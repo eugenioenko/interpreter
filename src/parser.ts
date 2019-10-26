@@ -567,6 +567,11 @@ export class Parser {
         if (this.match(TokenType.Regex)) {
             return new Expr.RegEx(this.previous().literal);
         }
+        if (this.match(TokenType.Super)) {
+            const paren = this.previous();
+            paren.lexeme = 'this';
+            return new Expr.Super(paren);
+        }
         if (this.match(TokenType.Identifier)) {
             const identifier =  this.previous();
             if (this.match(TokenType.PlusPlus)) {
@@ -589,9 +594,6 @@ export class Parser {
             const token: Token = new Token(TokenType.Lambda, '@', '@', this.previous().line);
             const lambda: Stmt.Func = this.funcParamsBody(token, 'lambda');
             return new Expr.Lambda(lambda);
-        }
-        if (this.match(TokenType.Super)) {
-            return this.superCall();
         }
         if (this.match(TokenType.LeftBracket)) {
             return this.list();
@@ -633,29 +635,6 @@ export class Parser {
         this.consume(TokenType.RightBracket, `Expected "]" after array declaration`);
 
         return new Expr.List(values);
-    }
-
-    private superCall(): Expr.Expr {
-        /*
-        const indexes: Token[] = [];
-        while (this.match(TokenType.Dot)) {
-            const token = this.consume(TokenType.Identifier, `Expected method name after super`);
-            indexes.push(token);
-        }
-
-        const args: Expr.Expr[] = [];
-        this.consume(TokenType.LeftParen, `Expected function parameters or method name after super`);
-        do {
-            if (!this.check(TokenType.RightParen)) {
-                do {
-                    args.push(this.expression());
-                } while (this.match(TokenType.Comma));
-            }
-            this.consume(TokenType.RightParen, `Expected ")" after super arguments`);
-        } while (this.match(TokenType.LeftParen));
-
-        return new Expr.Super(indexes, args);
-        */ return null;
     }
 
 }

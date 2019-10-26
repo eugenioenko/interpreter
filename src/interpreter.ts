@@ -66,8 +66,8 @@ export class Interpreter implements
     }
 
     public visitPostfixExpr(expr: Expr.Postfix): $Any {
-        const value = this.scope.get(expr.name);
-        const newValue = value + expr.increment;
+        const value = this.scope.get(expr.name).value;
+        const newValue = new $Number(value + expr.increment);
         this.scope.assign(expr.name.lexeme, newValue);
         return value;
     }
@@ -176,11 +176,11 @@ export class Interpreter implements
                 return new $Boolean(!Boolean(right));
             case TokenType.PlusPlus:
                 const incValue = Number(right) + 1;
-                this.scope.assign((<Expr.Variable> expr.right).name.lexeme, incValue);
+                this.scope.assign((<Expr.Variable> expr.right).name.lexeme, new $Number(incValue));
                 return new $Number(incValue);
             case TokenType.MinusMinus:
                 const decValue = Number(right) - 1;
-                this.scope.assign((<Expr.Variable> expr.right).name.lexeme, decValue);
+                this.scope.assign((<Expr.Variable> expr.right).name.lexeme, new $Number(decValue));
                 return new $Number(decValue);
             default:
                 return null; // should be unreachable
@@ -228,7 +228,11 @@ export class Interpreter implements
         const args = [];
         let thiz: any = null;
         if (expr.callee instanceof Expr.Get) {
-            thiz = this.evaluate(expr.callee.entity);
+            if (expr.callee.entity instanceof Expr.Super) {
+                thiz = this.scope.get(new Token(TokenType.Identifier, 'this', 'this', 0));
+            } else {
+                thiz = this.evaluate(expr.callee.entity);
+            }
         } else if (expr.thiz !== null) {
             thiz = expr.thiz;
         }
@@ -252,33 +256,19 @@ export class Interpreter implements
     }
 
     public visitSuperExpr(expr: Expr.Super): $Any {
-        /*
-        const thiz: InstanceEntity = this.scope.first('this');
-        if (!thiz) {
-            conzole.error(`super can only be called on child instances`);
+        const thiz = this.scope.get(expr.paren);
+
+        if (!thiz.isObject()) {
+            this.interpreterError("base expression can be used only inside methods");
         }
-        const clazz: FunctionEntity = this.scope.obtain(thiz.instanceof);
-        if (!clazz) {
-            conzole.error(`${thiz} is not an instance of an entity`);
+
+        const clazz: $Class = (thiz as $Object).conztructor as $Class;
+        const parent = clazz.parent;
+        if (parent.isNull()) {
+            this.interpreterError("Class " + clazz + "is not inherited from parent");
         }
-        const parent: FunctionEntity = clazz.parent;
-        if (!parent) {
-            conzole.error(`${thiz} entity has no parent`);
-        }
-        let method: FunctionEntity = null;
-        for (const key of expr.index) {
-            // method = parent.get(key.lexeme);
-        }
-        const args = [];
-        for (const argument of expr.args) {
-            args.push(this.evaluate(argument));
-        }
-        if (method) {
-            return method.call(this, thiz, args);
-        } else {
-            return parent.call(this, thiz, args);
-        }
-        */ return new $Null();
+
+        return parent;
     }
 
     public visitNewExpr(expr: Expr.New): $Any {
@@ -303,8 +293,11 @@ export class Interpreter implements
             */
            this.evaluate(
                new Expr.Call(
-                   new Expr.Get(new Expr.Literal(entity),
-                   new Expr.Key(conztructor.name)), conztructor.name, newCall.args, entity)
+                   new Expr.Get(new Expr.Literal(entity), new Expr.Key(conztructor.name)),
+                   conztructor.name,
+                   newCall.args,
+                   entity
+                )
             );
         }
         return entity;
