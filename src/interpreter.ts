@@ -140,7 +140,7 @@ export class Interpreter implements
             case TokenType.Less:
                 return new $Boolean(left < right);
             case TokenType.LessEqual:
-                return new $Boolean(left >= right);
+                return new $Boolean(left <= right);
             case TokenType.EqualEqual:
                 return new $Boolean(left === right);
             case TokenType.BangEqual:

@@ -222,6 +222,8 @@ export class $String extends $Any {
             return this.range(<$Range> key);
         } else if (key.value === 'length') {
             return new $Number(this.value.length);
+        } else if (key.value === 'toUpperCase') {
+            return new $Callable('toUpperCase', 0, this.toUpperCase);
         }
         return new $Null();
 
@@ -237,11 +239,6 @@ export class $String extends $Any {
     public arity(): number {
         return 0;
     }
-    /*
-
-    public call(interpreter: Interpreter, thiz: any, args: any[]): any {
-        return new $String(args[0]);
-    }*/
 
     private range(range: $Range): $String {
         let result = '';
@@ -249,6 +246,10 @@ export class $String extends $Any {
             result += this.value[i];
         });
         return new $String(result);
+    }
+
+    private toUpperCase(thiz: $Any, args: $Any[]): $Any {
+        return new $String(thiz.value.toUpperCase());
     }
 
 }

@@ -79,7 +79,6 @@ export class Parser {
         } else {
             conzole.error(`[line (${token.line}) parse error at "${token.lexeme}"] => ${message}`);
         }
-
         throw new Error ('Error parsing');
         // unreachable code
         return new Token(TokenType.Panic, 'error', 'error', 0);
@@ -92,7 +91,6 @@ export class Parser {
 
     private synchronize(): void {
         this.advance();
-
         while (!this.eof()) {
             if (this.previous().type === TokenType.Semicolon) {
                 return;
@@ -354,13 +352,11 @@ export class Parser {
 
     private assignment(): Expr.Expr {
         const expr: Expr.Expr = this.ternary();
-
         if (this.match(TokenType.Equal, TokenType.PlusEqual,
             TokenType.MinusEqual, TokenType.StarEqual, TokenType.SlashEqual)
         ) {
             const operator: Token = this.previous();
             let value: Expr.Expr = this.assignment();
-
             if (expr instanceof Expr.Variable) {
                 const name: Token = expr.name;
                 if (operator.type !== TokenType.Equal) {
@@ -373,10 +369,8 @@ export class Parser {
                 }
                 return new Expr.Set(expr.entity, expr.key, value);
             }
-
             this.parseError(operator, `Invalid l-value, is not an assigning target.`);
         }
-
         return expr;
     }
 
@@ -413,7 +407,6 @@ export class Parser {
 
     private equality(): Expr.Expr {
         let expr  = this.comparison();
-
         while (this.match(
             TokenType.BangEqual, TokenType.EqualEqual)
         ) {
@@ -421,55 +414,46 @@ export class Parser {
             const right: Expr.Expr = this.comparison();
             expr = new Expr.Binary(expr, operator, right);
         }
-
         return expr;
     }
 
     private comparison(): Expr.Expr {
         let expr: Expr.Expr = this.addition();
-
         while (this.match(TokenType.Greater, TokenType.GreaterEqual, TokenType.Less, TokenType.LessEqual)) {
             const operator: Token = this.previous();
             const right: Expr.Expr = this.addition();
             expr = new Expr.Binary(expr, operator, right);
         }
-
         return expr;
     }
 
     private addition(): Expr.Expr {
         let expr: Expr.Expr = this.modulus();
-
         while (this.match(TokenType.Minus, TokenType.Plus)) {
             const operator: Token = this.previous();
             const right: Expr.Expr = this.modulus();
             expr = new Expr.Binary(expr, operator, right);
         }
-
         return expr;
     }
 
     private modulus(): Expr.Expr {
         let expr: Expr.Expr = this.multiplication();
-
         while (this.match(TokenType.Percent)) {
             const operator: Token = this.previous();
             const right: Expr.Expr = this.multiplication();
             expr = new Expr.Binary(expr, operator, right);
         }
-
         return expr;
     }
 
     private multiplication(): Expr.Expr {
         let expr: Expr.Expr = this.unary();
-
         while (this.match(TokenType.Slash, TokenType.Star)) {
             const operator: Token = this.previous();
             const right: Expr.Expr = this.unary();
             expr = new Expr.Binary(expr, operator, right);
         }
-
         return expr;
     }
 
@@ -479,7 +463,6 @@ export class Parser {
             const right: Expr.Expr = this.unary();
             return new Expr.Unary(operator, right);
         }
-
         return this.newKeyword();
     }
 
@@ -494,9 +477,11 @@ export class Parser {
 
     private call(): Expr.Expr {
         let expr: Expr.Expr = this.primary();
-        while (true) {
+        let consumed = true;
+        do  {
+            consumed = false;
             if (this.match(TokenType.LeftParen)) {
-                let callee = expr;
+                consumed = true;
                 do {
                     const args: Expr.Expr[] = [];
                     if (!this.check(TokenType.RightParen)) {
@@ -505,18 +490,18 @@ export class Parser {
                         } while (this.match(TokenType.Comma));
                     }
                     const paren: Token = this.consume(TokenType.RightParen, `Expected ")" after arguments`);
-                    callee = new Expr.Call(callee, paren, args, null);
+                    expr = new Expr.Call(expr, paren, args, null);
                 } while (this.match(TokenType.LeftParen));
-                return callee;
-            } else if (this.match(TokenType.Dot)) {
-                expr = this.dotGet(expr);
-            } else if (this.match(TokenType.LeftBracket)) {
-                expr = this.bracketGet(expr);
-            } else {
-                break;
             }
-        }
-
+            if (this.match(TokenType.Dot)) {
+                consumed = true;
+                expr = this.dotGet(expr);
+            }
+            if (this.match(TokenType.LeftBracket)) {
+                consumed = true;
+                expr = this.bracketGet(expr);
+            }
+        } while (consumed);
         return expr;
     }
 
