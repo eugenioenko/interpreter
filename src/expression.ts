@@ -229,11 +229,11 @@ export class Literal extends Expr {
     }
 }
 export class New extends Expr {
-    public construct: Expr;
+    public clazz: Expr;
 
-    constructor(construct: Expr) {
+    constructor(clazz: Expr) {
         super();
-        this.construct = construct;
+        this.clazz = clazz;
     }
 
     public accept<R>(visitor: ExprVisitor<R>): R {

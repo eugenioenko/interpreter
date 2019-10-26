@@ -134,7 +134,6 @@ export class Parser {
     }
 
     private classDeclaration(): Stmt.Class {
-        /*
         const name: Token = this.consume(TokenType.Identifier, `Expected a class name`);
         let parent: Token = null;
         if (this.match(TokenType.Extends)) {
@@ -155,7 +154,6 @@ export class Parser {
             this.parseWarning(`Unnecessary semicolon after class ${name.lexeme} declaration`);
         }
         return new Stmt.Class(name, parent, methods);
-        */ return null;
     }
 
     private funcDeclaration(kind: string): Stmt.Func {
@@ -588,8 +586,8 @@ export class Parser {
             return this.dictionary();
         }
         if (this.match(TokenType.Function)) {
-            const token: Token = new Token(TokenType.Lambda, 'lambda', 'lambda', this.previous().line);
-            const lambda: Stmt.Func = this.funcParamsBody(token, "lambda");
+            const token: Token = new Token(TokenType.Lambda, '@', '@', this.previous().line);
+            const lambda: Stmt.Func = this.funcParamsBody(token, 'lambda');
             return new Expr.Lambda(lambda);
         }
         if (this.match(TokenType.Super)) {
@@ -610,13 +608,13 @@ export class Parser {
         }
         const properties: Expr.Set[] = [];
         do {
-            if (this.match(TokenType.String, TokenType.Identifier)) {
+            if (this.match(TokenType.String, TokenType.Identifier, TokenType.Number)) {
                 const key: Token = this.previous();
                 this.consume(TokenType.Colon, `Expected ":" colon after member`);
                 const value = this.expression();
                 properties.push(new Expr.Set(null, new Expr.Key(key), value));
             } else {
-                this.parseError(this.peek(), `String or identifier expected after Object {`);
+                this.parseError(this.peek(), `String, Number or Identifier expected as a Key of Dictionary {`);
             }
         } while (this.match(TokenType.Comma));
         this.consume(TokenType.RightBrace, `Expected "}" after object literal`);

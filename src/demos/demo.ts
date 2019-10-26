@@ -1,11 +1,16 @@
 export const DemoSourceCode =
 `
-// printing
-print "string";
-print null;
-print 1;
-print true;
-print null + null;
-print 1 + 1;
-print "test"[1];
+class Person {
+
+    constructor(name) {
+        this.name = name;
+    }
+
+    hello() {
+        print this.name + ' says hello';
+    }
+}
+
+var s = new Person();
+s.hello();
 `;

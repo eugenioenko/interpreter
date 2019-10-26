@@ -12,7 +12,7 @@ const ExpressionAST = {
     Logical: ['left: Expr', 'operator: Token', 'right: Expr'],
     List: ['value: Expr[]'],
     Literal: ['value: $Any'],
-    New: ['construct: Expr'],
+    New: ['clazz: Expr'],
     Postfix: ['name: Token', 'increment: number'],
     Range: ['start: Expr', 'end: Expr', 'step: Expr'],
     RegEx: ['value: RegExp'],

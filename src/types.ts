@@ -1,23 +1,25 @@
 import { Interpreter } from "./interpreter";
 import * as Stmt from './statement';
-import { Scope } from "./structs/scope";
-import { Return } from "./structs/return";
+import { Scope } from "./scope";
+import { Token } from "./token";
 
 declare var conzole: Console;
 
 export enum DataType {
-    Null,
-    Void,
-    Any,
-    Boolean,
-    Number,
-    String,
-    List,
-    Dictionary,
-    Object,
-    Function,
-    Range,
-    Return
+    Null,    // 0
+    Void,    // 1
+    Any,     // 2
+    Boolean, // 3
+    Number,  // 4
+    String,  // 5
+    List,    // 6
+    Dictionary, // 7
+    Object,   // 8
+    Class,    // 9
+    Function, // 10
+    Lambda,   // 11
+    Range,    // 12
+    Return    // 13
 }
 
 export class $Any {
@@ -52,6 +54,14 @@ export class $Any {
 
     public isFunction(): boolean {
         return this.type === DataType.Function;
+    }
+
+    public isClass(): boolean {
+        return this.type === DataType.Class;
+    }
+
+    public isLambda(): boolean {
+        return this.type === DataType.Function && (this as any).name === '@';
     }
 
     public isTruthy(): boolean {
@@ -302,7 +312,7 @@ export class $Dictionary extends $Any {
     public toString(): string {
         const result: any[] = [];
         this.value.forEach((value, key) => {
-            result.push(`${key}: ${value}`);
+            result.push(`${key.toString()}: ${value}`);
         });
         return `{${result.join('; ')}}`;
     }
@@ -313,9 +323,11 @@ type FunctionCall = (interpreter: Interpreter, thiz: $Any, args: $Any[]) => $Any
 export class $Callable extends $Any {
 
     public value: FunctionCall;
+    public arity: number;
 
-    constructor(value: FunctionCall) {
+    constructor(value: FunctionCall, arity: number) {
         super(value, DataType.Function);
+        this.arity = arity;
     }
 
     public call(interpreter: Interpreter, thiz: any, args: any[]): $Any {
@@ -330,23 +342,19 @@ export class $Callable extends $Any {
 
 export class $Function extends $Callable {
     public declaration: Stmt.Func;
-    public name: string;
+    public name: Token;
     private closure: Scope;
 
+
     constructor(declaration: Stmt.Func, closure: Scope) {
-        super(null);
+        super(null, declaration.params.length);
         this.declaration = declaration;
         this.closure = closure;
-        this.name = this.declaration.name.lexeme;
-
+        this.name = this.declaration.name;
     }
 
     public toString(): string {
-        return `<${this.name}  function>`;
-    }
-
-    public arity(): number {
-        return this.declaration.params.length;
+        return `<${this.name.lexeme}  function>`;
     }
 
     public call(interpreter: Interpreter, thiz: any, args: any[]): $Any {
@@ -373,6 +381,80 @@ export class $Function extends $Callable {
         return null;
     }
 
+}
+
+export class $Class extends $Any {
+    public value: Map<string, $Any>;
+    public name: string;
+    public parent: $Class | $Any;
+
+    constructor(name: string, value: Map<string, $Any>, parent: $Any | $Class) {
+        super(value, DataType.Class);
+        this.name = name;
+        this.parent = parent;
+    }
+
+    public get(key: $Any): $Any {
+        if (this.value.has(key.value)) {
+            return this.value.get(key.value);
+        }
+
+        if (this.parent.isClass()) {
+            return this.parent.get(key);
+        }
+
+        return new $Null();
+    }
+
+    public set(key: $Any, value: $Any): $Any {
+        this.value.set(key.value, value);
+        return value;
+    }
+
+    public toString(): string {
+        const result: any[] = [];
+        this.value.forEach((value, key) => {
+            result.push(`${key}: ${value}`);
+        });
+        return `{${result.join('; ')}}`;
+    }
+}
+
+export class $Object extends $Any {
+    public value: Map<string, $Any>;
+    public conztructor: $Class | $Any;
+
+    constructor(value: Map<string, $Any>, conztructor: $Class | $Any) {
+        super(value, DataType.Object);
+        this.conztructor = conztructor;
+    }
+
+    public get(key: $Any): $Any {
+        const method = this.conztructor.get(key);
+
+        if (method.isFunction()) {
+            return method;
+        }
+
+        if (this.value.has(key.value)) {
+            return this.value.get(key.value);
+        }
+
+        return new $Null();
+    }
+
+    public set(key: $Any, value: $Any): $Any {
+        this.value.set(key.value, value);
+        return value;
+    }
+
+    public toString(): string {
+        const result: any[] = [];
+        this.value.forEach((value, key) => {
+            result.push(`${key}: ${value}`);
+        });
+        return `{${result.join('; ')}}`;
+    }
 }
 
 export class $Return extends $Any {

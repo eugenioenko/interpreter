@@ -1,6 +1,5 @@
 import { Interpreter } from '../interpreter';
-import { Scope } from '../structs/scope';
-import { Return } from '../structs/return';
+import { Scope } from '../scope';
 import { Prototype } from '../structs/prototype';
 import * as Stmt from '../statement';
 // import * as Runtime from '../runtime';

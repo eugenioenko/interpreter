@@ -2,10 +2,9 @@ import * as Expr from './expression';
 // import * as Runtime from './runtime';
 import * as Stmt from './statement';
 import { Console } from './console';
-import { Prototype } from './structs/prototype';
-import { Scope } from './structs/scope';
-import { TokenType } from './token';
-import { $Any, $Void, $String, $Number, $Null, $Boolean, RangeValue, $Range, $Dictionary, $List, $Function, $Return } from './types';
+import { Scope } from './scope';
+import { TokenType, Token } from './token';
+import { $Any, $Void, $String, $Number, $Null, $Boolean, RangeValue, $Range, $Dictionary, $List, $Function, $Return, $Class, $Object } from './types';
 declare var conzole: Console;
 
 export class Interpreter implements
@@ -51,16 +50,15 @@ export class Interpreter implements
     }
 
     public visitVarStmt(stmt: Stmt.Var): $Any {
-        let data = new $Null();
+        let value = new $Null();
         if (stmt.initializer !== null) {
-            data = this.evaluate(stmt.initializer);
-        } /*
-        if (data instanceof FunctionEntity && data.name === "lambda") {
-            data.name = stmt.name.lexeme;
-            data.prototype.set('name', data.name);
-        }*/
-        this.scope.define(stmt.name.lexeme, data);
-        return data;
+            value = this.evaluate(stmt.initializer);
+        }
+        if (value.isLambda()) {
+            (value as any).name = stmt.name.lexeme;
+        }
+        this.scope.define(stmt.name.lexeme, value);
+        return value;
     }
 
     public visitVariableExpr(expr: Expr.Variable): $Any {
@@ -86,13 +84,11 @@ export class Interpreter implements
         return new $String(expr.value);
     }
 
-
     public visitRegExExpr(expr: Expr.RegEx): $Any {
         /*
         return new RegExEntity(expr.value);
         */ return new $Null();
     }
-
 
     public visitAssignExpr(expr: Expr.Assign): $Any {
         const value = this.evaluate(expr.value);
@@ -244,10 +240,14 @@ export class Interpreter implements
             this.interpreterError(`${callee} is not a function`);
         }
         const func = callee as $Function;
-        /*
-        if (args.length !== func.arity() && func.arity() !== -1) {
-            conzole.warn(`Warning at (${expr.paren.line}): ${callee} mismatched argument length; \n Expected ${func.arity()} but got ${args.length} `);
-        }*/
+        if (args.length !== func.arity && func.arity !== -1) {
+            conzole.warn(`Warning at (${expr.paren.line}): ${callee} mismatched argument length; \n Expected ${func.arity} but got ${args.length} `);
+            if (args.length < func.arity) {
+                for (let i = args.length; i <= func.arity; ++i) {
+                    args.push(new $Null());
+                }
+            }
+        }
         return func.call(this, thiz, args);
     }
 
@@ -282,14 +282,32 @@ export class Interpreter implements
     }
 
     public visitNewExpr(expr: Expr.New): $Any {
-        /*
-        const construct = expr.construct as Expr.Call;
-        const callee = this.evaluate(construct.callee);
-        const newInstance = new InstanceEntity(<any> callee);
-        construct.thiz = newInstance;
-        this.evaluate(construct);
-        return newInstance;
-        */ return new $Null();
+        const newCall = (expr.clazz as Expr.Call);
+        // internal class definition instance
+        const clazz: $Class = this.evaluate(newCall.callee) as $Class;
+
+        if (!clazz.isClass()) {
+            this.interpreterError(`'${clazz}' is not a class. 'new' statement must be used with classes.`);
+        }
+        // new object
+        const entity = new $Object(new Map(), clazz);
+        // constructor method of the class
+        const conztructor = clazz.get(new $String('constructor')) as $Function;
+        if (conztructor.isFunction()) {
+            /*
+            const args: $Any[] = [];
+            for (const arg of newCall.args) {
+                args.push(this.evaluate(arg));
+            }
+            conztructor.call(this, entity, args);
+            */
+           this.evaluate(
+               new Expr.Call(
+                   new Expr.Get(new Expr.Literal(entity),
+                   new Expr.Key(conztructor.name)), conztructor.name, newCall.args, entity)
+            );
+        }
+        return entity;
     }
 
     public visitDictionaryExpr(expr: Expr.Dictionary) {
@@ -303,16 +321,14 @@ export class Interpreter implements
     }
 
     public visitKeyExpr(expr: Expr.Key): $Any {
-        return new $Any(expr.name.lexeme);
+        return new $Any(expr.name.literal);
     }
-
 
     public visitGetExpr(expr: Expr.Get): $Any {
         const entity = this.evaluate(expr.entity);
         const key = this.evaluate(expr.key);
         return entity.get(key);
     }
-
 
     public visitSetExpr(expr: Expr.Set): $Any {
         const entity = this.evaluate(expr.entity);
@@ -329,32 +345,22 @@ export class Interpreter implements
     }
 
     public visitClassStmt(stmt: Stmt.Class): $Any {
-        /*
-        let construct = stmt.methods.find((method) => method.name.lexeme === "constructor");
-        const methods = stmt.methods.filter((method) => method.name.lexeme !== "constructor");
+        let parent: $Any;
 
-        if (!construct) {
-            construct = new Stmt.Func(stmt.name, [], []);
+        if (stmt.parent === null) {
+            parent = new $Null();
         } else {
-            construct.name = stmt.name;
-        }
-
-        const func: FunctionEntity = new FunctionEntity(construct, this.scope);
-        let parent: FunctionEntity = null;
-        if (stmt.parent) {
             parent = this.scope.get(stmt.parent);
-            if (parent) {
-                func.parent = parent;
-                func.prototype = new Prototype(parent.properties, parent.prototype, func);
-            }
-        }
-        for (const method of methods) {
-            func.properties.set(method.name.lexeme, new FunctionEntity(method, this.scope, parent));
         }
 
-        this.scope.set(stmt.name.lexeme, func);
-        return null;
-        */ return new $Null();
+        const methods = new Map<any, $Any>();
+
+        for (const method of stmt.methods) {
+            methods.set(method.name.lexeme, new $Function(method, this.scope));
+        }
+        const clazz = new $Class(stmt.name.lexeme, methods, parent);
+        this.scope.define(stmt.name.lexeme, clazz);
+        return clazz;
     }
 
     public visitLambdaExpr(expr: Expr.Lambda): $Any {
