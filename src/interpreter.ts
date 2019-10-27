@@ -1,5 +1,4 @@
 import * as Expr from './expression';
-// import * as Runtime from './runtime';
 import * as Stmt from './statement';
 import { Console } from './console';
 import { Scope } from './scope';
@@ -20,7 +19,6 @@ export class Interpreter implements
         const math = new $Dictionary(new Map());
         math.set(new $String('pi'), new $Number(Math.PI));
         this.global.set('math', new $Dictionary(Runtime.Math));
-        this.global.set('string', new $Dictionary(Runtime.String));
 
     }
 

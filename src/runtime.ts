@@ -1,47 +1,69 @@
-import { $Callable, FunctionCall, $Null, $Any, $Number, $String, $List } from './types';
+import { DataType, $Callable, FunctionCall, $Null, $Any, $Number, $String, $List, $Boolean, $Dictionary } from './types';
 
-export class StringRuntime {
-    public static methods = {
-        size: new $Callable('size', 1, StringRuntime.size)
-    };
-
-    public static size(thiz: $Any, args: $Any[]): $Any {
-        if (!args || !args.length || !args[0].isString() || args[0].value === null || typeof args[0].value.length === 'undefined') {
-            return new $Null();
+function fromJavaScript(jsName: string, arity: number, type: DataType): $Callable {
+    return new $Callable(jsName, arity, (thiz: $Any, args: $Any[]): $Any => {
+        const argValues = args.map((arg: $Any) => arg.value);
+        const result = thiz.value[jsName](...argValues);
+        switch (type) {
+            case DataType.Boolean:
+                return new $Boolean(result);
+            case DataType.String:
+                return new $String(result);
+            case DataType.Number:
+                return new $Number(result);
+            case DataType.List:
+                return new $List(result);
+            default:
+                return new $Any(result);
+                break;
         }
+    });
+}
+export class StringRuntime {
+    // new $Callable('toUpper', 0, StringRuntime.toUpperCase)
+    public static size(thiz: $Any, args: $Any[]): $Any {
+        return new $Number(thiz.value.length);
+    }
+
+    public static indexOf(thiz: $Any, args: $Any[]): $Any {
+        return new $Number(thiz.value.indexOf(args[0].value));
+    }
+}
+
+export class ListRuntime {
+    public static size(thiz: $Any, args: $Any[]): $Any {
         return new $Number(args[0].value.length);
     }
 
-    public static toUpperCase(thiz: $Any, args: $Any[]): $Any {
-        return new $Number(args[0].value.toUpperCase());
-    }
-
-    public static toLowerCase(thiz: $Any, args: $Any[]): $Any {
-        return new $Number(args[0].value.toLowerCase());
-    }
-
-    public static split(thiz: $Any, args: $Any[]): $Any {
-        return new $List(args[0].value.split(args[1].value));
-    }
-
     public static join(thiz: $Any, args: $Any[]): $Any {
-        return new $String(args[0].value.join(args[1].value));
+        return new $String(thiz.value.join(args[0].value));
     }
-
 }
 
 export const Runtime = {
+    List: new Map([
+        ['size', new $Callable('size', 0, ListRuntime.size)],
+        ['split', new $Callable('join', 1, ListRuntime.join)]
+    ]),
     Math: new Map([
         ['pi', new $Number(Math.PI)],
         ['test', new $Any(Math.PI)],
         ['rand', new $Callable('rand', 0, (thiz: $Any, args: $Any[]) => new $Number(Math.PI))]
     ]),
     String: new Map([
-        ['toUpper', new $Callable('toUpper', 1, StringRuntime.toUpperCase)],
-        ['toLower', new $Callable('toLower', 1, StringRuntime.toLowerCase)],
-        ['size', new $Callable('size', 1, StringRuntime.size)],
-        ['split', new $Callable('split', 2, StringRuntime.split)],
-        ['join', new $Callable('join', 2, StringRuntime.join)]
+        ['toUpper',  fromJavaScript('toUpperCase', 0, DataType.String)],
+        ['toLower', fromJavaScript('toLowerCase', 0, DataType.String)],
+        ['size', new $Callable('size', 0, StringRuntime.size)],
+        ['split',  fromJavaScript('split', 1, DataType.List)],
+        ['concat', fromJavaScript('concat', 1, DataType.String)],
+        ['includes', fromJavaScript('includes', 1, DataType.Boolean)],
+        ['indexOf', fromJavaScript('indexOf', 1, DataType.Number)],
+        ['repeat', fromJavaScript('repeat', 1, DataType.String)],
+        ['replace', fromJavaScript('replace', 2, DataType.String)],
+        ['search', fromJavaScript('search', 1, DataType.Number)],
+        ['slice', fromJavaScript('slice', -1, DataType.String)],
+        ['substring', fromJavaScript('substring', -1, DataType.String)],
+        ['trim', fromJavaScript('trim', 0, DataType.String)],
     ])
 };
 
