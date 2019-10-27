@@ -15,12 +15,12 @@ class Person {
 class Student extends Person {
 
     constructor(name, grade) {
-        super.constructor(name);
+        base.constructor(name);
         this.grade = grade;
     }
 
     hello() {
-        super.hello();
+        base.hello();
         print this.name + 'is in grade ' + this.grade;
     }
 }

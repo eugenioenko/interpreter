@@ -236,7 +236,7 @@ export class Interpreter implements
         // set this in function scope
         let thiz: any = null;
         if (expr.callee instanceof Expr.Get) {
-            if (expr.callee.entity instanceof Expr.Super) {
+            if (expr.callee.entity instanceof Expr.Base) {
                 thiz = this.scope.get(new Token(TokenType.Identifier, 'this', 'this', 0));
             } else {
                 thiz = this.evaluate(expr.callee.entity);
@@ -265,7 +265,7 @@ export class Interpreter implements
         return func.call(thiz, args, this);
     }
 
-    public visitSuperExpr(expr: Expr.Super): $Any {
+    public visitBaseExpr(expr: Expr.Base): $Any {
         const thiz = this.scope.get(expr.paren);
 
         if (!thiz.isObject()) {
@@ -313,7 +313,7 @@ export class Interpreter implements
         return entity;
     }
 
-    public visitDictionaryExpr(expr: Expr.Dictionary) {
+    public visitDictionaryExpr(expr: Expr.Dictionary): $Any {
         const dict = new $Dictionary(new Map());
         for (const property of expr.properties) {
             const key  = this.evaluate((property as Expr.Set).key);

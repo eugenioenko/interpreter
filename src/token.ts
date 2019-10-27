@@ -54,6 +54,7 @@ export enum TokenType {
 
     // Keywords
     And,
+    Base,
     Class,
     Do,
     Else,
@@ -67,7 +68,6 @@ export enum TokenType {
     Or,
     Print,
     Return,
-    Super,
     True,
     Var,
     While

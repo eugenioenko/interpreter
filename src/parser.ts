@@ -552,10 +552,10 @@ export class Parser {
         if (this.match(TokenType.Regex)) {
             return new Expr.RegEx(this.previous().literal);
         }
-        if (this.match(TokenType.Super)) {
+        if (this.match(TokenType.Base)) {
             const paren = this.previous();
             paren.lexeme = 'this';
-            return new Expr.Super(paren);
+            return new Expr.Base(paren);
         }
         if (this.match(TokenType.Identifier)) {
             const identifier =  this.previous();

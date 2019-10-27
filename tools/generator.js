@@ -2,6 +2,7 @@ let fs = require('fs');
 
 const ExpressionAST = {
     Assign: ['name: Token', 'value: Expr'],
+    Base: ['paren: Token'],
     Binary: ['left: Expr', 'operator: Token', 'right: Expr'],
     Call: ['callee: Expr', 'paren: Token', 'args: Expr[]', 'thiz: $Any'],
     Dictionary: ['properties: Expr[]'],
@@ -17,7 +18,6 @@ const ExpressionAST = {
     Range: ['start: Expr', 'end: Expr', 'step: Expr'],
     RegEx: ['value: RegExp'],
     Set: ['entity: Expr', 'key: Expr', 'value: Expr'],
-    Super: ['paren: Token'],
     Ternary: ['condition: Expr', 'thenExpr: Expr', 'elseExpr: Expr'],
     Unary: ['operator: Token', 'right: Expr'],
     Variable: ['name: Token'],

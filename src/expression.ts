@@ -27,7 +27,7 @@ export interface ExprVisitor<R> {
     visitRangeExpr(expr: Range): R;
     visitRegExExpr(expr: RegEx): R;
     visitSetExpr(expr: Set): R;
-    visitSuperExpr(expr: Super): R;
+    visitBaseExpr(expr: Base): R;
     visitTernaryExpr(expr: Ternary): R;
     visitUnaryExpr(expr: Unary): R;
     visitVariableExpr(expr: Variable): R;
@@ -318,7 +318,7 @@ export class Set extends Expr {
         return 'Expr.Set';
     }
 }
-export class Super extends Expr {
+export class Base extends Expr {
     public paren: Token;
 
     constructor(paren: Token) {
@@ -327,11 +327,11 @@ export class Super extends Expr {
     }
 
     public accept<R>(visitor: ExprVisitor<R>): R {
-        return visitor.visitSuperExpr(this);
+        return visitor.visitBaseExpr(this);
     }
 
     public toString(): string {
-        return 'Expr.Super';
+        return 'Expr.Base';
     }
 }
 export class Ternary extends Expr {
