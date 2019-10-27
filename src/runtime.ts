@@ -58,6 +58,7 @@ export const Runtime = {
         ['concat', fromJavaScript('concat', 1, DataType.String)],
         ['includes', fromJavaScript('includes', 1, DataType.Boolean)],
         ['indexOf', fromJavaScript('indexOf', 1, DataType.Number)],
+        ['lastIndexOf', fromJavaScript('lastIndexOf', 1, DataType.Number)],
         ['repeat', fromJavaScript('repeat', 1, DataType.String)],
         ['replace', fromJavaScript('replace', 2, DataType.String)],
         ['search', fromJavaScript('search', 1, DataType.Number)],
