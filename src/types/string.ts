@@ -22,8 +22,6 @@ export class $String extends $Any {
             return new $String(this.value[key.value]);
         } else if (key.isRange()) {
             return this.range(<$Range> key);
-        } else if (key.value === 'length') {
-            return new $Number(this.value.length);
         } else if ($String.runtime.has(key.value)) {
             return $String.runtime.get(key.value);
         }

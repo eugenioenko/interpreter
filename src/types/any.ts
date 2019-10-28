@@ -48,6 +48,10 @@ export class $Any {
         return this.type === DataType.List;
     }
 
+    public isDictionary(): boolean {
+        return this.type === DataType.Dictionary;
+    }
+
     public isObject(): boolean {
         return this.type === DataType.Object;
     }

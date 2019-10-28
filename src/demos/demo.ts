@@ -2,7 +2,7 @@ export const DemoSourceCode =
 `
 // slicing strings
 print "one two three four"[4:7:1]; // prints two
-print "hello world"[6::1]; // prints world
+print "hello world"[6::1].size(); // 5
 print "hello world"[::-1]; //prints dlrow olleh
 
 // functions

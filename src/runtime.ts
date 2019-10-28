@@ -15,6 +15,8 @@ export function fromJavaScriptMethod(jsName: string, arity: number, type: DataTy
                 return new $Number(result);
             case DataType.List:
                 return new $List(result);
+            case DataType.Null:
+                return new $Null();
             default:
                 return new $Any(result);
         }
@@ -32,7 +34,7 @@ export function fromJavaScriptFuncNumber(func: (...argz: any) => any, name: stri
 export function fromJavaScriptFuncVoid(func: (...argz: any) => any, name: string, arity: number): $Callable {
     return new $Callable(name, arity, (thiz: $Any, args: $Any[]): $Any => {
         const argValues = args.map((arg: $Any) => arg.value);
-        func(...argValues)
+        func(...argValues);
         return new $Void('void');
     });
 }

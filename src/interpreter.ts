@@ -97,8 +97,8 @@ export class Interpreter implements
     }
 
     public visitBinaryExpr(expr: Expr.Binary): $Any {
-        let left = this.evaluate(expr.left);
-        let right = this.evaluate(expr.right);
+        const left = this.evaluate(expr.left);
+        const right = this.evaluate(expr.right);
         switch (expr.operator.type) {
             case TokenType.Minus:
             case TokenType.MinusEqual:
@@ -120,7 +120,10 @@ export class Interpreter implements
                 if (left.isList() && right.isList()) {
                     return new $List(left.value.concat(right.value));
                 }
-                return new $String(left.value + right.value);
+                if (left.isDictionary() && right.isDictionary()) {
+                    return new $Dictionary(new Map([...left.value, ...right.value]));
+                }
+                return new $String(left.toString() + right.value.toString());
             case TokenType.Pipe:
                 return new $Number(left.value | right.value);
             case TokenType.Caret:
@@ -248,7 +251,7 @@ export class Interpreter implements
         // pass arguments to function
         const func = callee as $Function;
         if (args.length !== func.arity && func.arity !== -1) {
-            conzole.warn(`Warning at (${expr.paren.line}): ${callee} mismatched argument length; \n Expected ${func.arity} but got ${args.length} `);
+            conzole.warn(`Warning at (${expr.paren.line}): ${callee} mismatched argument count; \n Expected ${func.arity} but got ${args.length} `);
             if (args.length < func.arity) {
                 for (let i = args.length; i <= func.arity; ++i) {
                     args.push(new $Null());
