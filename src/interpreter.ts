@@ -272,7 +272,7 @@ export class Interpreter implements
         const clazz: $Class = (thiz as $Object).conztructor as $Class;
         const parent = clazz.parent;
         if (parent.isNull()) {
-            this.interpreterError("Class " + clazz + "is not inherited from parent");
+            this.interpreterError("Class " + clazz + " has not been extended and has no base");
         }
 
         return parent;
