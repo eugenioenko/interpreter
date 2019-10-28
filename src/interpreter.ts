@@ -16,7 +16,7 @@ export class Interpreter implements
     constructor( ) {
         // this.global.define('echo', Runtime.echoFunction());
         this.global.set('math', new $Dictionary(Runtime.Math));
-
+        this.global.set('console', new $Dictionary(Runtime.Console));
     }
 
     private evaluate(expr: Expr.Expr): $Any {

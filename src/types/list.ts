@@ -11,10 +11,11 @@ export class $List extends $Any {
     public get(key: $Any): $Any {
         if (key.isNumber()) {
             return this.value[key.value];
-        } else if (key.isRange) {
+        } else if (key.isRange()) {
             return this.range(<$Range> key);
+        } else if ($List.runtime.has(key.value)) {
+            return $List.runtime.get(key.value);
         } else {
-            // return super.get(key);
             return new $Null();
         }
 
