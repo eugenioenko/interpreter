@@ -56,7 +56,7 @@ variables can't be defined twice with the same name, the interpreter will throw 
       // todo
     }
 ```
- ## functions
+ ## function
  Functions are defined by using the 'function' keyword or '@', followed by an optional list of parameters and a body statement (block statement or single statement).
  Same as variables, functions cannot be defined twice with the same name.
 - *function*, *@* work as synonyms
@@ -107,7 +107,7 @@ All this are equivalent
     (@(alfa, beta) => alfa + beta)('one', 'two');
 ```
 
-## Classes
+## Class
 Classes can be defined by using the keyword 'class' followed by a name identifier.
 The body of a class consist of a list of methods defined as functions
 
@@ -137,7 +137,7 @@ To reference methods from the base class use 'base' keyword followed by method n
         }
     }
 ```
-#### Objects / Instances
+#### Object / Instance
 To create an instance of a class use 'new' keyword followed by a class name and a call to the class's constructor
 
 ```
@@ -145,7 +145,7 @@ var student = new Student('John', '3C');
 print student.hello();
 ```
 
-## Lists / Arrays
+## List / Array
 To create an array use '[]' as a value;
 - Accesing with a number index returns the array values.
 - Accesing with a range index returns a slice of the array.
@@ -182,8 +182,7 @@ var zArray = xArray + yArray;
 array[start : end : step];
 Similar to python step provides the dirrection of the slice. Start provides from where to slice and end provides the end index of the slice
 
-## Strings
-Strings are instances of StringEntinty objects.
+## String
 - Accesing with a number index returns the string value.
 - Accesing with a range index returns a slice of the string.
 - Accesing with a string index returns the object property. (only for get, setting a property in string won't modify the property, similarly to javascript)
@@ -195,14 +194,39 @@ print s[::-1] // prints 'dlrow olleh';
 var d = ("hello" + " world").size();
 ```
 ### Implemented methods:
-- #.length: proeprty returns size of the string
 - *.size()*: returns size of the string
 - *.substr(start, end)*: returns a substring
 - *.split(char)*: splits string into array using char as separator
-- *.toLowerCase(): returns new string converted to lower case
-- *.toUpperCase(): returns new string converted to upper case
+- *.toLowerCase()*: returns new string converted to lower case
+- *.toUpperCase()*: returns new string converted to upper case
 - *.replace(needle, replacer)*: replaces the needle in the string with replacer
-- *.alter(regex, replacer)*: replaces string values using regex as argument by replacer(string) (pending test)
+
+## Dictionary / Table
+- To create a dictionary use '{ }' as a value.  You can also set pair of '{ key: value }'s
+- Keys can be a string or a number value
+- Values can be any variable type, lambda functions included
+- To access the value use dot '.' or bracket notation '[]' getters
+```
+var dictionary = {
+    'property': 'value',
+    'method': @(a, b) => a + b
+}
+print dictionary.property; // prints 'value';
+print dictionary['method']; // prints '<lambda function>'
+print dictionary['method']('hello', 'world'); // prints 'helloworld';
+```
+### Implemented methods:
+- *.size()*: returns size of the dictionary
+- *.each(@(value, index, dictionary){})*: executes callback passing value, index and dictionary as argument
+- *.map(@(value, index, dictionary){})*: remaps the values of the dictionary by executing mapping funciton passing value, index and dictionary as argument
+- *.indexOf(value)*: returns the key of the value inside the dictionary
+- *+*: you can merge to dictionaries together by using the plus '+' operator
+```
+var a = {a: 'one'};
+var b = {b: 'two'};
+var c = a + b;
+print c; // prints {a: 'one', b: 'two'}
+```
 
 
 ### utility functions / statements
