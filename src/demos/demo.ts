@@ -95,4 +95,19 @@ y.newProperty = "anything";
 print y.join(',');
 var z = y.join('-');
 
+// new scope test
+{
+    var a = {a: 'one'};
+    var b = {b: 'two'};
+    var c = a + b;
+    print c; // prints {a: 'one', b: 'two'}
+}
+// new scope test
+{
+    var a = {d: 'three'};
+    var b = {e: 'four'};
+    var c = a + b;
+    print c; // prints {d: 'three', e: 'four'}
+}
+
 `;
