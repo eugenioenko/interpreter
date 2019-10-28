@@ -1,52 +1,36 @@
-import * as Expr from './structs/expression';
-import * as Runtime from './runtime';
-import * as Stmt from './structs/statement';
-import { ArrayEntity } from './types/array';
+import * as Expr from './classes/expression';
+import * as Stmt from './classes/statement';
 import { Console } from './console';
-import { FunctionEntity, CallableEntity, InternalEntity, InstanceEntity, PrototypeEntity } from './types/entity';
-import { IndexRange } from './types/range';
-import { Prototype } from './structs/prototype';
-import { Return } from './structs/return';
-import { Scope } from './structs/scope';
-import { StringEntity } from './types/string';
-import { TokenType } from './structs/token';
-import { RegExEntity } from './types/regex';
+import { Scope } from './scope';
+import { TokenType, Token } from './token';
+import { $Any, $Void, $String, $Number, $Null, $Boolean, RangeValue, $Range, $Dictionary, $List, $Function, $Return, $Class, $Object } from './types';
+import { Runtime } from './runtime';
 declare var conzole: Console;
 
 export class Interpreter implements
-    Expr.ExprVisitor<any>,
-    Stmt.StmtVisitor<void> {
+    Expr.ExprVisitor<$Any>,
+    Stmt.StmtVisitor<$Any> {
     public global = new Scope();
     public scope = this.global;
 
     constructor( ) {
-        this.global.define('echo', Runtime.echoFunction());
-        this.global.define('rand', Runtime.randFunction());
+        this.global.set('math', new $Dictionary(Runtime.Math));
+        this.global.set('console', new $Dictionary(Runtime.Console));
     }
 
-    private evaluate(expr: Expr.Expr): any {
-        return expr.accept(this);
+    private evaluate(expr: Expr.Expr): $Any {
+        return expr.result = expr.accept(this);
     }
 
-    private execute(stmt: Stmt.Stmt): any {
-        return stmt.accept(this);
+    private execute(stmt: Stmt.Stmt): $Any {
+        return stmt.result = stmt.accept(this);
     }
 
-    public eval(statements: Stmt.Stmt[]): any {
-        for (let i = 0; i < statements.length; ++i) {
-            const statement = statements[i];
-            if (i !== statements.length - 1 ) {
-                this.execute(statement);
-            } else {
-                return this.execute(statement);
-            }
-        }
-    }
-
-    public interpet(statements: Stmt.Stmt[]): any {
+    public interpet(statements: Stmt.Stmt[]): Stmt.Stmt[] {
         for (const statement of statements) {
             this.execute(statement);
         }
+        return statements;
     }
 
     private interpreterError(message: string): void {
@@ -54,113 +38,117 @@ export class Interpreter implements
         throw new Error();
     }
 
-    public visitExpressionStmt(stmt: Stmt.Expression): any {
+    public visitExpressionStmt(stmt: Stmt.Expression): $Any {
         return this.evaluate(stmt.expression);
     }
 
-    public visitPrintStmt(stmt: Stmt.Print): any {
-        let value = this.evaluate(stmt.expression);
-        value = value === null ? "null" : value;
-        conzole.log(value);
-        return value;
+    public visitPrintStmt(stmt: Stmt.Print): $Any {
+        const data = this.evaluate(stmt.expression);
+        conzole.log(data.toString());
+        return data;
     }
 
-    public visitVarStmt(stmt: Stmt.Var): void {
-        let value: object = null;
+    public visitVarStmt(stmt: Stmt.Var): $Any {
+        let value = new $Null();
         if (stmt.initializer !== null) {
             value = this.evaluate(stmt.initializer);
         }
-        if (value instanceof FunctionEntity && value.name === "lambda") {
-            value.name = stmt.name.lexeme;
-            value.prototype.set('name', value.name);
+        if (value.isLambda()) {
+            (value as any).name = stmt.name.lexeme;
         }
         this.scope.define(stmt.name.lexeme, value);
+        return value;
     }
 
-    public visitVariableExpr(expr: Expr.Variable): any {
+    public visitVariableExpr(expr: Expr.Variable): $Any {
         return this.scope.get(expr.name);
     }
 
-    public visitPostfixExpr(expr: Expr.Postfix): any {
-        const value = this.scope.get(expr.name);
-        const newValue = value + expr.increment;
+    public visitPostfixExpr(expr: Expr.Postfix): $Any {
+        const value = this.scope.get(expr.name).value;
+        const newValue = new $Number(value + expr.increment);
         this.scope.assign(expr.name.lexeme, newValue);
         return value;
     }
 
-    public visitListExpr(expr: Expr.List): any {
-        const values: any[] = [];
+    public visitListExpr(expr: Expr.List): $Any {
+        const values: $Any[] = [];
         for (const expression of expr.value) {
             values.push(this.evaluate(expression));
         }
-        return new ArrayEntity(values);
+        return new $List(values);
     }
 
-    public visitZtringExpr(expr: Expr.Ztring): any {
-        return new StringEntity(expr.value);
+    public visitZtringExpr(expr: Expr.Ztring): $Any {
+        return new $String(expr.value);
     }
 
-    public visitRegExExpr(expr: Expr.RegEx): any {
+    public visitRegExExpr(expr: Expr.RegEx): $Any {
+        /*
         return new RegExEntity(expr.value);
+        */ return new $Null();
     }
 
-    public visitAssignExpr(expr: Expr.Assign): any {
+    public visitAssignExpr(expr: Expr.Assign): $Any {
         const value = this.evaluate(expr.value);
         this.scope.assign(expr.name.lexeme, value);
         return value;
     }
 
-    public visitBinaryExpr(expr: Expr.Binary): any {
-        let left = this.evaluate(expr.left);
-        let right = this.evaluate(expr.right);
-        left = left instanceof StringEntity ? left.toString() : left;
-        right = right instanceof StringEntity ? right.toString() : right;
+    public visitBinaryExpr(expr: Expr.Binary): $Any {
+        const left = this.evaluate(expr.left);
+        const right = this.evaluate(expr.right);
         switch (expr.operator.type) {
             case TokenType.Minus:
             case TokenType.MinusEqual:
-                return (left - right) as number;
+                return new $Number(left.value - right.value);
             case TokenType.Slash:
             case TokenType.SlashEqual:
-                return (left / right) as number;
+                return new $Number(left.value / right.value);
             case TokenType.Star:
             case TokenType.StarEqual:
-                return (left * right) as number;
+                return new $Number(left.value * right.value);
             case TokenType.Percent:
             case TokenType.PercentEqual:
-                return (left % right) as number;
+                return new $Number(left.value % right.value);
             case TokenType.Plus:
             case TokenType.PlusEqual:
-                if (!isNaN(left) && !isNaN(right)) {
-                    return (left + right) as number;
+                if (left.isNumber() && right.isNumber()) {
+                    return new $Number(left.value + right.value);
                 }
-                if (left instanceof ArrayEntity && right instanceof ArrayEntity) {
-                    return new ArrayEntity(left.values.concat(right.values));
+                if (left.isString() && right.isString()) {
+                    return new $String(left.value + right.value);
                 }
-                return new StringEntity(left as string + right as string);
+                if (left.isList() && right.isList()) {
+                    return new $List(left.value.concat(right.value));
+                }
+                if (left.isDictionary() && right.isDictionary()) {
+                    return new $Dictionary(new Map([...left.value, ...right.value]));
+                }
+                return new $String(left.value.toString() + right.value.toString());
             case TokenType.Pipe:
-                return (left | right) as number;
+                return new $Number(left.value | right.value);
             case TokenType.Caret:
-                return (left ^ right) as number;
+                return new $Number(left.value ^ right.value);
             case TokenType.Greater:
-                return <number> left > <number> right;
+                return new $Boolean(left.value > right.value);
             case TokenType.GreaterEqual:
-                return <number> left >= <number> right;
+                return new $Boolean(left.value >= right.value);
             case TokenType.Less:
-                return <number> left < <number> right;
+                return new $Boolean(left.value < right.value);
             case TokenType.LessEqual:
-                return <number> left <= <number> right;
+                return new $Boolean(left.value <= right.value);
             case TokenType.EqualEqual:
-                return left === right;
+                return new $Boolean(left === right);
             case TokenType.BangEqual:
-                return left !== right;
+                return new $Boolean(left !== right);
             default:
-                conzole.warn(expr);
-                return null; // unreachable
-                break;
+                this.interpreterError('Unknown binary operator ' + expr.operator);
+                return new $Null(); // unreachable
         }
     }
 
-    public visitLogicalExpr(expr: Expr.Logical): any {
+    public visitLogicalExpr(expr: Expr.Logical): $Any {
         if (expr.operator.type === TokenType.And) {
             return this.evaluate(expr.left) && this.evaluate(expr.right);
         } else {
@@ -168,222 +156,235 @@ export class Interpreter implements
         }
     }
 
-    public visitTernaryExpr(expr: Expr.Ternary): any {
-        return this.evaluate(expr.condition) ? this.evaluate(expr.thenExpr) : this.evaluate(expr.elseExpr);
+    public visitTernaryExpr(expr: Expr.Ternary): $Any {
+        return this.evaluate(expr.condition).isTruthy() ? this.evaluate(expr.thenExpr) : this.evaluate(expr.elseExpr);
     }
 
-    public visitGroupingExpr(expr: Expr.Grouping): any {
+    public visitGroupingExpr(expr: Expr.Grouping): $Any {
         return this.evaluate(expr.expression);
     }
 
-    public visitLiteralExpr(expr: Expr.Literal): any {
+    public visitLiteralExpr(expr: Expr.Literal): $Any {
         return expr.value;
     }
 
-    public visitUnaryExpr(expr: Expr.Unary): any {
+    public visitUnaryExpr(expr: Expr.Unary): $Any {
         const right = this.evaluate(expr.right);
         switch (expr.operator.type) {
             case TokenType.Minus:
-                return -Number(right);
+                return new $Number(-Number(right.value));
             case TokenType.Bang:
-                return !Boolean(right);
-            case TokenType.Dollar:
-                return right.length;
+                return new $Boolean(!right.isTruthy());
             case TokenType.PlusPlus:
-                const incValue = Number(right) + 1;
-                this.scope.assign((<Expr.Variable> expr.right).name.lexeme, incValue);
-                return incValue;
+                const incValue = Number(right.value) + 1;
+                this.scope.assign((<Expr.Variable> expr.right).name.lexeme, new $Number(incValue));
+                return new $Number(incValue);
             case TokenType.MinusMinus:
-                const decValue = Number(right) - 1;
-                this.scope.assign((<Expr.Variable> expr.right).name.lexeme, decValue);
-                return decValue;
+                const decValue = Number(right.value) - 1;
+                this.scope.assign((<Expr.Variable> expr.right).name.lexeme, new $Number(decValue));
+                return new $Number(decValue);
             default:
-                return null; // should be unreachable
+                this.interpreterError('Unknown unary operator ' + expr.operator);
+                return new $Null(); // should be unreachable
         }
     }
 
-    public executeBlock(statements: Stmt.Stmt[], nextScope: Scope): void {
+    public executeBlock(statements: Stmt.Stmt[], nextScope: Scope): $Any {
         const currentScope = this.scope;
         this.scope = nextScope;
         for (const statement of statements) {
-            this.execute(statement);
+            statement.result = this.execute(statement);
         }
         this.scope = currentScope;
+        return new $Void('block');
     }
 
-    public visitBlockStmt(stmt: Stmt.Block): void {
-        this.executeBlock(stmt.statements, new Scope(this.scope));
+    public visitBlockStmt(stmt: Stmt.Block): $Any {
+        return this.executeBlock(stmt.statements, new Scope(this.scope));
     }
 
-    public visitIfStmt(stmt: Stmt.If): void {
-        if (this.evaluate(stmt.condition)) {
-            this.execute(stmt.thenStmt);
+    public visitIfStmt(stmt: Stmt.If): $Any {
+        if (this.evaluate(stmt.condition).isTruthy()) {
+            return this.execute(stmt.thenStmt);
         } else if (stmt.elseStmt !== null) {
-            this.execute(stmt.elseStmt);
+            return this.execute(stmt.elseStmt);
         }
     }
 
-    public visitWhileStmt(stmt: Stmt.While): void {
-        while (this.evaluate(stmt.condition)) {
+    public visitWhileStmt(stmt: Stmt.While): $Any {
+        while (this.evaluate(stmt.condition).isTruthy()) {
             this.execute(stmt.loop);
         }
+        return new $Void('while');
     }
 
-    public visitDoWhileStmt(stmt: Stmt.DoWhile): void {
+    public visitDoWhileStmt(stmt: Stmt.DoWhile): $Any {
         do {
             this.execute(stmt.loop);
-        } while (this.evaluate(stmt.condition));
+        } while (this.evaluate(stmt.condition).isTruthy());
+        return new $Void('dowhile');
     }
 
-    public visitCallExpr(expr: Expr.Call): object {
+    public visitCallExpr(expr: Expr.Call): $Any {
+        // verify callee is a function
         const callee = this.evaluate(expr.callee);
-        const args = [];
+        if (!callee.isFunction()) {
+            this.interpreterError(`${callee} is not a function`);
+        }
+
+        // set this in function scope
         let thiz: any = null;
         if (expr.callee instanceof Expr.Get) {
-            thiz = this.evaluate(expr.callee.entity);
+            if (expr.callee.entity instanceof Expr.Base) {
+                thiz = this.scope.get(new Token(TokenType.Identifier, 'this', 'this', 0));
+            } else {
+                thiz = this.evaluate(expr.callee.entity);
+            }
         } else if (expr.thiz !== null) {
             thiz = expr.thiz;
         }
-        for (const argument of expr.args) {
-            args.push(this.evaluate(argument));
-        }
 
-        if (!(callee instanceof CallableEntity) &&
-            !(callee instanceof InternalEntity)
-        ) {
-            this.interpreterError(`${callee} is not a function`);
-        }
-        const func = callee as CallableEntity;
-        if (args.length !== func.arity() && func.arity() !== -1) {
-            conzole.warn(`Warning at (${expr.paren.line}): ${callee} mismatched argument length; \n Expected ${func.arity()} but got ${args.length} `);
-        }
-        return func.call(this, thiz, args);
-    }
-
-    public visitSuperExpr(expr: Expr.Super): any {
-        const thiz: InstanceEntity = this.scope.first('this');
-        if (!thiz) {
-            conzole.error(`super can only be called on child instances`);
-        }
-        const clazz: FunctionEntity = this.scope.obtain(thiz.instanceof);
-        if (!clazz) {
-            conzole.error(`${thiz} is not an instance of an entity`);
-        }
-        const parent: FunctionEntity = clazz.parent;
-        if (!parent) {
-            conzole.error(`${thiz} entity has no parent`);
-        }
-        let method: FunctionEntity = null;
-        for (const key of expr.index) {
-            method = parent.get(key.lexeme);
-        }
+        // evaluate function arguments
         const args = [];
         for (const argument of expr.args) {
             args.push(this.evaluate(argument));
         }
-        if (method) {
-            return method.call(this, thiz, args);
-        } else {
-            return parent.call(this, thiz, args);
+
+        // pass arguments to function
+        const func = callee as $Function;
+        if (args.length !== func.arity && func.arity !== -1) {
+            conzole.warn(`Warning at (${expr.paren.line}): ${callee} mismatched argument count; \n Expected ${func.arity} but got ${args.length} `);
+            if (args.length < func.arity) {
+                for (let i = args.length; i <= func.arity; ++i) {
+                    args.push(new $Null());
+                }
+            }
         }
+        // execute function
+        return func.call(thiz, args, this);
     }
 
-    public visitNewExpr(expr: Expr.New): object {
-        const construct = expr.construct as Expr.Call;
-        const callee = this.evaluate(construct.callee);
-        const newInstance = new InstanceEntity(callee);
-        construct.thiz = newInstance;
-        this.evaluate(construct);
-        return newInstance;
+    public visitBaseExpr(expr: Expr.Base): $Any {
+        const thiz = this.scope.get(expr.paren);
+
+        if (!thiz.isObject()) {
+            this.interpreterError("base expression can be used only inside methods");
+        }
+
+        const clazz: $Class = (thiz as $Object).conztructor as $Class;
+        const parent = clazz.parent;
+        if (parent.isNull()) {
+            this.interpreterError("Class " + clazz + " has not been extended and has no base");
+        }
+
+        return parent;
     }
 
-    public visitEntityExpr(expr: Expr.Entity) {
-        const entity = new PrototypeEntity();
-        for (const property of expr.properties) {
-            const key  = this.evaluate((property as Expr.Set).key);
-            const value = this.evaluate((property as Expr.Set).value);
-            entity.set(key, value);
+    public visitNewExpr(expr: Expr.New): $Any {
+        const newCall = (expr.clazz as Expr.Call);
+        // internal class definition instance
+        const clazz: $Class = this.evaluate(newCall.callee) as $Class;
+
+        if (!clazz.isClass()) {
+            this.interpreterError(`'${clazz}' is not a class. 'new' statement must be used with classes.`);
+        }
+        // new object
+        const entity = new $Object(new Map(), clazz);
+        // constructor method of the class
+        const conztructor = clazz.get(new $String('constructor')) as $Function;
+        if (conztructor.isFunction()) {
+            /*
+            const args: $Any[] = [];
+            for (const arg of newCall.args) {
+                args.push(this.evaluate(arg));
+            }
+            conztructor.call(this, entity, args);
+            */
+           this.evaluate(
+               new Expr.Call(
+                   new Expr.Get(new Expr.Literal(entity), new Expr.Key(conztructor.declaration.name)),
+                   conztructor.declaration.name,
+                   newCall.args,
+                   entity
+                )
+            );
         }
         return entity;
     }
 
-    public visitKeyExpr(expr: Expr.Key): string {
-        return expr.name.lexeme;
+    public visitDictionaryExpr(expr: Expr.Dictionary): $Any {
+        const dict = new $Dictionary(new Map());
+        for (const property of expr.properties) {
+            const key  = this.evaluate((property as Expr.Set).key);
+            const value = this.evaluate((property as Expr.Set).value);
+            dict.set(key, value);
+        }
+        return dict;
     }
 
-    public visitGetExpr(expr: Expr.Get): any {
-        const entity = this.evaluate(expr.entity);
-        const key = this.evaluate(expr.key);
-        if (entity instanceof PrototypeEntity) {
-            return entity.get(key);
-        }
-        this.interpreterError(`${entity}.${key}: only instances have properties`);
+    public visitKeyExpr(expr: Expr.Key): $Any {
+        return new $Any(expr.name.literal);
     }
 
-    public visitSetExpr(expr: Expr.Set): void {
+    public visitGetExpr(expr: Expr.Get): $Any {
         const entity = this.evaluate(expr.entity);
         const key = this.evaluate(expr.key);
-        if (!(entity instanceof PrototypeEntity)) {
-            conzole.warn(`${entity} is not a runtime Object`);
-        }
+        return entity.get(key);
+    }
+
+    public visitSetExpr(expr: Expr.Set): $Any {
+        const entity = this.evaluate(expr.entity);
+        const key = this.evaluate(expr.key);
         const value = this.evaluate(expr.value);
-        (entity as PrototypeEntity).set(key, value);
-        return value;
+        entity.set(key, value);
+        return value.value;
     }
 
-    public visitFuncStmt(stmt: Stmt.Func): any {
-        const func: FunctionEntity = new FunctionEntity(stmt, this.scope);
+    public visitFuncStmt(stmt: Stmt.Func): $Any {
+        const func = new $Function(stmt, this.scope);
         this.scope.define(stmt.name.lexeme, func);
-        return null;
+        return new $Null();
     }
 
-    public visitClassStmt(stmt: Stmt.Class): any {
-        let construct = stmt.methods.find((method) => method.name.lexeme === "constructor");
-        const methods = stmt.methods.filter((method) => method.name.lexeme !== "constructor");
+    public visitClassStmt(stmt: Stmt.Class): $Any {
+        let parent: $Any;
 
-        if (!construct) {
-            construct = new Stmt.Func(stmt.name, [], []);
+        if (stmt.parent === null) {
+            parent = new $Null();
         } else {
-            construct.name = stmt.name;
-        }
-
-        const func: FunctionEntity = new FunctionEntity(construct, this.scope);
-        let parent: FunctionEntity = null;
-        if (stmt.parent) {
             parent = this.scope.get(stmt.parent);
-            if (parent) {
-                func.parent = parent;
-                func.prototype = new Prototype(parent.properties, parent.prototype, func);
-            }
-        }
-        for (const method of methods) {
-            func.properties.set(method.name.lexeme, new FunctionEntity(method, this.scope, parent));
         }
 
-        this.scope.set(stmt.name.lexeme, func);
-        return null;
+        const methods = new Map<any, $Any>();
+
+        for (const method of stmt.methods) {
+            methods.set(method.name.lexeme, new $Function(method, this.scope));
+        }
+        const clazz = new $Class(stmt.name.lexeme, methods, parent);
+        this.scope.define(stmt.name.lexeme, clazz);
+        return clazz;
     }
 
-    public visitLambdaExpr(expr: Expr.Lambda): object {
+    public visitLambdaExpr(expr: Expr.Lambda): $Any {
         const lambda: Stmt.Func = expr.lambda as Stmt.Func;
-        const func: FunctionEntity = new FunctionEntity(lambda, this.scope);
+        const func: $Function = new $Function(lambda, this.scope);
         return func;
     }
 
-    public visitReturnStmt(stmt: Stmt.Return): any {
-        let value = null;
+    public visitReturnStmt(stmt: Stmt.Return): $Any {
+        let value = new $Null();
         if (stmt.value) {
             value = this.evaluate(stmt.value);
         }
-        throw new Return(value);
+        throw new $Return(value);
     }
 
-    public visitRangeExpr(expr: Expr.Range): any {
-        return new IndexRange(
-            expr.start ? this.evaluate(expr.start) : null,
-            expr.end ? this.evaluate(expr.end) : null,
-            expr.step ? this.evaluate(expr.step) : null
-        );
+    public visitRangeExpr(expr: Expr.Range): $Any {
+        return new $Range(new RangeValue(
+            expr.start ? this.evaluate(expr.start).value : null,
+            expr.end ? this.evaluate(expr.end).value : null,
+            expr.step ? this.evaluate(expr.step).value : null
+        ));
     }
 
 }

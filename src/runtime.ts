@@ -1,281 +1,71 @@
-import { ArrayEntity } from "./types/array";
-import { InternalEntity, FunctionEntity } from "./types/entity";
-import { Prototype } from "./structs/prototype";
-import { StringEntity } from "./types/string";
+import { DataType } from './types/type.enum';
+import { $Null } from './types/null';
+import { $Any } from './types/any';
+import { $Callable } from './types/function';
+import { $Boolean } from './types/boolean';
+import { $List } from './types/list';
+import { $Number } from './types/number';
+import { $String } from './types/string';
+import { $Void } from './types/void';
 
-export function hasOwnProperty(that: any): InternalEntity {
-    const func = new InternalEntity();
-    func.toString = () => '<internal function>';
-    func.arity = () => 1;
-    func.call = (int, thiz, args) => thiz.properties.has(args[0]);
-    return func;
-}
-
-export function lengthProperty(that: any): InternalEntity {
-    const func = new InternalEntity();
-    func.toString = () => '<internal function>';
-    func.arity = () => 0;
-    func.call = (int, thiz, args) => thiz.properties.size;
-    return func;
-}
-
-export function invokeMethod(that: any): InternalEntity {
-    const func = new InternalEntity();
-    func.toString = () => '<internal function>';
-    func.arity = () => -1;
-    func.call = (int, thiz, args) => thiz.call(int, args[0], args.slice(1));
-    return func;
-}
-export function superCall(that: any, instance: any): InternalEntity {
-    const func = new InternalEntity();
-    func.arity = () => that.parent.arity();
-    func.toString = () => '<native super function>';
-    func.call = (int, thiz, args) =>
-        that.parent.call(int, instance, args);
-    return func;
-}
-
-export function mergeMethod(that: any): InternalEntity {
-    const func = new InternalEntity();
-    /** merge(Parent, override=false) */
-    func.call = (int, thiz, args) => {
-        that.properties = args[1] ?
-            new Map([...that.properties, ...args[0].properties]) :
-            new Map([...args[0].properties, ...that.properties]);
-    };
-    func.toString = () => '<internal merge function>';
-    func.arity = () => -1;
-    return func;
-}
-
-export function extendMethod(that: any): InternalEntity {
-    const func = new InternalEntity();
-    func.call = (int, thiz, args) => {
-        const proto = new Prototype(
-            that.properties,
-            new Prototype(args[0].properties, args[0].prototype, thiz),
-            thiz
-        );
-        that.prototype = proto;
-    };
-    func.toString = () => '<internal merge function>';
-    func.arity = () => -1;
-    return func;
-}
-
-export function inheritMethod(that: any): InternalEntity {
-    const func = new InternalEntity();
-    func.call = (int, thiz, args) => {
-        that.prototype.values = new Map([...args[0].properties, ...that.prototype.values]);
-    };
-    func.toString = () => '<internal inheritance function>';
-    func.arity = () => 1;
-    return func;
-}
-
-export function echoFunction(): InternalEntity {
-    const func = new InternalEntity();
-    func.arity = () => 1;
-    func.toString = () => '<native function>';
-    func.call = (interpreter, thiz, args) => console.log(args[0]);
-    return func;
-}
-
-export function randFunction(): InternalEntity {
-    const func = new InternalEntity();
-    func.arity = () => 0;
-    func.call = () => Math.random();
-    func.toString = () => '<native function>';
-    return func;
-}
-
-export function arrayLengthMethod(that: any): InternalEntity {
-    const func = new InternalEntity();
-    func.toString = () => '<internal function>';
-    func.arity = () => 0;
-    func.call = (int, thiz, args) => thiz.values.length;
-    return func;
-}
-
-export function arrayJoinMethod(that: any): InternalEntity {
-    const func = new InternalEntity();
-    func.toString = () => '<internal function>';
-    func.arity = () => 1;
-    func.call = (int, thiz, args) => new StringEntity(thiz.values.join(args[0]));
-    return func;
-}
-
-export function arrayPushMethod(that: any): InternalEntity {
-    const func = new InternalEntity();
-    func.toString = () => '<internal function>';
-    func.arity = () => 1;
-    func.call = (int, thiz, args) => thiz.values.push(args[0]);
-    return func;
-}
-
-export function arrayPopMethod(that: any): InternalEntity {
-    const func = new InternalEntity();
-    func.toString = () => '<internal function>';
-    func.arity = () => 0;
-    func.call = (int, thiz, args) => thiz.values.pop(args[0]);
-    return func;
-}
-
-export function arrayReverseMethod(that: any): InternalEntity {
-    const func = new InternalEntity();
-    func.toString = () => '<internal function>';
-    func.arity = () => 0;
-    func.call = (int, thiz, args) => new ArrayEntity(thiz.values.reverse());
-    return func;
-}
-
-export function arraySliceMethod(that: any): InternalEntity {
-    const func = new InternalEntity();
-    func.toString = () => '<internal function>';
-    func.arity = () => -1;
-    func.call = (int, thiz, args) => new ArrayEntity(thiz.values.slice(args[0], args[1]));
-    return func;
-}
-
-export function arrayEachMethod(that: any): InternalEntity {
-    const func = new InternalEntity();
-    func.toString = () => '<internal function>';
-    func.arity = () => -1;
-    func.call = (int, thiz, args) => {
-        for (let i = 0; i < thiz.values.length; ++i) {
-            args[0].call(int, thiz, [thiz.values[i], i, thiz]);
+export function fromJavaScriptMethod(jsName: string, arity: number, type: DataType): $Callable {
+    return new $Callable(jsName, arity, (thiz: $Any, args: $Any[]): $Any => {
+        const argValues = args.map((arg: $Any) => arg.value);
+        const result = thiz.value[jsName](...argValues);
+        switch (type) {
+            case DataType.Boolean:
+                return new $Boolean(result);
+            case DataType.String:
+                return new $String(result);
+            case DataType.Number:
+                return new $Number(result);
+            case DataType.List:
+                return new $List(result);
+            case DataType.Null:
+                return new $Null();
+            default:
+                return new $Any(result);
         }
-    };
-    return func;
+    });
 }
 
-export function arrayMapMethod(that: any): InternalEntity {
-    const func = new InternalEntity();
-    func.toString = () => '<internal function>';
-    func.arity = () => -1;
-    func.call = (int, thiz, args) => {
-        for (let i = 0; i < thiz.values.length; ++i) {
-            thiz.values[i] = <FunctionEntity> args[0].call(int, thiz, [thiz.values[i], i, thiz]);
-        }
-        return thiz;
-    };
-    return func;
+export function fromJavaScriptFuncNumber(func: (...argz: any) => any, name: string, arity: number): $Callable {
+    return new $Callable(name, arity, (thiz: $Any, args: $Any[]): $Any => {
+        const argValues = args.map((arg: $Any) => arg.value);
+        const result = func(...argValues);
+        return new $Number(result);
+    });
 }
 
-export function arrayFindMethod(that: any): InternalEntity {
-    const func = new InternalEntity();
-    func.toString = () => '<internal function>';
-    func.arity = () => -1;
-    func.call = (int, thiz, args) => {
-        for (let i = 0; i < thiz.values.length; ++i) {
-            if (<FunctionEntity> args[0].call(int, thiz, [thiz.values[i], i, thiz])) {
-                return thiz.values[i];
-            }
-        }
-        return null;
-    };
-    return func;
+export function fromJavaScriptFuncVoid(func: (...argz: any) => any, name: string, arity: number): $Callable {
+    return new $Callable(name, arity, (thiz: $Any, args: $Any[]): $Any => {
+        const argValues = args.map((arg: $Any) => arg.value);
+        func(...argValues);
+        return new $Void('void');
+    });
 }
 
-export function arrayIndexOfMethod(that: any): InternalEntity {
-    const func = new InternalEntity();
-    func.toString = () => '<internal function>';
-    func.arity = () => 1;
-    func.call = (int, thiz, args) => {
-        for (let i = 0; i < thiz.values.length; ++i) {
-            if (thiz.values[i] === args[0]) {
-                return i;
-            }
-        }
-        return null;
-    };
-    return func;
-}
-
-export function arrayConcatMethod(that: any): InternalEntity {
-    const func = new InternalEntity();
-    func.toString = () => '<internal function>';
-    func.arity = () => 1;
-    func.call = (int, thiz, args) => new ArrayEntity(thiz.values.concat(args[0].values));
-    return func;
-}
-
-export function stringLengthMethod(that: any): InternalEntity {
-    const func = new InternalEntity();
-    func.toString = () => '<internal function>';
-    func.arity = () => 0;
-    func.call = (int, thiz, args) => thiz.value.length;
-    return func;
-}
-
-export function stringSubStrMethod(that: any): InternalEntity {
-    const func = new InternalEntity();
-    func.toString = () => '<internal function>';
-    func.arity = () => -1;
-    func.call = (int, thiz, args) => new StringEntity(thiz.value.substr(args[0], args[1]));
-    return func;
-}
-
-export function stringSplitMethod(that: any): InternalEntity {
-    const func = new InternalEntity();
-    func.toString = () => '<internal function>';
-    func.arity = () => 1;
-    func.call = (int, thiz, args) => new ArrayEntity(thiz.value.split(args[0]));
-    return func;
-}
-
-export function stringMatchMethod(that: any): InternalEntity {
-    const func = new InternalEntity();
-    func.toString = () => '<internal function>';
-    func.arity = () => 1;
-    func.call = (int, thiz, args) => new ArrayEntity(thiz.value.match(args[0].regex));
-    return func;
-}
-
-export function stringReplaceMethod(that: any): InternalEntity {
-    const func = new InternalEntity();
-    func.toString = () => '<internal function>';
-    func.arity = () => 2;
-    func.call = (int, thiz, args) => new StringEntity(thiz.value.replace(args[0], args[1]));
-    return func;
-}
-
-export function stringAlterMethod(that: any): InternalEntity {
-    const func = new InternalEntity();
-    func.toString = () => '<internal function>';
-    func.arity = () => 2;
-    func.call = (int, thiz, args) => new StringEntity(thiz.value.replace(args[0].regex, args[1]));
-    return func;
-}
-
-export function stringToUpperCase(that: any): InternalEntity {
-    const func = new InternalEntity();
-    func.toString = () => '<internal function>';
-    func.arity = () => 0;
-    func.call = (int, thiz, args) => new StringEntity(thiz.value.toUpperCase());
-    return func;
-}
-
-export function stringToLowercase(that: any): InternalEntity {
-    const func = new InternalEntity();
-    func.toString = () => '<internal function>';
-    func.arity = () => 0;
-    func.call = (int, thiz, args) => new StringEntity(thiz.value.toLowerCase());
-    return func;
-}
-
-export function regexTestMethod(that: any): InternalEntity {
-    const func = new InternalEntity();
-    func.toString = () => '<internal function>';
-    func.arity = () => 1;
-    func.call = (int, thiz, args) => thiz.regex.test(args[0]);
-    return func;
-}
-
-export function regexExecMethod(that: any): InternalEntity {
-    const func = new InternalEntity();
-    func.toString = () => '<internal function>';
-    func.arity = () => 1;
-    func.call = (int, thiz, args) => thiz.regex.exec(args[0]);
-    return func;
-}
+export const Runtime = {
+    Console:  new Map<string, $Any>([
+        ['log', fromJavaScriptFuncVoid(console.log, 'console.log', -1)],
+        ['warn', fromJavaScriptFuncVoid(console.warn, 'console.warn', -1)],
+        ['info', fromJavaScriptFuncVoid(console.info, 'console.info', -1)],
+        ['error', fromJavaScriptFuncVoid(console.error, 'console.error', -1)]
+    ]),
+    Math:  new Map<string, $Any>([
+        ['ceil', fromJavaScriptFuncNumber(Math.ceil, 'ceil', 1)],
+        ['cos', fromJavaScriptFuncNumber(Math.cos, 'cos', 1)],
+        ['floor', fromJavaScriptFuncNumber(Math.floor, 'floor', 1)],
+        ['log', fromJavaScriptFuncNumber(Math.log, 'log', 1)],
+        ['max', fromJavaScriptFuncNumber(Math.max, 'max', -1)],
+        ['min', fromJavaScriptFuncNumber(Math.min, 'min', -1)],
+        ['pi', new $Number(Math.PI)],
+        ['pow', fromJavaScriptFuncNumber(Math.pow, 'pow', 2)],
+        ['random', fromJavaScriptFuncNumber(Math.random, 'random', 0)],
+        ['round', fromJavaScriptFuncNumber(Math.round, 'round', 1)],
+        ['sin', fromJavaScriptFuncNumber(Math.sin, 'sin', 1)],
+        ['sqrt', fromJavaScriptFuncNumber(Math.sqrt, 'sqrt', 1)],
+        ['tan', fromJavaScriptFuncNumber(Math.tan, 'tan', 1)],
+        ['trunc', fromJavaScriptFuncNumber(Math.trunc, 'trunc', 1)]
+    ])
+};

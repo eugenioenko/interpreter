@@ -2,22 +2,22 @@ let fs = require('fs');
 
 const ExpressionAST = {
     Assign: ['name: Token', 'value: Expr'],
+    Base: ['paren: Token'],
     Binary: ['left: Expr', 'operator: Token', 'right: Expr'],
-    Call: ['callee: Expr', 'paren: Token', 'args: Expr[]', 'thiz: any'],
-    Entity: ['properties: Expr[]'],
+    Call: ['callee: Expr', 'paren: Token', 'args: Expr[]', 'thiz: $Any'],
+    Dictionary: ['properties: Expr[]'],
     Get: ['entity: Expr', 'key: Expr'],
     Grouping: ['expression: Expr'],
     Key: ['name: Token'],
     Lambda: ['lambda: Stmt'],
     Logical: ['left: Expr', 'operator: Token', 'right: Expr'],
     List: ['value: Expr[]'],
-    Literal: ['value: any'],
-    New: ['construct: Expr'],
+    Literal: ['value: $Any'],
+    New: ['clazz: Expr'],
     Postfix: ['name: Token', 'increment: number'],
     Range: ['start: Expr', 'end: Expr', 'step: Expr'],
     RegEx: ['value: RegExp'],
     Set: ['entity: Expr', 'key: Expr', 'value: Expr'],
-    Super: ['index: Token[]', 'args: Expr[]'],
     Ternary: ['condition: Expr', 'thenExpr: Expr', 'elseExpr: Expr'],
     Unary: ['operator: Token', 'right: Expr'],
     Variable: ['name: Token'],
@@ -40,6 +40,7 @@ const StatementAST = {
 function generateAST(baseClass, AST, filename, imports = '') {
     let file = imports +
 `export abstract class ${baseClass} {
+    public result: any;
     // tslint:disable-next-line
     constructor() {}
     public abstract accept<R>(visitor: ${baseClass}Visitor<R>): R;
@@ -71,14 +72,14 @@ function generateAST(baseClass, AST, filename, imports = '') {
     public toString(): string {
         return '${baseClass}.${name}';
     }\n`;
-        file += '}\n'
+        file += '}\n\n'
     });
 
-    fs.writeFile(`src/structs/${filename}.ts`, file, function (err, data) {
+    fs.writeFile(`src/${filename}.ts`, file, function (err, data) {
         if (err) console.log(err);
         console.log(`${filename}.ts generated`);
     });
 }
 
-generateAST('Expr', ExpressionAST, 'expression', `import { Token, TokenType } from 'token';\n\nimport { Stmt } from 'statement';\n\n`);
+generateAST('Expr', ExpressionAST, 'expression', `import { Token, TokenType } from 'token';\nimport { Stmt } from 'statement';\nimport { $Any } from 'types';\n\n`);
 generateAST('Stmt', StatementAST, 'statement', `import { Token } from 'token';\n\nimport { Expr } from 'expression';\n\n`);

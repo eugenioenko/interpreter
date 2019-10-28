@@ -2,60 +2,39 @@ export const DemoSourceCode =
 `
 // slicing strings
 print "one two three four"[4:7:1]; // prints two
-print "hello world"[6::1]; // prints world
+print "hello world"[6::1].size(); // 5
 print "hello world"[::-1]; //prints dlrow olleh
 
-// Prototype objects
-@MyClass(text) {
-    this.text = text;
+// functions
+function sayHello(text) {
+    print text;
 }
-MyClass.method = @(text) {
-    this.text = this.text + text;
-};
-MyClass.count = @(times) {
-    @nested(num) {
-        return num * num;
-    }
-    for (var i = 0; i < times; ++i) {
-        print nested(i);
-    }
-};
-var instance = new MyClass('Hello ');
-instance.method('World');
-instance.count(3);
-print instance.text;
+sayHello('hello');
 
-// sugar coated classes
-class MyClassClass {
-    constructor(alfa) {
-        this.something = 'anything' + alfa;
+// classes
+class Person {
+    constructor(name) {
+        this.name = name;
+    }
+    hello() {
+        print this.name + ' says hi';
     }
 }
-var testClassClass = new MyClassClass(' is something');
-print testClassClass.something;
 
-// shallow multiple inheritance
-@Blade() {
-    this.sharpness = "very sharp";
+class Student extends Person {
+    constructor(name, grade) {
+        base.constructor(name);
+        this.grade = grade;
+    }
+    hello() {
+        base.hello();
+        print 'from ' + this.grade + ' grade';
+    }
 }
-Blade.cut = @() {
-    print "cutting..." + this.sharpness;
-};
-@Handle() {
-    this.color = "wood";
-}
-Handle.hold = @() {
-    print "holding..." + this.color;
-};
-@Knife() {
-    Blade.invoke(this);
-    Handle.invoke(this);
-}
-Knife.merge(Blade);
-Knife.merge(Handle);
-var knife = new Knife();
-knife.cut();
-knife.hold();
+
+var student = new Student('John', 3);
+student.hello();
+
 
 // Recursive function
 function factorialize(n) {
@@ -67,14 +46,14 @@ function factorialize(n) {
     }
     return (n * factorialize(n - 1));
 }
-print factorialize(11);
+print 'factor of 11: ' + factorialize(11);
 
 // same as factorialize but with ternary
 // and short form function definition
-@factorialize2(n) =>
+@factor(n) =>
     n < 0 ? -1 : (n == 0 ? 1 : (n * factorialize(n - 1)));
 
-print factorialize2(12);
+print 'factor of 11: ' +factor(11);
 
 // nested function returns function
 @add(a) => @(b) => @(c) => a + b + c;
@@ -91,10 +70,12 @@ print sub(100)(10)(1);
 
 // while loop and ternary operator
 var i = 0;
-while (i <= 4) {
-    print i % 2 ? 'odd' : 'even';
+var counts = '';
+while (i <= 10) {
+    counts += i % 2 ? 'odd ' : 'even ';
     i = i + 1;
 }
+print counts;
 // literals
 var literal = {
     firstname: "John",
@@ -113,4 +94,5 @@ y.push(x);
 y.newProperty = "anything";
 print y.join(',');
 var z = y.join('-');
+
 `;

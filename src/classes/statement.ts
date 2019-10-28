@@ -1,8 +1,9 @@
-import { Token } from './token';
+import { Token } from 'token';
 
-import { Expr } from './expression';
+import { Expr } from 'expression';
 
 export abstract class Stmt {
+    public result: any;
     // tslint:disable-next-line
     constructor() {}
     public abstract accept<R>(visitor: StmtVisitor<R>): R;
@@ -38,6 +39,7 @@ export class Block extends Stmt {
         return 'Stmt.Block';
     }
 }
+
 export class Class extends Stmt {
     public name: Token;
     public parent: Token;
@@ -58,6 +60,7 @@ export class Class extends Stmt {
         return 'Stmt.Class';
     }
 }
+
 export class DoWhile extends Stmt {
     public loop: Stmt;
     public condition: Expr;
@@ -76,6 +79,7 @@ export class DoWhile extends Stmt {
         return 'Stmt.DoWhile';
     }
 }
+
 export class Expression extends Stmt {
     public expression: Expr;
 
@@ -92,6 +96,7 @@ export class Expression extends Stmt {
         return 'Stmt.Expression';
     }
 }
+
 export class Func extends Stmt {
     public name: Token;
     public params: Token[];
@@ -112,6 +117,7 @@ export class Func extends Stmt {
         return 'Stmt.Func';
     }
 }
+
 export class If extends Stmt {
     public condition: Expr;
     public thenStmt: Stmt;
@@ -132,6 +138,7 @@ export class If extends Stmt {
         return 'Stmt.If';
     }
 }
+
 export class Print extends Stmt {
     public expression: Expr;
 
@@ -148,6 +155,7 @@ export class Print extends Stmt {
         return 'Stmt.Print';
     }
 }
+
 export class Return extends Stmt {
     public keyword: Token;
     public value: Expr;
@@ -166,6 +174,7 @@ export class Return extends Stmt {
         return 'Stmt.Return';
     }
 }
+
 export class Var extends Stmt {
     public name: Token;
     public type: Token;
@@ -186,6 +195,7 @@ export class Var extends Stmt {
         return 'Stmt.Var';
     }
 }
+
 export class While extends Stmt {
     public condition: Expr;
     public loop: Stmt;

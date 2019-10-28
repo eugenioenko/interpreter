@@ -1,7 +1,8 @@
-import * as Expr from './structs/expression';
-import * as Stmt from './structs/statement';
+import * as Expr from './classes/expression';
+import * as Stmt from './classes/statement';
 import { Console } from './console';
-import { Token, TokenType } from './structs/token';
+import { Token, TokenType } from './token';
+import { $Boolean, $Number, $Null } from './types';
 declare var conzole: Console;
 
 export class Parser {
@@ -78,7 +79,6 @@ export class Parser {
         } else {
             conzole.error(`[line (${token.line}) parse error at "${token.lexeme}"] => ${message}`);
         }
-
         throw new Error ('Error parsing');
         // unreachable code
         return new Token(TokenType.Panic, 'error', 'error', 0);
@@ -91,7 +91,6 @@ export class Parser {
 
     private synchronize(): void {
         this.advance();
-
         while (!this.eof()) {
             if (this.previous().type === TokenType.Semicolon) {
                 return;
@@ -285,7 +284,7 @@ export class Parser {
             ]);
         }
         if (condition === null) {
-            condition = new Expr.Literal(true);
+            condition = new Expr.Literal(new $Boolean(true));
         }
         body = new Stmt.While(condition, body);
         if (initializer !== null) {
@@ -321,7 +320,7 @@ export class Parser {
             value = this.expression();
         }
 
-        this.consume(TokenType.Semicolon, `Exected ";" after return statement`);
+        this.consume(TokenType.Semicolon, `Exected semicolon ";" after return statement`);
         return new Stmt.Return(keyword, value);
     }
 
@@ -330,7 +329,7 @@ export class Parser {
         while (!this.check(TokenType.RightBrace) && !this.eof()) {
             statements.push(this.declaration());
         }
-        this.consume(TokenType.RightBrace, `Expected closing block "}"`);
+        this.consume(TokenType.RightBrace, `Expected closing brace "}" after block statement`);
         return statements;
     }
 
@@ -353,13 +352,11 @@ export class Parser {
 
     private assignment(): Expr.Expr {
         const expr: Expr.Expr = this.ternary();
-
         if (this.match(TokenType.Equal, TokenType.PlusEqual,
             TokenType.MinusEqual, TokenType.StarEqual, TokenType.SlashEqual)
         ) {
             const operator: Token = this.previous();
             let value: Expr.Expr = this.assignment();
-
             if (expr instanceof Expr.Variable) {
                 const name: Token = expr.name;
                 if (operator.type !== TokenType.Equal) {
@@ -372,10 +369,8 @@ export class Parser {
                 }
                 return new Expr.Set(expr.entity, expr.key, value);
             }
-
             this.parseError(operator, `Invalid l-value, is not an assigning target.`);
         }
-
         return expr;
     }
 
@@ -412,7 +407,6 @@ export class Parser {
 
     private equality(): Expr.Expr {
         let expr  = this.comparison();
-
         while (this.match(
             TokenType.BangEqual, TokenType.EqualEqual)
         ) {
@@ -420,55 +414,46 @@ export class Parser {
             const right: Expr.Expr = this.comparison();
             expr = new Expr.Binary(expr, operator, right);
         }
-
         return expr;
     }
 
     private comparison(): Expr.Expr {
         let expr: Expr.Expr = this.addition();
-
         while (this.match(TokenType.Greater, TokenType.GreaterEqual, TokenType.Less, TokenType.LessEqual)) {
             const operator: Token = this.previous();
             const right: Expr.Expr = this.addition();
             expr = new Expr.Binary(expr, operator, right);
         }
-
         return expr;
     }
 
     private addition(): Expr.Expr {
         let expr: Expr.Expr = this.modulus();
-
         while (this.match(TokenType.Minus, TokenType.Plus)) {
             const operator: Token = this.previous();
             const right: Expr.Expr = this.modulus();
             expr = new Expr.Binary(expr, operator, right);
         }
-
         return expr;
     }
 
     private modulus(): Expr.Expr {
         let expr: Expr.Expr = this.multiplication();
-
         while (this.match(TokenType.Percent)) {
             const operator: Token = this.previous();
             const right: Expr.Expr = this.multiplication();
             expr = new Expr.Binary(expr, operator, right);
         }
-
         return expr;
     }
 
     private multiplication(): Expr.Expr {
         let expr: Expr.Expr = this.unary();
-
         while (this.match(TokenType.Slash, TokenType.Star)) {
             const operator: Token = this.previous();
             const right: Expr.Expr = this.unary();
             expr = new Expr.Binary(expr, operator, right);
         }
-
         return expr;
     }
 
@@ -478,7 +463,6 @@ export class Parser {
             const right: Expr.Expr = this.unary();
             return new Expr.Unary(operator, right);
         }
-
         return this.newKeyword();
     }
 
@@ -493,9 +477,11 @@ export class Parser {
 
     private call(): Expr.Expr {
         let expr: Expr.Expr = this.primary();
-        while (true) {
+        let consumed = true;
+        do  {
+            consumed = false;
             if (this.match(TokenType.LeftParen)) {
-                let callee = expr;
+                consumed = true;
                 do {
                     const args: Expr.Expr[] = [];
                     if (!this.check(TokenType.RightParen)) {
@@ -504,18 +490,18 @@ export class Parser {
                         } while (this.match(TokenType.Comma));
                     }
                     const paren: Token = this.consume(TokenType.RightParen, `Expected ")" after arguments`);
-                    callee = new Expr.Call(callee, paren, args, null);
+                    expr = new Expr.Call(expr, paren, args, null);
                 } while (this.match(TokenType.LeftParen));
-                return callee;
-            } else if (this.match(TokenType.Dot)) {
-                expr = this.dotGet(expr);
-            } else if (this.match(TokenType.LeftBracket)) {
-                expr = this.bracketGet(expr);
-            } else {
-                break;
             }
-        }
-
+            if (this.match(TokenType.Dot)) {
+                consumed = true;
+                expr = this.dotGet(expr);
+            }
+            if (this.match(TokenType.LeftBracket)) {
+                consumed = true;
+                expr = this.bracketGet(expr);
+            }
+        } while (consumed);
         return expr;
     }
 
@@ -549,22 +535,27 @@ export class Parser {
 
     private primary(): Expr.Expr {
         if (this.match(TokenType.False)) {
-            return new Expr.Literal(false);
+            return new Expr.Literal(new $Boolean(false));
         }
         if (this.match(TokenType.True)) {
-            return new Expr.Literal(true);
+            return new Expr.Literal(new $Boolean(true));
         }
         if (this.match(TokenType.Null)) {
-             return new Expr.Literal(null);
+            return new Expr.Literal(new $Null());
         }
         if (this.match(TokenType.Number)) {
-            return new Expr.Literal(this.previous().literal);
+            return new Expr.Literal(new $Number(this.previous().literal));
         }
         if (this.match(TokenType.String)) {
             return new Expr.Ztring(this.previous().literal);
         }
         if (this.match(TokenType.Regex)) {
             return new Expr.RegEx(this.previous().literal);
+        }
+        if (this.match(TokenType.Base)) {
+            const paren = this.previous();
+            paren.lexeme = 'this';
+            return new Expr.Base(paren);
         }
         if (this.match(TokenType.Identifier)) {
             const identifier =  this.previous();
@@ -582,18 +573,15 @@ export class Parser {
             return new Expr.Grouping(expr);
         }
         if (this.match(TokenType.LeftBrace)) {
-            return this.entity();
+            return this.dictionary();
         }
         if (this.match(TokenType.Function)) {
-            const token: Token = new Token(TokenType.Lambda, 'lambda', 'lambda', this.previous().line);
-            const lambda: Stmt.Func = this.funcParamsBody(token, "lambda");
+            const token: Token = new Token(TokenType.Lambda, '@', '@', this.previous().line);
+            const lambda: Stmt.Func = this.funcParamsBody(token, 'lambda');
             return new Expr.Lambda(lambda);
         }
-        if (this.match(TokenType.Super)) {
-            return this.superCall();
-        }
         if (this.match(TokenType.LeftBracket)) {
-            return this.array();
+            return this.list();
         }
 
         throw this.parseError(this.peek(), `Expected expression`);
@@ -601,27 +589,27 @@ export class Parser {
         return new Expr.Literal(null);
     }
 
-    public entity(): Expr.Expr {
+    public dictionary(): Expr.Expr {
         if (this.match(TokenType.RightBrace)) {
-            return new Expr.Entity([]);
+            return new Expr.Dictionary([]);
         }
         const properties: Expr.Set[] = [];
         do {
-            if (this.match(TokenType.String, TokenType.Identifier)) {
+            if (this.match(TokenType.String, TokenType.Identifier, TokenType.Number)) {
                 const key: Token = this.previous();
                 this.consume(TokenType.Colon, `Expected ":" colon after member`);
                 const value = this.expression();
                 properties.push(new Expr.Set(null, new Expr.Key(key), value));
             } else {
-                this.parseError(this.peek(), `String or identifier expected after Object {`);
+                this.parseError(this.peek(), `String, Number or Identifier expected as a Key of Dictionary {`);
             }
         } while (this.match(TokenType.Comma));
         this.consume(TokenType.RightBrace, `Expected "}" after object literal`);
 
-        return new Expr.Entity(properties);
+        return new Expr.Dictionary(properties);
     }
 
-    private array(): Expr.Expr {
+    private list(): Expr.Expr {
         const values = [];
         if (this.match(TokenType.RightBracket)) {
             return new Expr.List([]);
@@ -632,27 +620,6 @@ export class Parser {
         this.consume(TokenType.RightBracket, `Expected "]" after array declaration`);
 
         return new Expr.List(values);
-    }
-
-    private superCall(): Expr.Expr {
-        const indexes: Token[] = [];
-        while (this.match(TokenType.Dot)) {
-            const token = this.consume(TokenType.Identifier, `Expected method name after super`);
-            indexes.push(token);
-        }
-
-        const args: Expr.Expr[] = [];
-        this.consume(TokenType.LeftParen, `Expected function parameters or method name after super`);
-        do {
-            if (!this.check(TokenType.RightParen)) {
-                do {
-                    args.push(this.expression());
-                } while (this.match(TokenType.Comma));
-            }
-            this.consume(TokenType.RightParen, `Expected ")" after super arguments`);
-        } while (this.match(TokenType.LeftParen));
-
-        return new Expr.Super(indexes, args);
     }
 
 }

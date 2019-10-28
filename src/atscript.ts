@@ -12,10 +12,10 @@ if (typeof window === 'undefined') {
 
 window.conzole = new Console();
 window.demoSourceCode = DemoSourceCode;
-window.execute = (source: string): Console => {
-     return (new Interpreter().interpet((new Parser((new Scanner(source)).scan())).parse()));
-};
-
-window.atscript = (source: string) => {
-    return (new Interpreter().eval((new Parser((new Scanner(source)).scan())).parse()));
+window.atscript = (source: string)  => {
+    try {
+        return (new Interpreter().interpet((new Parser((new Scanner(source)).scan())).parse()));
+    } catch (e) {
+        console.error(e);
+    }
 };

@@ -2,7 +2,7 @@ const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
-    entry: './src/index.ts',
+    entry: './src/atscript.ts',
     devtool: 'source-map',
     mode: 'production',
     watch: false,

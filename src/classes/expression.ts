@@ -1,8 +1,9 @@
-import { Token, TokenType } from './token';
-
+import { Token, TokenType } from 'token';
 import { Stmt } from 'statement';
+import { $Any } from 'types';
 
 export abstract class Expr {
+    public result: any;
     // tslint:disable-next-line
     constructor() {}
     public abstract accept<R>(visitor: ExprVisitor<R>): R;
@@ -11,9 +12,10 @@ export abstract class Expr {
 // tslint:disable-next-line
 export interface ExprVisitor<R> {
     visitAssignExpr(expr: Assign): R;
+    visitBaseExpr(expr: Base): R;
     visitBinaryExpr(expr: Binary): R;
     visitCallExpr(expr: Call): R;
-    visitEntityExpr(expr: Entity): R;
+    visitDictionaryExpr(expr: Dictionary): R;
     visitGetExpr(expr: Get): R;
     visitGroupingExpr(expr: Grouping): R;
     visitKeyExpr(expr: Key): R;
@@ -26,7 +28,6 @@ export interface ExprVisitor<R> {
     visitRangeExpr(expr: Range): R;
     visitRegExExpr(expr: RegEx): R;
     visitSetExpr(expr: Set): R;
-    visitSuperExpr(expr: Super): R;
     visitTernaryExpr(expr: Ternary): R;
     visitUnaryExpr(expr: Unary): R;
     visitVariableExpr(expr: Variable): R;
@@ -51,6 +52,24 @@ export class Assign extends Expr {
         return 'Expr.Assign';
     }
 }
+
+export class Base extends Expr {
+    public paren: Token;
+
+    constructor(paren: Token) {
+        super();
+        this.paren = paren;
+    }
+
+    public accept<R>(visitor: ExprVisitor<R>): R {
+        return visitor.visitBaseExpr(this);
+    }
+
+    public toString(): string {
+        return 'Expr.Base';
+    }
+}
+
 export class Binary extends Expr {
     public left: Expr;
     public operator: Token;
@@ -71,13 +90,14 @@ export class Binary extends Expr {
         return 'Expr.Binary';
     }
 }
+
 export class Call extends Expr {
     public callee: Expr;
     public paren: Token;
     public args: Expr[];
-    public thiz: any;
+    public thiz: $Any;
 
-    constructor(callee: Expr, paren: Token, args: Expr[], thiz: any) {
+    constructor(callee: Expr, paren: Token, args: Expr[], thiz: $Any) {
         super();
         this.callee = callee;
         this.paren = paren;
@@ -93,7 +113,8 @@ export class Call extends Expr {
         return 'Expr.Call';
     }
 }
-export class Entity extends Expr {
+
+export class Dictionary extends Expr {
     public properties: Expr[];
 
     constructor(properties: Expr[]) {
@@ -102,13 +123,14 @@ export class Entity extends Expr {
     }
 
     public accept<R>(visitor: ExprVisitor<R>): R {
-        return visitor.visitEntityExpr(this);
+        return visitor.visitDictionaryExpr(this);
     }
 
     public toString(): string {
-        return 'Expr.Entity';
+        return 'Expr.Dictionary';
     }
 }
+
 export class Get extends Expr {
     public entity: Expr;
     public key: Expr;
@@ -127,6 +149,7 @@ export class Get extends Expr {
         return 'Expr.Get';
     }
 }
+
 export class Grouping extends Expr {
     public expression: Expr;
 
@@ -143,6 +166,7 @@ export class Grouping extends Expr {
         return 'Expr.Grouping';
     }
 }
+
 export class Key extends Expr {
     public name: Token;
 
@@ -159,6 +183,7 @@ export class Key extends Expr {
         return 'Expr.Key';
     }
 }
+
 export class Lambda extends Expr {
     public lambda: Stmt;
 
@@ -175,6 +200,7 @@ export class Lambda extends Expr {
         return 'Expr.Lambda';
     }
 }
+
 export class Logical extends Expr {
     public left: Expr;
     public operator: Token;
@@ -195,6 +221,7 @@ export class Logical extends Expr {
         return 'Expr.Logical';
     }
 }
+
 export class List extends Expr {
     public value: Expr[];
 
@@ -211,10 +238,11 @@ export class List extends Expr {
         return 'Expr.List';
     }
 }
-export class Literal extends Expr {
-    public value: any;
 
-    constructor(value: any) {
+export class Literal extends Expr {
+    public value: $Any;
+
+    constructor(value: $Any) {
         super();
         this.value = value;
     }
@@ -227,12 +255,13 @@ export class Literal extends Expr {
         return 'Expr.Literal';
     }
 }
-export class New extends Expr {
-    public construct: Expr;
 
-    constructor(construct: Expr) {
+export class New extends Expr {
+    public clazz: Expr;
+
+    constructor(clazz: Expr) {
         super();
-        this.construct = construct;
+        this.clazz = clazz;
     }
 
     public accept<R>(visitor: ExprVisitor<R>): R {
@@ -243,6 +272,7 @@ export class New extends Expr {
         return 'Expr.New';
     }
 }
+
 export class Postfix extends Expr {
     public name: Token;
     public increment: number;
@@ -261,6 +291,7 @@ export class Postfix extends Expr {
         return 'Expr.Postfix';
     }
 }
+
 export class Range extends Expr {
     public start: Expr;
     public end: Expr;
@@ -281,6 +312,7 @@ export class Range extends Expr {
         return 'Expr.Range';
     }
 }
+
 export class RegEx extends Expr {
     public value: RegExp;
 
@@ -297,6 +329,7 @@ export class RegEx extends Expr {
         return 'Expr.RegEx';
     }
 }
+
 export class Set extends Expr {
     public entity: Expr;
     public key: Expr;
@@ -317,24 +350,7 @@ export class Set extends Expr {
         return 'Expr.Set';
     }
 }
-export class Super extends Expr {
-    public index: Token[];
-    public args: Expr[];
 
-    constructor(index: Token[], args: Expr[]) {
-        super();
-        this.index = index;
-        this.args = args;
-    }
-
-    public accept<R>(visitor: ExprVisitor<R>): R {
-        return visitor.visitSuperExpr(this);
-    }
-
-    public toString(): string {
-        return 'Expr.Super';
-    }
-}
 export class Ternary extends Expr {
     public condition: Expr;
     public thenExpr: Expr;
@@ -355,6 +371,7 @@ export class Ternary extends Expr {
         return 'Expr.Ternary';
     }
 }
+
 export class Unary extends Expr {
     public operator: Token;
     public right: Expr;
@@ -373,6 +390,7 @@ export class Unary extends Expr {
         return 'Expr.Unary';
     }
 }
+
 export class Variable extends Expr {
     public name: Token;
 
@@ -389,6 +407,7 @@ export class Variable extends Expr {
         return 'Expr.Variable';
     }
 }
+
 export class Ztring extends Expr {
     public value: string;
 
