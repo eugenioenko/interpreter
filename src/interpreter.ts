@@ -15,9 +15,6 @@ export class Interpreter implements
 
     constructor( ) {
         // this.global.define('echo', Runtime.echoFunction());
-        // this.global.define('rand', Runtime.randFunction());
-        const math = new $Dictionary(new Map());
-        math.set(new $String('pi'), new $Number(Math.PI));
         this.global.set('math', new $Dictionary(Runtime.Math));
 
     }

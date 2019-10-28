@@ -13,18 +13,17 @@ import { $Return } from './types/return';
 import { $String } from './types/string';
 import { $Void } from './types/void';
 
-
 export {
     DataType,
     $Any,
+    $Boolean,
+    $Number,
     $Callable,
     $Function,
     FunctionCall,
-    $Boolean,
     $Class,
     $Dictionary,
     $List,
-    $Number,
     $Null,
     $Object,
     $Range,

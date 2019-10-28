@@ -1,5 +1,5 @@
 import { DataType, $List, $Callable, $Any, $Range, $Null, $Number } from '../types';
-import { Runtime } from '../runtime';
+import { fromJavaScriptMethod } from '../runtime';
 
 export class $String extends $Any {
     public value: string;
@@ -24,8 +24,8 @@ export class $String extends $Any {
             return this.range(<$Range> key);
         } else if (key.value === 'length') {
             return new $Number(this.value.length);
-        } else if (Runtime.String.has(key.value)) {
-            return Runtime.String.get(key.value);
+        } else if ($String.runtime.has(key.value)) {
+            return $String.runtime.get(key.value);
         }
         return new $Null();
 
@@ -49,5 +49,22 @@ export class $String extends $Any {
         });
         return new $String(result);
     }
+
+    public static  runtime =  new Map([
+        ['toUpper',  fromJavaScriptMethod('toUpperCase', 0, DataType.String)],
+        ['toLower', fromJavaScriptMethod('toLowerCase', 0, DataType.String)],
+        ['size', new $Callable('size', 0,  (thiz: $Any, args: $Any[]): $Any => new $Number(thiz.value.length))],
+        ['split',  fromJavaScriptMethod('split', 1, DataType.List)],
+        ['concat', fromJavaScriptMethod('concat', 1, DataType.String)],
+        ['includes', fromJavaScriptMethod('includes', 1, DataType.Boolean)],
+        ['indexOf', fromJavaScriptMethod('indexOf', 1, DataType.Number)],
+        ['lastIndexOf', fromJavaScriptMethod('lastIndexOf', 1, DataType.Number)],
+        ['repeat', fromJavaScriptMethod('repeat', 1, DataType.String)],
+        ['replace', fromJavaScriptMethod('replace', 2, DataType.String)],
+        ['search', fromJavaScriptMethod('search', 1, DataType.Number)],
+        ['slice', fromJavaScriptMethod('slice', -1, DataType.String)],
+        ['substring', fromJavaScriptMethod('substring', -1, DataType.String)],
+        ['trim', fromJavaScriptMethod('trim', 0, DataType.String)],
+    ])
 
 }
