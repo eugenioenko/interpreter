@@ -117,13 +117,16 @@ export class Interpreter implements
                 if (left.isNumber() && right.isNumber()) {
                     return new $Number(left.value + right.value);
                 }
+                if (left.isString() && right.isString()) {
+                    return new $String(left.value + right.value);
+                }
                 if (left.isList() && right.isList()) {
                     return new $List(left.value.concat(right.value));
                 }
                 if (left.isDictionary() && right.isDictionary()) {
                     return new $Dictionary(new Map([...left.value, ...right.value]));
                 }
-                return new $String(left.value + right.value);
+                return new $String(left.value.toString() + right.value.toString());
             case TokenType.Pipe:
                 return new $Number(left.value | right.value);
             case TokenType.Caret:
