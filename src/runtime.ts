@@ -1,6 +1,12 @@
-import { DataType, $Callable, FunctionCall, $Null, $Any, $String, $List, $Boolean, $Dictionary, $Void } from './types';
-import { Interpreter } from './interpreter';
+import { DataType } from './types/type.enum';
+import { $Null } from './types/null';
+import { $Any } from './types/any';
+import { $Callable } from './types/function';
+import { $Boolean } from './types/boolean';
+import { $List } from './types/list';
 import { $Number } from './types/number';
+import { $String } from './types/string';
+import { $Void } from './types/void';
 
 export function fromJavaScriptMethod(jsName: string, arity: number, type: DataType): $Callable {
     return new $Callable(jsName, arity, (thiz: $Any, args: $Any[]): $Any => {

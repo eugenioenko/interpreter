@@ -1,7 +1,12 @@
-import { DataType, $Callable, $Any, $Null, $Number, $Function } from '../types';
+
 import { fromJavaScriptMethod } from '../runtime';
 import { Interpreter } from '../interpreter';
+import { $Any } from './any';
+import { $Function, $Callable } from './function';
+import { $Null } from './null';
+import { $Number } from './number';
 import { $String } from './string';
+import { DataType } from './type.enum';
 
 export class $Dictionary extends $Any {
     public value: Map<any, $Any>;
@@ -71,4 +76,5 @@ export class $Dictionary extends $Any {
         ['merge', new $Callable('merge', 1,  (thiz: $Any, args: $Any[]): $Any => new $Dictionary(new Map([...(thiz.value), ...(args[0].value)])))],
         ['size', new $Callable('size', 0,  (thiz: $Any, args: $Any[]): $Any => new $Number(thiz.value.size))]
     ]);
+
 }

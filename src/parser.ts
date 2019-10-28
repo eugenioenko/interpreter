@@ -1,5 +1,5 @@
-import * as Expr from './expression';
-import * as Stmt from './statement';
+import * as Expr from './classes/expression';
+import * as Stmt from './classes/statement';
 import { Console } from './console';
 import { Token, TokenType } from './token';
 import { $Boolean, $Number, $Null } from './types';

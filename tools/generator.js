@@ -72,7 +72,7 @@ function generateAST(baseClass, AST, filename, imports = '') {
     public toString(): string {
         return '${baseClass}.${name}';
     }\n`;
-        file += '}\n'
+        file += '}\n\n'
     });
 
     fs.writeFile(`src/${filename}.ts`, file, function (err, data) {

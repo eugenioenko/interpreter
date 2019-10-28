@@ -1,8 +1,6 @@
-import { Console } from '../console';
 import { DataType } from './type.enum';
 import { $Any } from './any';
 import { $Null } from './null';
-declare var conzole: Console;
 
 export class $Class extends $Any {
     public value: Map<string, $Any>;
@@ -35,4 +33,5 @@ export class $Class extends $Any {
     public toString(): string {
         return `<${this.name} class>`;
     }
+
 }

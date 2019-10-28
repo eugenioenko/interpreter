@@ -1,5 +1,5 @@
-import * as Expr from './expression';
-import * as Stmt from './statement';
+import * as Expr from './classes/expression';
+import * as Stmt from './classes/statement';
 import { Console } from './console';
 import { Scope } from './scope';
 import { TokenType, Token } from './token';
@@ -14,7 +14,6 @@ export class Interpreter implements
     public scope = this.global;
 
     constructor( ) {
-        // this.global.define('echo', Runtime.echoFunction());
         this.global.set('math', new $Dictionary(Runtime.Math));
         this.global.set('console', new $Dictionary(Runtime.Console));
     }

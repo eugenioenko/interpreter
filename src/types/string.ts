@@ -1,5 +1,10 @@
-import { DataType, $List, $Callable, $Any, $Range, $Null, $Number } from '../types';
 import { fromJavaScriptMethod } from '../runtime';
+import { $Any } from './any';
+import { $Callable } from './function';
+import { $Null } from './null';
+import { $Number } from './number';
+import { DataType } from './type.enum';
+import { $Range } from '../types';
 
 export class $String extends $Any {
     public value: string;

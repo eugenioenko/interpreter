@@ -3,7 +3,6 @@ import { $Any } from './any';
 import { $Null } from './null';
 import { $Class } from './class';
 
-
 export class $Object extends $Any {
     public value: Map<string, $Any>;
     public conztructor: $Class | $Any;
