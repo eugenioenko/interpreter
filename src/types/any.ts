@@ -44,6 +44,10 @@ export class $Any {
         return this.type === DataType.Function && (this as any).name === '@';
     }
 
+    public isList(): boolean {
+        return this.type === DataType.List;
+    }
+
     public isObject(): boolean {
         return this.type === DataType.Object;
     }

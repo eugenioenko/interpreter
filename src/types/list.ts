@@ -46,7 +46,7 @@ export class $List extends $Any {
 
     public static forEach(thiz: $Any, args: $Any[], interpreter: Interpreter): $Any {
         for (let i = 0; i < thiz.value.length; ++i) {
-            (args[0] as $Function).call(thiz, [new $Any(thiz.value[i]), new $Number(i), thiz], interpreter);
+            (args[0] as $Function).call(thiz, [thiz.value[i], new $Number(i), thiz], interpreter);
         }
         return thiz;
     }

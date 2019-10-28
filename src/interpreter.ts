@@ -97,53 +97,49 @@ export class Interpreter implements
     }
 
     public visitBinaryExpr(expr: Expr.Binary): $Any {
-        let left = this.evaluate(expr.left).value;
-        let right = this.evaluate(expr.right).value;
-        left = left instanceof $String ? left.toString() : left;
-        right = right instanceof $String ? right.toString() : right;
+        let left = this.evaluate(expr.left);
+        let right = this.evaluate(expr.right);
         switch (expr.operator.type) {
             case TokenType.Minus:
             case TokenType.MinusEqual:
-                return new $Number(left - right);
+                return new $Number(left.value - right.value);
             case TokenType.Slash:
             case TokenType.SlashEqual:
-                return new $Number(left / right);
+                return new $Number(left.value / right.value);
             case TokenType.Star:
             case TokenType.StarEqual:
-                return new $Number(left * right);
+                return new $Number(left.value * right.value);
             case TokenType.Percent:
             case TokenType.PercentEqual:
-                return new $Number(left % right);
+                return new $Number(left.value % right.value);
             case TokenType.Plus:
             case TokenType.PlusEqual:
-                if (!isNaN(left) && !isNaN(right)) {
-                    return new $Number(left + right);
+                if (left.isNumber() && right.isNumber()) {
+                    return new $Number(left.value + right.value);
                 }
-                /*
-                if (left instanceof ArrayEntity && right instanceof ArrayEntity) {
-                    return new ArrayEntity(left.values.concat(right.values));
-                } */
-                return <any> new $String(left as string + right as string);
+                if (left.isList() && right.isList()) {
+                    return new $List(left.value.concat(right.value));
+                }
+                return new $String(left.value + right.value);
             case TokenType.Pipe:
-                return new $Number(left | right);
+                return new $Number(left.value | right.value);
             case TokenType.Caret:
-                return new $Number(left ^ right);
+                return new $Number(left.value ^ right.value);
             case TokenType.Greater:
-                return new $Boolean(left > right);
+                return new $Boolean(left.value > right.value);
             case TokenType.GreaterEqual:
-                return new $Boolean(left >= right);
+                return new $Boolean(left.value >= right.value);
             case TokenType.Less:
-                return new $Boolean(left < right);
+                return new $Boolean(left.value < right.value);
             case TokenType.LessEqual:
-                return new $Boolean(left <= right);
+                return new $Boolean(left.value <= right.value);
             case TokenType.EqualEqual:
                 return new $Boolean(left === right);
             case TokenType.BangEqual:
                 return new $Boolean(left !== right);
             default:
-                conzole.warn(expr);
-                return null; // unreachable
-                break;
+                this.interpreterError('Unknown binary operator ' + expr.operator);
+                return new $Null(); // unreachable
         }
     }
 
@@ -168,22 +164,23 @@ export class Interpreter implements
     }
 
     public visitUnaryExpr(expr: Expr.Unary): $Any {
-        const right = this.evaluate(expr.right).value;
+        const right = this.evaluate(expr.right);
         switch (expr.operator.type) {
             case TokenType.Minus:
-                return new $Number(-Number(right));
+                return new $Number(-Number(right.value));
             case TokenType.Bang:
-                return new $Boolean(!Boolean(right));
+                return new $Boolean(!right.isTruthy());
             case TokenType.PlusPlus:
-                const incValue = Number(right) + 1;
+                const incValue = Number(right.value) + 1;
                 this.scope.assign((<Expr.Variable> expr.right).name.lexeme, new $Number(incValue));
                 return new $Number(incValue);
             case TokenType.MinusMinus:
-                const decValue = Number(right) - 1;
+                const decValue = Number(right.value) - 1;
                 this.scope.assign((<Expr.Variable> expr.right).name.lexeme, new $Number(decValue));
                 return new $Number(decValue);
             default:
-                return null; // should be unreachable
+                this.interpreterError('Unknown unary operator ' + expr.operator);
+                return new $Null(); // should be unreachable
         }
     }
 
