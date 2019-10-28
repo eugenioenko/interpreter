@@ -1,6 +1,6 @@
 import { Token, TokenType } from './token';
 import { Console } from './console';
-import * as Utils from './structs/utils';
+import * as Utils from './utils';
 declare var conzole: Console;
 
 export class Scanner {
