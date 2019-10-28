@@ -44,7 +44,7 @@ export class $List extends $Any {
         return new $Number(args[0].value.length);
     }
 
-    public static forEach(thiz: $Any, args: $Any[], interpreter: Interpreter): $Any {
+    public static each(thiz: $Any, args: $Any[], interpreter: Interpreter): $Any {
         for (let i = 0; i < thiz.value.length; ++i) {
             (args[0] as $Function).call(thiz, [thiz.value[i], new $Number(i), thiz], interpreter);
         }
@@ -60,7 +60,7 @@ export class $List extends $Any {
 
     public static runtime =  new Map([
         ['concat', fromJavaScriptMethod('concat', -1, DataType.List)],
-        ['each', new $Callable('each', 1, $List.forEach)],
+        ['each', new $Callable('each', 1, $List.each)],
         ['includes', fromJavaScriptMethod('includes', 1, DataType.Boolean)],
         ['indexOf', fromJavaScriptMethod('indexOf', 1, DataType.Number)],
         ['join', fromJavaScriptMethod('join', 1, DataType.String)],

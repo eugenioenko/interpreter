@@ -36,8 +36,8 @@ export class $String extends $Any {
         return new $Null();
     }
 
-    public arity(): number {
-        return 0;
+    public toString(): string {
+        return `"${this.value}"`;
     }
 
     private range(range: $Range): $String {
@@ -63,6 +63,6 @@ export class $String extends $Any {
         ['slice', fromJavaScriptMethod('slice', -1, DataType.String)],
         ['substring', fromJavaScriptMethod('substring', -1, DataType.String)],
         ['trim', fromJavaScriptMethod('trim', 0, DataType.String)],
-    ])
+    ]);
 
 }

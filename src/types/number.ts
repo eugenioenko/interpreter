@@ -9,4 +9,8 @@ export class $Number extends $Any {
         super(value, DataType.Number);
     }
 
+    public toString(): string {
+        return this.value.toString();
+    }
+
 }
