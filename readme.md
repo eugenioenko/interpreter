@@ -5,27 +5,47 @@ This is a work in progress of an interpreter writen in typescript of a scripting
 ### > [Try it out in playground!](https://eugenioenko.github.io/interpreter/)
 
 ## statements
-at-script program is build by a list of statements.
-The statements implemented so far are:
+AtScript applications consist of a list of statements.
 
-- expression
+A statement can span single or multiple lines.
+
+Statements expression, var, print and return use semicolon ";" as separator.
+
+Multiple statements can occur on a single line but they have to be separated by a semicolon.
+
+AtScript interpreter recognizes the following statements:
+
+#### Declaration
 - var
-- print
-- return
-- block
 - function
 - class
+
+#### Control Flow
+- block
+- if else
+- return
+
+#### Loop
 - while
 - do while
-- if else
+- for
+
+#### Other
+- expression
+- print
 
 Expression, Var, Print and Return statements require a semicolon `;` at the end as delimiter;
 
 ## variable definition
+
+The **var** statement creates a variable and optionally initializes it.
 > `var` *`identifier`* ( `=` *`expression`* ) `;`
 
-To define a variable use the keyword 'var' folowed by variable name and an optional initialization expression.
-Default value of all variables is 'null' unless initialization expression is provided.
+*`identifier`*: can be any alphanumeric word, being the first character a letter.
+
+*`expression`*: can be any expression that returns a value.
+
+Default value of all variables is '**null**' unless initialization expression is provided.
 
 ```
     var boolean = true;
@@ -39,7 +59,9 @@ Default value of all variables is 'null' unless initialization expression is pro
     var object = new Object();
     var something;
 ```
-variables can't be defined twice with the same name, the interpreter will throw an error
+
+Variables can't be defined twice with the same name, the interpreter will throw an error
+
 ```
     var variable = 1;
     var variable = 2; // illegal, identifier has the same name
@@ -48,21 +70,38 @@ variables can't be defined twice with the same name, the interpreter will throw 
 
 ## Control Flow Statements
 
-### if, else if, else
-Use if keyword followed by a condition enclosed in parenthesis followed by a statement.
-If statements can be chained together and also use block statements
+### if else
+The **if** statement executes a statement if the specified condition is evaluates to truthy. If the condition is not truthy, optionally the **else** statement can be executed.
+> `if` `(` *`condition`* `)` *`statement`* (`else` *`statement`*)
+
+*`condition`*: can be any expression that returns a value. If the evaluated value is truthy
+
+*`statement`*: can be any statement except declaration statements like (var, function and class)
+
+### Multiple if, else if, else
+**if** statements can be chained together to achive complex control flow
+
 > `if` `(` *`condition`* `)` `{` <br>
     *`statements`* `;` <br>
-`}` `else` `if` `(` *`condition`* `)` `{`
+`}` `else` `if` `(` *`condition`* `)` `{` <br>
     *`statements`* `;`
 `}` `else` `{` <br>
     *`statements`* `;` <br>
 `}`
 
+#### Truthy / Falsy
+
+A value is "truthy" when it is not "falsy"
+
+Falsy values are:
+- null
+- boolean false
+- number 0
+- empty string
 
 ### while
 > `while` `(` *`condition`* `)` `{`<br>
-    `*statements*` `;` <br>
+    *`statements`* `;` <br>
 `}`
 
 ```
