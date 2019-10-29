@@ -4,8 +4,26 @@ This is a work in progress of an interpreter writen in typescript of a scripting
 
 ### > [Try it out in playground!](https://eugenioenko.github.io/interpreter/)
 
+## statements
+at-script program is build by a list of statements.
+The statements implemented so far are:
+
+- expression
+- var
+- print
+- return
+- block
+- function
+- class
+- while
+- do while
+- if else
+
+Expression, Var, Print and Return statements require a semicolon `;` at the end as delimiter;
+
 ## variable definition
 > `var` *`identifier`* ( `=` *`expression`* ) `;`
+
 To define a variable use the keyword 'var' folowed by variable name and an optional initialization expression.
 Default value of all variables is 'null' unless initialization expression is provided.
 
@@ -28,24 +46,25 @@ variables can't be defined twice with the same name, the interpreter will throw 
 ```
 
 
-## conditional statements
+## Control Flow Statements
+
 ### if, else if, else
-> `if` `(` *`condition`* `)` *`statement`* `;` <br>  `else` *`statement`* `;`
-```
-    if (condition) {
-        // todo
-    } else if (another_condition) {
-       // todo
-    } else {
-      // todo
-    }
-```
-## Loop statements
+Use if keyword followed by a condition enclosed in parenthesis followed by a statement.
+If statements can be chained together and also use block statements
+> `if` `(` *`condition`* `)` `{` <br>
+    *`statements`* `;` <br>
+`}` `else` `if` `(` *`condition`* `)` `{`
+    *`statements`* `;`
+`}` `else` `{` <br>
+    *`statements`* `;` <br>
+`}`
+
+
 ### while
-```
-    while (condition) {
-    	// todo
-    }
+> `while` `(` *`condition`* `)` `{`<br>
+    `*statements*` `;` <br>
+`}`
+
 ```
 ### do while
 ```
@@ -59,6 +78,7 @@ variables can't be defined twice with the same name, the interpreter will throw 
       // todo
     }
 ```
+
  ## function
  Functions are defined by using the 'function' keyword or '@', followed by an optional list of parameters and a body statement (block statement or single statement).
  Same as variables, functions cannot be defined twice with the same name.
