@@ -3,8 +3,20 @@ import * as Stmt from './classes/statement';
 import { Console } from './console';
 import { Scope } from './scope';
 import { TokenType, Token } from './token';
-import { $Any, $Void, $String, $Number, $Null, $Boolean, RangeValue, $Range, $Dictionary, $List, $Function, $Return, $Class, $Object } from './types';
 import { Runtime } from './runtime';
+import { $Any } from './types/any';
+import { $Boolean } from './types/boolean';
+import { $Class } from './types/class';
+import { $Dictionary } from './types/dictionary';
+import { $Function } from './types/function';
+import { $List } from './types/list';
+import { $Null } from './types/null';
+import { $Number } from './types/number';
+import { $Object } from './types/object';
+import { $Range, RangeValue } from './types/range';
+import { $Return } from './types/return';
+import { $String } from './types/string';
+import { $Void } from './types/void';
 declare var conzole: Console;
 
 export class Interpreter implements
@@ -16,6 +28,7 @@ export class Interpreter implements
     constructor( ) {
         this.global.set('math', new $Dictionary(Runtime.Math));
         this.global.set('console', new $Dictionary(Runtime.Console));
+        this.global.set('re', Runtime.Utils.get('re'));
     }
 
     private evaluate(expr: Expr.Expr): $Any {

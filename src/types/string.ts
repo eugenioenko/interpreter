@@ -1,25 +1,17 @@
 import { fromJavaScriptMethod } from '../runtime';
 import { $Any } from './any';
-import { $Callable } from './function';
+import { $Callable, $Function } from './function';
 import { $Null } from './null';
 import { $Number } from './number';
 import { DataType } from './type.enum';
-import { $Range } from '../types';
+import { Interpreter } from '../interpreter';
+import { $Range } from './range';
 
 export class $String extends $Any {
     public value: string;
 
     constructor(value: string) {
         super(value, DataType.String);
-        /* this.prototype.values.set('invoke', Runtime.invokeMethod(this));
-        this.prototype.values.set('size', Runtime.stringLengthMethod(this));
-        this.prototype.values.set('substr', Runtime.stringSubStrMethod(this));
-        this.prototype.values.set('split', Runtime.stringSplitMethod(this));
-        this.prototype.values.set('match', Runtime.stringMatchMethod(this));
-        this.prototype.values.set('replace', Runtime.stringReplaceMethod(this));
-        this.prototype.values.set('alter', Runtime.stringAlterMethod(this));
-        this.prototype.values.set('toUpperCase', Runtime.stringToUpperCase(this));
-        this.prototype.values.set('toLowerCase', Runtime.stringToLowercase(this)); */
     }
 
     public get(key: $Any): $Any {
@@ -47,10 +39,20 @@ export class $String extends $Any {
 
     private range(range: $Range): $String {
         let result = '';
-        range.iterate(this.value.length, (i) => {
+        range.iterate(this.value.length, (i: number) => {
             result += this.value[i];
         });
         return new $String(result);
+    }
+
+    public static replace(thiz: $Any, args: $Any[], interpeter: Interpreter): $Any {
+        if (args[1].isFunction()) {
+            // return new $String(thiz.value.replace(args[0].value, args[1].value));
+            return thiz.value.replace(args[0].value, ((match: string) =>
+                ((args[1] as $Function).call(thiz, [new $String(match)], interpeter)).value
+            ));
+        }
+        return new $String(thiz.value.replace(args[0].value, args[1].value));
     }
 
     public static  runtime =  new Map([
@@ -63,7 +65,7 @@ export class $String extends $Any {
         ['indexOf', fromJavaScriptMethod('indexOf', 1, DataType.Number)],
         ['lastIndexOf', fromJavaScriptMethod('lastIndexOf', 1, DataType.Number)],
         ['repeat', fromJavaScriptMethod('repeat', 1, DataType.String)],
-        ['replace', fromJavaScriptMethod('replace', 2, DataType.String)],
+        ['replace', new $Callable('replace', -1, $String.replace)],
         ['search', fromJavaScriptMethod('search', 1, DataType.Number)],
         ['slice', fromJavaScriptMethod('slice', -1, DataType.String)],
         ['substring', fromJavaScriptMethod('substring', -1, DataType.String)],

@@ -7,6 +7,7 @@ import { $List } from './types/list';
 import { $Number } from './types/number';
 import { $String } from './types/string';
 import { $Void } from './types/void';
+import { $RegExp } from './types/regex';
 
 export function fromJavaScriptMethod(jsName: string, arity: number, type: DataType): $Callable {
     return new $Callable(jsName, arity, (thiz: $Any, args: $Any[]): $Any => {
@@ -67,5 +68,14 @@ export const Runtime = {
         ['sqrt', fromJavaScriptFuncNumber(Math.sqrt, 'sqrt', 1)],
         ['tan', fromJavaScriptFuncNumber(Math.tan, 'tan', 1)],
         ['trunc', fromJavaScriptFuncNumber(Math.trunc, 'trunc', 1)]
+    ]),
+    Utils: new Map<string, $Any>([
+        ['re', new $Callable('regex', -1, (thiz: $Any, args: $Any[]): $Any => {
+            const values = args.map((arg) => arg.value);
+            if (values.length === 1) {
+                return new $RegExp(new RegExp(values[0]));
+            }
+            return new $RegExp(new RegExp(values[0], values[1]));
+        })]
     ])
 };

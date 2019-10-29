@@ -1,28 +1,12 @@
-/* import { PrototypeEntity } from './entity';
-import * as Runtime from '../runtime';
-import { Interpreter } from '../interpreter';
+import { DataType } from './type.enum';
+import { $Any } from './any';
 
-export class RegExEntity extends PrototypeEntity {
-    private regex: RegExp;
+export class $RegExp extends $Any {
 
-    constructor(regex: RegExp) {
-        super();
-        this.regex = regex;
-        this.prototype.values.set('exec', Runtime.regexExecMethod(this));
-        this.prototype.values.set('test', Runtime.regexTestMethod(this));
-    }
+    public value: RegExp;
 
-    public arity(): number {
-        return 0;
-    }
-
-    public call(interpreter: Interpreter, thiz: any, args: any[]): any {
-        return this;
-     }
-
-    public toString(): string {
-        return this.regex.toString();
+    constructor(value: RegExp) {
+        super(value, DataType.RegExp);
     }
 
 }
-*/

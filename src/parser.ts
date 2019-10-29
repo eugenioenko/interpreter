@@ -2,7 +2,9 @@ import * as Expr from './classes/expression';
 import * as Stmt from './classes/statement';
 import { Console } from './console';
 import { Token, TokenType } from './token';
-import { $Boolean, $Number, $Null } from './types';
+import { $Boolean } from './types/boolean';
+import { $Null } from './types/null';
+import { $Number } from './types/number';
 declare var conzole: Console;
 
 export class Parser {

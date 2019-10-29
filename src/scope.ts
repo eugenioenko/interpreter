@@ -1,6 +1,6 @@
 import { Token } from './token';
 import { Console } from './console';
-import { $Any } from './types';
+import { $Any } from './types/any';
 declare var conzole: Console;
 
 export class Scope {

@@ -12,5 +12,6 @@ export enum DataType {
     Function, // 10
     Lambda,   // 11
     Range,    // 12
-    Return    // 13
+    RegExp,   // 13
+    Return    // 14
 }

@@ -5,7 +5,7 @@ import { $Function, $Callable } from './function';
 import { $Null } from './null';
 import { $Number } from './number';
 import { DataType } from './type.enum';
-import { $Range } from '../types';
+import { $Range } from './range';
 
 export class $List extends $Any {
     public value: $Any[];

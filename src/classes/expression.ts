@@ -1,6 +1,6 @@
-import { Token, TokenType } from 'token';
+import { Token } from 'token';
 import { Stmt } from 'statement';
-import { $Any } from 'types';
+import { $Any } from '../types/any';
 
 export abstract class Expr {
     public result: any;
