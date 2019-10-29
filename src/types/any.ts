@@ -69,6 +69,12 @@ export class $Any {
         if (this.isString() && this.value.toString().length === 0) {
             return false;
         }
+        if (this.isList() && this.value.length === 0) {
+            return false;
+        }
+        if (this.isDictionary() && this.value.size === 0) {
+            return false;
+        }
         if (this.value === null) {
             throw new Error("Unknown error value Any is null");
         }

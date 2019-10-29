@@ -7,11 +7,9 @@ This is a work in progress of an interpreter writen in typescript of a scripting
 ## statements
 AtScript applications consist of a list of statements.
 
-A statement can span single or multiple lines.
-
-Statements expression, var, print and return use semicolon ";" as separator.
-
-Multiple statements can occur on a single line but they have to be separated by a semicolon.
+- A statement can span single or multiple lines.
+- Statements expression, var, print and return use semicolon ";" as separator.
+- Multiple statements can occur on a single line but they have to be separated by a semicolon.
 
 AtScript interpreter recognizes the following statements:
 
@@ -39,13 +37,11 @@ Expression, Var, Print and Return statements require a semicolon `;` at the end 
 ## variable definition
 
 The **var** statement creates a variable and optionally initializes it.
-> `var` *`identifier`* ( `=` *`expression`* ) `;`
+> `var` *`identifier`* [ `=` *`expression`* ] `;`
 
-*`identifier`*: can be any alphanumeric word, being the first character a letter.
-
-*`expression`*: can be any expression that returns a value.
-
-Default value of all variables is '**null**' unless initialization expression is provided.
+- *`identifier`*: can be any alphanumeric word, being the first character a letter.
+- *`expression`*: can be any expression that returns a value.
+- Default value of all variables is '**null**' unless initialization expression is provided.
 
 ```
     var boolean = true;
@@ -67,16 +63,14 @@ Variables can't be defined twice with the same name, the interpreter will throw 
     var variable = 2; // illegal, identifier has the same name
 ```
 
-
 ## Control Flow Statements
 
 ### if else
 The **if** statement executes a statement if the specified condition is evaluates to truthy. If the condition is not truthy, optionally the **else** statement can be executed.
-> `if` `(` *`condition`* `)` *`statement`* (`else` *`statement`*)
+> `if` `(` *`condition`* `)` *`statement`* [`else` *`statement`*]
 
-*`condition`*: can be any expression that returns a value. If the evaluated value is truthy
-
-*`statement`*: can be any statement except declaration statements like (var, function and class)
+- *`condition`*: can be any expression that returns a value. If the evaluated value is truthy
+- *`statement`*: can be any statement except declaration statements like (var, function and class)
 
 ### Multiple if, else if, else
 **if** statements can be chained together to achive complex control flow
@@ -98,6 +92,8 @@ Falsy values are:
 - boolean false
 - number 0
 - empty string
+- empty lists
+- empty dictionary
 
 ### while
 > `while` `(` *`condition`* `)` `{`<br>
