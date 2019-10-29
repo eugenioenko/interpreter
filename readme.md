@@ -5,8 +5,10 @@ This is a work in progress of an interpreter writen in typescript of a scripting
 ### > [Try it out in playground!](https://eugenioenko.github.io/interpreter/)
 
 ## variable definition
+> `var` *`identifier`* ( `=` *`expression`* ) `;`
 To define a variable use the keyword 'var' folowed by variable name and an optional initialization expression.
 Default value of all variables is 'null' unless initialization expression is provided.
+
 ```
     var boolean = true;
     var number = 1;
@@ -28,6 +30,7 @@ variables can't be defined twice with the same name, the interpreter will throw 
 
 ## conditional statements
 ### if, else if, else
+> `if` `(` *`condition`* `)` *`statement`* `;` <br>  `else` *`statement`* `;`
 ```
     if (condition) {
         // todo
