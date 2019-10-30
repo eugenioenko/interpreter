@@ -1,6 +1,7 @@
 import { Token } from './token';
 import { Console } from './console';
 import { $Any } from './types/any';
+import { $Null } from './types/null';
 declare var conzole: Console;
 
 export class Scope {
@@ -37,18 +38,24 @@ export class Scope {
             if (this.parent !== null) {
                 return this.parent.assign(name, value);
             }
-            this.scopeError(`Identifier "${name}" has not been defined`);
+            this.scopeError(`Runtime error identifier "${name}" has not been defined`);
         }
     }
 
-    public get(name: Token): $Any {
-        if (this.values.has(name.lexeme)) {
-            return this.values.get(name.lexeme);
+    public get(key: string, token: Token = null): $Any {
+        if (this.values.has(key)) {
+            return this.values.get(key);
         }
         if (this.parent !== null ) {
-            return this.parent.get(name);
+            return this.parent.get(key);
         }
-        this.scopeError(`Error at (${name.line}): "${name.lexeme}" is not defined`);
+
+        if (token) {
+            this.scopeError(`Runtime error at (${token.line}:${token.col}) => "${token.lexeme}" is not defined`);
+        } else {
+            this.scopeError(`Runtime error => "${key} is not defined`);
+        }
+        return new $Null();
     }
 
 }

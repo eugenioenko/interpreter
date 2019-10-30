@@ -47,7 +47,7 @@ export class Interpreter implements
     }
 
     private interpreterError(message: string): void {
-        conzole.log(`[interpreter error] => ${message}`);
+        conzole.log(`Runtime error => ${message}`);
         throw new Error();
     }
 
@@ -74,11 +74,11 @@ export class Interpreter implements
     }
 
     public visitVariableExpr(expr: Expr.Variable): $Any {
-        return this.scope.get(expr.name);
+        return this.scope.get(expr.name.lexeme, expr.name);
     }
 
     public visitPostfixExpr(expr: Expr.Postfix): $Any {
-        const value = this.scope.get(expr.name).value;
+        const value = this.scope.get(expr.name.lexeme, expr.name).value;
         const newValue = new $Number(value + expr.increment);
         this.scope.assign(expr.name.lexeme, newValue);
         return value;
@@ -249,7 +249,7 @@ export class Interpreter implements
         let thiz: any = null;
         if (expr.callee instanceof Expr.Get) {
             if (expr.callee.entity instanceof Expr.Base) {
-                thiz = this.scope.get(new Token(TokenType.Identifier, 'this', 'this', 0));
+                thiz = this.scope.get('this', expr.paren);
             } else {
                 thiz = this.evaluate(expr.callee.entity);
             }
@@ -278,7 +278,7 @@ export class Interpreter implements
     }
 
     public visitBaseExpr(expr: Expr.Base): $Any {
-        const thiz = this.scope.get(expr.paren);
+        const thiz = this.scope.get(expr.paren.lexeme, expr.paren);
 
         if (!thiz.isObject()) {
             this.interpreterError("base expression can be used only inside methods");
@@ -365,7 +365,7 @@ export class Interpreter implements
         if (stmt.parent === null) {
             parent = new $Null();
         } else {
-            parent = this.scope.get(stmt.parent);
+            parent = this.scope.get(stmt.parent.lexeme, stmt.parent);
         }
 
         const methods = new Map<any, $Any>();

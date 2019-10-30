@@ -77,13 +77,13 @@ export class Parser {
     private parseError(token: Token, message: string): any {
         // tslint:disable-next-line
         if (token.type === TokenType.Eof) {
-            conzole.error(`parse error at (${token.line}): at end ${message}`);
+            conzole.error(`Parse error at (${token.line}): at end ${message}`);
         } else {
-            conzole.error(`[line (${token.line}) parse error at "${token.lexeme}"] => ${message}`);
+            conzole.error(`Parse error at (${token.line}:${token.col}) near "${token.lexeme}" => ${message}`);
         }
         throw new Error ('Error parsing');
         // unreachable code
-        return new Token(TokenType.Panic, 'error', 'error', 0);
+        return new Token(TokenType.Panic, 'error', 'error', 0, 0);
     }
 
     private parseWarning(message: string): void {
@@ -578,7 +578,7 @@ export class Parser {
             return this.dictionary();
         }
         if (this.match(TokenType.Function)) {
-            const token: Token = new Token(TokenType.Lambda, '@', '@', this.previous().line);
+            const token: Token = new Token(TokenType.Lambda, '@', '@', this.previous().line, this.previous().col);
             const lambda: Stmt.Func = this.funcParamsBody(token, 'lambda');
             return new Expr.Lambda(lambda);
         }
