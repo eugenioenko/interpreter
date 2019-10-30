@@ -126,6 +126,7 @@ export class Parser {
             }
             return this.statement();
         } catch (error) {
+            console.error(error);
             throw new Error('Error parsing. Execution has been stopped');
             // TODO: reenable synchronize
             // this.synchronize();
@@ -153,7 +154,7 @@ export class Parser {
         if (this.extraSemicolon()) {
             this.parseWarning(`Unnecessary semicolon after class ${name.lexeme} declaration`);
         }
-        return new Stmt.Class(name, parent, methods);
+        return new Stmt.Class(name, parent, methods, name.line);
     }
 
     private funcDeclaration(kind: string): Stmt.Func {
@@ -184,7 +185,7 @@ export class Parser {
             if (name.type !== TokenType.Lambda && this.extraSemicolon()) {
                 this.parseWarning(`Unnecessary semicolon after function ${name.lexeme} declaration`);
             }
-            return new Stmt.Func(name, params, body);
+            return new Stmt.Func(name, params, body, name.line);
         }
 
         if (this.match(TokenType.Arrow)) {
@@ -195,8 +196,8 @@ export class Parser {
                 arrow = this.expression();
             }
             this.match(TokenType.Semicolon);
-            body.push(new Stmt.Return(keyword, arrow));
-            return new Stmt.Func(name, params, body);
+            body.push(new Stmt.Return(keyword, arrow, keyword.line));
+            return new Stmt.Func(name, params, body, name.line);
         }
         this.consume(TokenType.LeftBrace, `Expect "{" before ${kind} body`);
     }
@@ -209,7 +210,7 @@ export class Parser {
         }
         this.consume(TokenType.Semicolon, `Expected semicolon ";" after a value.`);
 
-        return new Stmt.Var(name, null, initializer);
+        return new Stmt.Var(name, null, initializer, name.line);
     }
 
     private statement() {
@@ -229,7 +230,7 @@ export class Parser {
             return this.forStatement();
         }
         if (this.match(TokenType.LeftBrace)) {
-            return new Stmt.Block(this.block());
+            return new Stmt.Block(this.block(), this.previous().line);
         }
         if (this.match(TokenType.Return)) {
             return this.returnStatement();
@@ -238,6 +239,7 @@ export class Parser {
     }
 
     private ifStatement(): Stmt.Stmt {
+        const keyword = this.previous();
         this.consume(TokenType.LeftParen, `Expected "(" after an if`);
         const condition: Expr.Expr = this.expression();
         this.consume(TokenType.RightParen, `Expected ")" after if condition`);
@@ -246,18 +248,20 @@ export class Parser {
         if (this.match(TokenType.Else)) {
             elseStmt = this.statement();
         }
-        return new Stmt.If(condition, thenStmt, elseStmt);
+        return new Stmt.If(condition, thenStmt, elseStmt, keyword.line);
     }
 
     private whileStatement(): Stmt.Stmt {
+        const keyword = this.previous();
         this.consume(TokenType.LeftParen, `Expected "(" after a while statement`);
         const condition: Expr.Expr = this.expression();
         this.consume(TokenType.RightParen, `Expected ")" after while condition`);
         const loop: Stmt.Stmt = this.statement();
-        return new Stmt.While(condition, loop);
+        return new Stmt.While(condition, loop, keyword.line);
     }
 
     private forStatement(): Stmt.Stmt {
+        const keyword = this.previous();
         this.consume(TokenType.LeftParen, `Expected "(" after a for statement`);
 
         let initializer: Stmt.Stmt;
@@ -282,36 +286,38 @@ export class Parser {
         if (increment !== null) {
             body = new Stmt.Block([
                 body,
-                new Stmt.Expression(increment)
-            ]);
+                new Stmt.Expression(increment, keyword.line)
+            ], keyword.line);
         }
         if (condition === null) {
-            condition = new Expr.Literal(new $Boolean(true));
+            condition = new Expr.Literal(new $Boolean(true), keyword.line);
         }
-        body = new Stmt.While(condition, body);
+        body = new Stmt.While(condition, body, keyword.line);
         if (initializer !== null) {
             body = new Stmt.Block([
                 initializer,
                 body
-            ]);
+            ], keyword.line);
         }
         return body;
     }
 
     private doWhileStatement(): Stmt.Stmt {
+        const keyword = this.previous();
         const loop: Stmt.Stmt = this.statement();
         this.consume(TokenType.While, `Expected condition after do statement`);
         this.consume(TokenType.LeftParen, `Expected "(" after a while`);
         const condition: Expr.Expr = this.expression();
         this.consume(TokenType.RightParen, `Expected ")" after while condition`);
         this.consume(TokenType.Semicolon, `Expected semicolon ";" after a do while condition`);
-        return new Stmt.DoWhile(loop, condition);
+        return new Stmt.DoWhile(loop, condition, keyword.line);
     }
 
     private printStatement(): Stmt.Stmt {
+        const keyword = this.previous();
         const value: Expr.Expr = this.expression();
         this.consume(TokenType.Semicolon, `Expected semicolon ";" after expression.`);
-        return new Stmt.Print(value);
+        return new Stmt.Print(value, keyword.line);
     }
 
     private returnStatement(): Stmt.Stmt {
@@ -323,7 +329,7 @@ export class Parser {
         }
 
         this.consume(TokenType.Semicolon, `Exected semicolon ";" after return statement`);
-        return new Stmt.Return(keyword, value);
+        return new Stmt.Return(keyword, value, keyword.line);
     }
 
     private block(): Stmt.Stmt[] {
@@ -345,7 +351,7 @@ export class Parser {
             // tslint:disable-next-line
             while (this.match(TokenType.Semicolon)){ };
         }
-        return new Stmt.Expression(expression);
+        return new Stmt.Expression(expression, expression.line);
     }
 
     private expression(): Expr.Expr {
@@ -362,14 +368,14 @@ export class Parser {
             if (expr instanceof Expr.Variable) {
                 const name: Token = expr.name;
                 if (operator.type !== TokenType.Equal) {
-                    value = new Expr.Binary(new Expr.Variable(name), operator, value);
+                    value = new Expr.Binary(new Expr.Variable(name, name.line), operator, value, operator.line);
                 }
-                return new Expr.Assign(name, value);
+                return new Expr.Assign(name, value, name.line);
             } else if (expr instanceof Expr.Get) {
                 if (operator.type !== TokenType.Equal) {
-                    value = new Expr.Binary(new Expr.Get(expr.entity, expr.key), operator, value);
+                    value = new Expr.Binary(new Expr.Get(expr.entity, expr.key, expr.line), operator, value, operator.line);
                 }
-                return new Expr.Set(expr.entity, expr.key, value);
+                return new Expr.Set(expr.entity, expr.key, value, expr.line);
             }
             this.parseError(operator, `Invalid l-value, is not an assigning target.`);
         }
@@ -382,7 +388,7 @@ export class Parser {
             const thenExpr: Expr.Expr = this.ternary();
             this.consume(TokenType.Colon, `Expected ":" after ternary ? expression`);
             const elseExpr: Expr.Expr = this.ternary();
-            return new Expr.Ternary(expr, thenExpr, elseExpr);
+            return new Expr.Ternary(expr, thenExpr, elseExpr, expr.line);
         }
         return expr;
     }
@@ -392,7 +398,7 @@ export class Parser {
         while (this.match(TokenType.Or)) {
             const operator: Token = this.previous();
             const right: Expr.Expr = this.logicalAnd();
-            expr = new Expr.Logical(expr, operator, right);
+            expr = new Expr.Logical(expr, operator, right, operator.line);
         }
         return expr;
     }
@@ -402,7 +408,7 @@ export class Parser {
         while (this.match(TokenType.And)) {
             const operator: Token = this.previous();
             const right: Expr.Expr = this.equality();
-            expr = new Expr.Logical(expr, operator, right);
+            expr = new Expr.Logical(expr, operator, right, operator.line);
         }
         return expr;
     }
@@ -414,7 +420,7 @@ export class Parser {
         ) {
             const operator: Token = this.previous();
             const right: Expr.Expr = this.comparison();
-            expr = new Expr.Binary(expr, operator, right);
+            expr = new Expr.Binary(expr, operator, right, operator.line);
         }
         return expr;
     }
@@ -424,7 +430,7 @@ export class Parser {
         while (this.match(TokenType.Greater, TokenType.GreaterEqual, TokenType.Less, TokenType.LessEqual)) {
             const operator: Token = this.previous();
             const right: Expr.Expr = this.addition();
-            expr = new Expr.Binary(expr, operator, right);
+            expr = new Expr.Binary(expr, operator, right, operator.line);
         }
         return expr;
     }
@@ -434,7 +440,7 @@ export class Parser {
         while (this.match(TokenType.Minus, TokenType.Plus)) {
             const operator: Token = this.previous();
             const right: Expr.Expr = this.modulus();
-            expr = new Expr.Binary(expr, operator, right);
+            expr = new Expr.Binary(expr, operator, right, operator.line);
         }
         return expr;
     }
@@ -444,7 +450,7 @@ export class Parser {
         while (this.match(TokenType.Percent)) {
             const operator: Token = this.previous();
             const right: Expr.Expr = this.multiplication();
-            expr = new Expr.Binary(expr, operator, right);
+            expr = new Expr.Binary(expr, operator, right, operator.line);
         }
         return expr;
     }
@@ -454,7 +460,7 @@ export class Parser {
         while (this.match(TokenType.Slash, TokenType.Star)) {
             const operator: Token = this.previous();
             const right: Expr.Expr = this.unary();
-            expr = new Expr.Binary(expr, operator, right);
+            expr = new Expr.Binary(expr, operator, right, operator.line);
         }
         return expr;
     }
@@ -463,15 +469,16 @@ export class Parser {
         if (this.match(TokenType.Minus, TokenType.Bang, TokenType.Dollar, TokenType.PlusPlus, TokenType.MinusMinus)) {
             const operator: Token = this.previous();
             const right: Expr.Expr = this.unary();
-            return new Expr.Unary(operator, right);
+            return new Expr.Unary(operator, right, operator.line);
         }
         return this.newKeyword();
     }
 
     private newKeyword(): Expr.Expr {
         if (this.match(TokenType.New)) {
+            const keyword = this.previous();
             const construct: Expr.Expr = this.call();
-            return new Expr.New(construct);
+            return new Expr.New(construct, keyword.line);
 
         }
         return this.call();
@@ -492,7 +499,7 @@ export class Parser {
                         } while (this.match(TokenType.Comma));
                     }
                     const paren: Token = this.consume(TokenType.RightParen, `Expected ")" after arguments`);
-                    expr = new Expr.Call(expr, paren, args, null);
+                    expr = new Expr.Call(expr, paren, args, null, paren.line);
                 } while (this.match(TokenType.LeftParen));
             }
             if (this.match(TokenType.Dot)) {
@@ -509,15 +516,15 @@ export class Parser {
 
     private dotGet(expr: Expr.Expr): Expr.Expr {
         const name: Token = this.consume(TokenType.Identifier, `Expect property name after '.'`);
-        const key: Expr.Key = new Expr.Key(name);
-        return new Expr.Get(expr, key);
+        const key: Expr.Key = new Expr.Key(name, name.line);
+        return new Expr.Get(expr, key, name.line);
     }
 
     private bracketGet(expr: Expr.Expr): Expr.Expr {
         let key: Expr.Expr = null;
         let end: Expr.Expr = null;
         let step: Expr.Expr = null;
-
+        const leftBracket = this.previous();
         if (!this.check(TokenType.Colon)) {
             key = this.expression();
         }
@@ -529,50 +536,50 @@ export class Parser {
         }
         this.consume(TokenType.RightBracket, `Expected "]" after property name expression`);
         if (!key || end || step) {
-            const range = new Expr.Range(key, end, step);
-            return new Expr.Get(expr, range);
+            const range = new Expr.Range(key, end, step, leftBracket.line);
+            return new Expr.Get(expr, range, leftBracket.line);
         }
-        return new Expr.Get(expr, key);
+        return new Expr.Get(expr, key, leftBracket.line);
     }
 
     private primary(): Expr.Expr {
         if (this.match(TokenType.False)) {
-            return new Expr.Literal(new $Boolean(false));
+            return new Expr.Literal(new $Boolean(false), this.previous().line);
         }
         if (this.match(TokenType.True)) {
-            return new Expr.Literal(new $Boolean(true));
+            return new Expr.Literal(new $Boolean(true), this.previous().line);
         }
         if (this.match(TokenType.Null)) {
-            return new Expr.Literal(new $Null());
+            return new Expr.Literal(new $Null(), this.previous().line);
         }
         if (this.match(TokenType.Number)) {
-            return new Expr.Literal(new $Number(this.previous().literal));
+            return new Expr.Literal(new $Number(this.previous().literal), this.previous().line);
         }
         if (this.match(TokenType.String)) {
-            return new Expr.Ztring(this.previous().literal);
+            return new Expr.Ztring(this.previous().literal, this.previous().line);
         }
         if (this.match(TokenType.Regex)) {
-            return new Expr.RegEx(this.previous().literal);
+            return new Expr.RegEx(this.previous().literal, this.previous().line);
         }
         if (this.match(TokenType.Base)) {
             const paren = this.previous();
             paren.lexeme = 'this';
-            return new Expr.Base(paren);
+            return new Expr.Base(paren, paren.line);
         }
         if (this.match(TokenType.Identifier)) {
             const identifier =  this.previous();
             if (this.match(TokenType.PlusPlus)) {
-                return new Expr.Postfix(identifier, 1);
+                return new Expr.Postfix(identifier, 1, identifier.line);
             }
             if (this.match(TokenType.MinusMinus)) {
-                return new Expr.Postfix(identifier, -1);
+                return new Expr.Postfix(identifier, -1, identifier.line);
             }
-            return new Expr.Variable(identifier);
+            return new Expr.Variable(identifier, identifier.line);
         }
         if (this.match(TokenType.LeftParen)) {
             const expr: Expr.Expr = this.expression();
             this.consume(TokenType.RightParen, `Expected ")" after expression`);
-            return new Expr.Grouping(expr);
+            return new Expr.Grouping(expr, expr.line);
         }
         if (this.match(TokenType.LeftBrace)) {
             return this.dictionary();
@@ -580,7 +587,7 @@ export class Parser {
         if (this.match(TokenType.Function)) {
             const token: Token = new Token(TokenType.Lambda, '@', '@', this.previous().line, this.previous().col);
             const lambda: Stmt.Func = this.funcParamsBody(token, 'lambda');
-            return new Expr.Lambda(lambda);
+            return new Expr.Lambda(lambda, token.line);
         }
         if (this.match(TokenType.LeftBracket)) {
             return this.list();
@@ -588,12 +595,13 @@ export class Parser {
 
         throw this.parseError(this.peek(), `Expected expression`);
         // unreacheable code
-        return new Expr.Literal(null);
+        return new Expr.Literal(null, 0);
     }
 
     public dictionary(): Expr.Expr {
+        const leftBrace = this.previous();
         if (this.match(TokenType.RightBrace)) {
-            return new Expr.Dictionary([]);
+            return new Expr.Dictionary([], this.previous().line);
         }
         const properties: Expr.Set[] = [];
         do {
@@ -601,27 +609,28 @@ export class Parser {
                 const key: Token = this.previous();
                 this.consume(TokenType.Colon, `Expected ":" colon after member`);
                 const value = this.expression();
-                properties.push(new Expr.Set(null, new Expr.Key(key), value));
+                properties.push(new Expr.Set(null, new Expr.Key(key, key.line), value, key.line));
             } else {
                 this.parseError(this.peek(), `String, Number or Identifier expected as a Key of Dictionary {`);
             }
         } while (this.match(TokenType.Comma));
         this.consume(TokenType.RightBrace, `Expected "}" after object literal`);
 
-        return new Expr.Dictionary(properties);
+        return new Expr.Dictionary(properties, leftBrace.line);
     }
 
     private list(): Expr.Expr {
         const values = [];
+        const leftBracket = this.previous();
         if (this.match(TokenType.RightBracket)) {
-            return new Expr.List([]);
+            return new Expr.List([], this.previous().line);
         }
         do {
             values.push(this.expression());
         } while (this.match(TokenType.Comma));
         this.consume(TokenType.RightBracket, `Expected "]" after array declaration`);
 
-        return new Expr.List(values);
+        return new Expr.List(values, leftBracket.line);
     }
 
 }

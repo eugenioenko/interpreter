@@ -16,11 +16,17 @@
         }
         #editor {
             width: 100%;
-            height: 400px;
+            height: 350px;
         }
         #console {
-            height: 200px;
+            height: 150px;
             overflow-y: auto;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        .ace-monokai .ace_marker-layer .ace_selection {
+            background-color: #6d3232;
         }
     </style>
 </head>
@@ -37,14 +43,23 @@
                 <h3>Try it out!</h3>
                 <div id="editor"></div>
             </div>
-            <div class="sdf-cell sdf-12 sdf-padding">
-                <button class="sdf-button sdf-danger" ng-click="run()">Run</button>
+            <div class="sdf-cell sdf-12 sdf-grid">
+                <div class="sdf-cell sdf-6">
+                    <button class="sdf-button sdf-success" ng-click="run()">EXECUTE</button>
+                </div>
+                <div class="sdf-cell sdf-6 sdf-text-right">
+                    <button class="sdf-button sdf-danger" ng-click="restart()">Restart</button>
+                    <button class="sdf-button sdf-primary" ng-click="step()">Step >></button>
+                </div>
             </div>
             <div class="sdf-cell sdf-12 sdf-padding">
                 <h3>Output</h3>
                 <div id="console">
                     <table class="sdf-table">
                         <tr ng-repeat="message in console.messages">
+                            <td class="sdf-dark" style="width: 50px;">
+                                {{ $index }}
+                            </td>
                             <td ng-class="{
                                 'sdf-light': message.type === 0,
                                 'sdf-danger': message.type === 1,
@@ -79,12 +94,52 @@
                 return editor;
             }]);
             app.controller('controller', ['$scope', 'editor', function ($scope, editor) {
-                conzole.log('Press RUN button to execute code');
+                conzole.log('Press EXECUTE button to run code');
                 $scope.console = conzole;
+                $scope.current = 0;
+                $scope.statements = null;
+                $scope.interpreter = null;
+
+                editor.selection.moveCursorToPosition({row: 2, column: 0});
+                editor.selection.selectLine();
+
+                $scope.scrollConsoleToBottom = function() {
+                    var container = document.getElementById("console");
+                    setTimeout(function() {
+                        container.scrollTop = container.scrollHeight;
+                    }, 1);
+                }
                 $scope.run = function() {
                     var source = editor.getValue();
                     conzole.clear();
-                    console.log(atscript(source));
+                    console.log(atscript.execute(source));
+                    $scope.scrollConsoleToBottom();
+
+                }
+
+                $scope.restart = function() {
+                    var source = editor.getValue();
+                    conzole.clear();
+                    $scope.statements = atscript.parse(source);
+                    $scope.interpreter = new atscript.interpreter();
+                    $scope.current = 0;
+                }
+
+                $scope.step = function() {
+                    if (!$scope.statements) {
+                        $scope.restart();
+                    }
+                    if ($scope.current < $scope.statements.length) {
+                        console.log($scope.interpreter.execute($scope.statements[$scope.current]));
+                        $scope.current++;
+                        var line = $scope.statements[$scope.current] ? $scope.statements[$scope.current].line - 1 : 0;
+                        editor.scrollToLine(line, true, true)
+                        editor.selection.moveCursorToPosition({row: (line), column: 0});
+                        editor.selection.selectLine();
+                    } else {
+                        conzole.log('Application ended. Please restart');
+                    }
+                    $scope.scrollConsoleToBottom();
                 }
             }]);
     </script>

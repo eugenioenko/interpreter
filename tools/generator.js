@@ -41,8 +41,9 @@ function generateAST(baseClass, AST, filename, imports = '') {
     let file = imports +
 `export abstract class ${baseClass} {
     public result: any;
+    public line: number;
     // tslint:disable-next-line
-    constructor() {}
+    constructor() { }
     public abstract accept<R>(visitor: ${baseClass}Visitor<R>): R;
 }\n\n`;
 
@@ -58,11 +59,12 @@ function generateAST(baseClass, AST, filename, imports = '') {
         syntax.forEach(member => {
             file += '    public ' + member + ';\n'
         });
-        file += `\n    constructor(${syntax.join(', ')}) {\n        super();\n`
+        file += `\n    constructor(${syntax.join(', ')}, line: number) {\n        super();\n`
         syntax.forEach(member => {
             const name = member.split(': ')[0];
             file += '        this.' + name + ' = ' + name + ';\n'
         });
+        file += '        this.line = line;\n'
         file += '    }\n'
         file += `
     public accept<R>(visitor: ${baseClass}Visitor<R>): R {
@@ -75,7 +77,7 @@ function generateAST(baseClass, AST, filename, imports = '') {
         file += '}\n\n'
     });
 
-    fs.writeFile(`src/${filename}.ts`, file, function (err, data) {
+    fs.writeFile(`src/classes/${filename}.ts`, file, function (err, data) {
         if (err) console.log(err);
         console.log(`${filename}.ts generated`);
     });

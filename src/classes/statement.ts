@@ -4,8 +4,9 @@ import { Expr } from 'expression';
 
 export abstract class Stmt {
     public result: any;
+    public line: number;
     // tslint:disable-next-line
-    constructor() {}
+    constructor() { }
     public abstract accept<R>(visitor: StmtVisitor<R>): R;
 }
 
@@ -26,9 +27,10 @@ export interface StmtVisitor<R> {
 export class Block extends Stmt {
     public statements: Stmt[];
 
-    constructor(statements: Stmt[]) {
+    constructor(statements: Stmt[], line: number) {
         super();
         this.statements = statements;
+        this.line = line;
     }
 
     public accept<R>(visitor: StmtVisitor<R>): R {
@@ -45,11 +47,12 @@ export class Class extends Stmt {
     public parent: Token;
     public methods: Func[];
 
-    constructor(name: Token, parent: Token, methods: Func[]) {
+    constructor(name: Token, parent: Token, methods: Func[], line: number) {
         super();
         this.name = name;
         this.parent = parent;
         this.methods = methods;
+        this.line = line;
     }
 
     public accept<R>(visitor: StmtVisitor<R>): R {
@@ -65,10 +68,11 @@ export class DoWhile extends Stmt {
     public loop: Stmt;
     public condition: Expr;
 
-    constructor(loop: Stmt, condition: Expr) {
+    constructor(loop: Stmt, condition: Expr, line: number) {
         super();
         this.loop = loop;
         this.condition = condition;
+        this.line = line;
     }
 
     public accept<R>(visitor: StmtVisitor<R>): R {
@@ -83,9 +87,10 @@ export class DoWhile extends Stmt {
 export class Expression extends Stmt {
     public expression: Expr;
 
-    constructor(expression: Expr) {
+    constructor(expression: Expr, line: number) {
         super();
         this.expression = expression;
+        this.line = line;
     }
 
     public accept<R>(visitor: StmtVisitor<R>): R {
@@ -102,11 +107,12 @@ export class Func extends Stmt {
     public params: Token[];
     public body: Stmt[];
 
-    constructor(name: Token, params: Token[], body: Stmt[]) {
+    constructor(name: Token, params: Token[], body: Stmt[], line: number) {
         super();
         this.name = name;
         this.params = params;
         this.body = body;
+        this.line = line;
     }
 
     public accept<R>(visitor: StmtVisitor<R>): R {
@@ -123,11 +129,12 @@ export class If extends Stmt {
     public thenStmt: Stmt;
     public elseStmt: Stmt;
 
-    constructor(condition: Expr, thenStmt: Stmt, elseStmt: Stmt) {
+    constructor(condition: Expr, thenStmt: Stmt, elseStmt: Stmt, line: number) {
         super();
         this.condition = condition;
         this.thenStmt = thenStmt;
         this.elseStmt = elseStmt;
+        this.line = line;
     }
 
     public accept<R>(visitor: StmtVisitor<R>): R {
@@ -142,9 +149,10 @@ export class If extends Stmt {
 export class Print extends Stmt {
     public expression: Expr;
 
-    constructor(expression: Expr) {
+    constructor(expression: Expr, line: number) {
         super();
         this.expression = expression;
+        this.line = line;
     }
 
     public accept<R>(visitor: StmtVisitor<R>): R {
@@ -160,10 +168,11 @@ export class Return extends Stmt {
     public keyword: Token;
     public value: Expr;
 
-    constructor(keyword: Token, value: Expr) {
+    constructor(keyword: Token, value: Expr, line: number) {
         super();
         this.keyword = keyword;
         this.value = value;
+        this.line = line;
     }
 
     public accept<R>(visitor: StmtVisitor<R>): R {
@@ -180,11 +189,12 @@ export class Var extends Stmt {
     public type: Token;
     public initializer: Expr;
 
-    constructor(name: Token, type: Token, initializer: Expr) {
+    constructor(name: Token, type: Token, initializer: Expr, line: number) {
         super();
         this.name = name;
         this.type = type;
         this.initializer = initializer;
+        this.line = line;
     }
 
     public accept<R>(visitor: StmtVisitor<R>): R {
@@ -200,10 +210,11 @@ export class While extends Stmt {
     public condition: Expr;
     public loop: Stmt;
 
-    constructor(condition: Expr, loop: Stmt) {
+    constructor(condition: Expr, loop: Stmt, line: number) {
         super();
         this.condition = condition;
         this.loop = loop;
+        this.line = line;
     }
 
     public accept<R>(visitor: StmtVisitor<R>): R {
@@ -214,3 +225,4 @@ export class While extends Stmt {
         return 'Stmt.While';
     }
 }
+

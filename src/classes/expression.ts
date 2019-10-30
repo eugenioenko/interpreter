@@ -1,11 +1,12 @@
-import { Token } from 'token';
+import { Token, TokenType } from 'token';
 import { Stmt } from 'statement';
 import { $Any } from '../types/any';
 
 export abstract class Expr {
     public result: any;
+    public line: number;
     // tslint:disable-next-line
-    constructor() {}
+    constructor() { }
     public abstract accept<R>(visitor: ExprVisitor<R>): R;
 }
 
@@ -38,10 +39,11 @@ export class Assign extends Expr {
     public name: Token;
     public value: Expr;
 
-    constructor(name: Token, value: Expr) {
+    constructor(name: Token, value: Expr, line: number) {
         super();
         this.name = name;
         this.value = value;
+        this.line = line;
     }
 
     public accept<R>(visitor: ExprVisitor<R>): R {
@@ -56,9 +58,10 @@ export class Assign extends Expr {
 export class Base extends Expr {
     public paren: Token;
 
-    constructor(paren: Token) {
+    constructor(paren: Token, line: number) {
         super();
         this.paren = paren;
+        this.line = line;
     }
 
     public accept<R>(visitor: ExprVisitor<R>): R {
@@ -75,11 +78,12 @@ export class Binary extends Expr {
     public operator: Token;
     public right: Expr;
 
-    constructor(left: Expr, operator: Token, right: Expr) {
+    constructor(left: Expr, operator: Token, right: Expr, line: number) {
         super();
         this.left = left;
         this.operator = operator;
         this.right = right;
+        this.line = line;
     }
 
     public accept<R>(visitor: ExprVisitor<R>): R {
@@ -97,12 +101,13 @@ export class Call extends Expr {
     public args: Expr[];
     public thiz: $Any;
 
-    constructor(callee: Expr, paren: Token, args: Expr[], thiz: $Any) {
+    constructor(callee: Expr, paren: Token, args: Expr[], thiz: $Any, line: number) {
         super();
         this.callee = callee;
         this.paren = paren;
         this.args = args;
         this.thiz = thiz;
+        this.line = line;
     }
 
     public accept<R>(visitor: ExprVisitor<R>): R {
@@ -117,9 +122,10 @@ export class Call extends Expr {
 export class Dictionary extends Expr {
     public properties: Expr[];
 
-    constructor(properties: Expr[]) {
+    constructor(properties: Expr[], line: number) {
         super();
         this.properties = properties;
+        this.line = line;
     }
 
     public accept<R>(visitor: ExprVisitor<R>): R {
@@ -135,10 +141,11 @@ export class Get extends Expr {
     public entity: Expr;
     public key: Expr;
 
-    constructor(entity: Expr, key: Expr) {
+    constructor(entity: Expr, key: Expr, line: number) {
         super();
         this.entity = entity;
         this.key = key;
+        this.line = line;
     }
 
     public accept<R>(visitor: ExprVisitor<R>): R {
@@ -153,9 +160,10 @@ export class Get extends Expr {
 export class Grouping extends Expr {
     public expression: Expr;
 
-    constructor(expression: Expr) {
+    constructor(expression: Expr, line: number) {
         super();
         this.expression = expression;
+        this.line = line;
     }
 
     public accept<R>(visitor: ExprVisitor<R>): R {
@@ -170,9 +178,10 @@ export class Grouping extends Expr {
 export class Key extends Expr {
     public name: Token;
 
-    constructor(name: Token) {
+    constructor(name: Token, line: number) {
         super();
         this.name = name;
+        this.line = line;
     }
 
     public accept<R>(visitor: ExprVisitor<R>): R {
@@ -187,9 +196,10 @@ export class Key extends Expr {
 export class Lambda extends Expr {
     public lambda: Stmt;
 
-    constructor(lambda: Stmt) {
+    constructor(lambda: Stmt, line: number) {
         super();
         this.lambda = lambda;
+        this.line = line;
     }
 
     public accept<R>(visitor: ExprVisitor<R>): R {
@@ -206,11 +216,12 @@ export class Logical extends Expr {
     public operator: Token;
     public right: Expr;
 
-    constructor(left: Expr, operator: Token, right: Expr) {
+    constructor(left: Expr, operator: Token, right: Expr, line: number) {
         super();
         this.left = left;
         this.operator = operator;
         this.right = right;
+        this.line = line;
     }
 
     public accept<R>(visitor: ExprVisitor<R>): R {
@@ -225,9 +236,10 @@ export class Logical extends Expr {
 export class List extends Expr {
     public value: Expr[];
 
-    constructor(value: Expr[]) {
+    constructor(value: Expr[], line: number) {
         super();
         this.value = value;
+        this.line = line;
     }
 
     public accept<R>(visitor: ExprVisitor<R>): R {
@@ -242,9 +254,10 @@ export class List extends Expr {
 export class Literal extends Expr {
     public value: $Any;
 
-    constructor(value: $Any) {
+    constructor(value: $Any, line: number) {
         super();
         this.value = value;
+        this.line = line;
     }
 
     public accept<R>(visitor: ExprVisitor<R>): R {
@@ -259,9 +272,10 @@ export class Literal extends Expr {
 export class New extends Expr {
     public clazz: Expr;
 
-    constructor(clazz: Expr) {
+    constructor(clazz: Expr, line: number) {
         super();
         this.clazz = clazz;
+        this.line = line;
     }
 
     public accept<R>(visitor: ExprVisitor<R>): R {
@@ -277,10 +291,11 @@ export class Postfix extends Expr {
     public name: Token;
     public increment: number;
 
-    constructor(name: Token, increment: number) {
+    constructor(name: Token, increment: number, line: number) {
         super();
         this.name = name;
         this.increment = increment;
+        this.line = line;
     }
 
     public accept<R>(visitor: ExprVisitor<R>): R {
@@ -297,11 +312,12 @@ export class Range extends Expr {
     public end: Expr;
     public step: Expr;
 
-    constructor(start: Expr, end: Expr, step: Expr) {
+    constructor(start: Expr, end: Expr, step: Expr, line: number) {
         super();
         this.start = start;
         this.end = end;
         this.step = step;
+        this.line = line;
     }
 
     public accept<R>(visitor: ExprVisitor<R>): R {
@@ -316,9 +332,10 @@ export class Range extends Expr {
 export class RegEx extends Expr {
     public value: RegExp;
 
-    constructor(value: RegExp) {
+    constructor(value: RegExp, line: number) {
         super();
         this.value = value;
+        this.line = line;
     }
 
     public accept<R>(visitor: ExprVisitor<R>): R {
@@ -335,11 +352,12 @@ export class Set extends Expr {
     public key: Expr;
     public value: Expr;
 
-    constructor(entity: Expr, key: Expr, value: Expr) {
+    constructor(entity: Expr, key: Expr, value: Expr, line: number) {
         super();
         this.entity = entity;
         this.key = key;
         this.value = value;
+        this.line = line;
     }
 
     public accept<R>(visitor: ExprVisitor<R>): R {
@@ -356,11 +374,12 @@ export class Ternary extends Expr {
     public thenExpr: Expr;
     public elseExpr: Expr;
 
-    constructor(condition: Expr, thenExpr: Expr, elseExpr: Expr) {
+    constructor(condition: Expr, thenExpr: Expr, elseExpr: Expr, line: number) {
         super();
         this.condition = condition;
         this.thenExpr = thenExpr;
         this.elseExpr = elseExpr;
+        this.line = line;
     }
 
     public accept<R>(visitor: ExprVisitor<R>): R {
@@ -376,10 +395,11 @@ export class Unary extends Expr {
     public operator: Token;
     public right: Expr;
 
-    constructor(operator: Token, right: Expr) {
+    constructor(operator: Token, right: Expr, line: number) {
         super();
         this.operator = operator;
         this.right = right;
+        this.line = line;
     }
 
     public accept<R>(visitor: ExprVisitor<R>): R {
@@ -394,9 +414,10 @@ export class Unary extends Expr {
 export class Variable extends Expr {
     public name: Token;
 
-    constructor(name: Token) {
+    constructor(name: Token, line: number) {
         super();
         this.name = name;
+        this.line = line;
     }
 
     public accept<R>(visitor: ExprVisitor<R>): R {
@@ -411,9 +432,10 @@ export class Variable extends Expr {
 export class Ztring extends Expr {
     public value: string;
 
-    constructor(value: string) {
+    constructor(value: string, line: number) {
         super();
         this.value = value;
+        this.line = line;
     }
 
     public accept<R>(visitor: ExprVisitor<R>): R {
@@ -424,3 +446,4 @@ export class Ztring extends Expr {
         return 'Expr.Ztring';
     }
 }
+
