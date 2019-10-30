@@ -102,7 +102,7 @@ Falsy values are:
     *`statements`* `;` <br>
 `}`
 
-```
+
 ### do while
 ```
     do {
