@@ -102,7 +102,6 @@ Falsy values are:
     *`statements`* `;` <br>
 `}`
 
-
 ### do while
 ```
     do {
@@ -205,10 +204,27 @@ var student = new Student('John', '3C');
 print student.hello();
 ```
 
-## List / Array
+
+## Data Types
+
+AtScript implements the following data types:
+
+- *Number*: includes integers and doubles
+- *Boolean*: true or false
+- *String*: string type
+- *List*: lists/arrays of values
+- *Dictionary*: contains {key: value} pairs
+- *Null*: initial value of variables
+- *Function*
+- *Class*
+- *Range*: used to access slices of lists and strings
+- *RegExp*: contains regular expressions
+
+### List / Array
 To create an array use '[]' as a value;
 - Accesing with a number index returns the array values.
 - Accesing with a range index returns a slice of the array.
+- You can concat two arays by using '+' operator.
 ```
     var x = [1, 20, 300];
     var y = [100, x[1]];
@@ -219,30 +235,27 @@ To create an array use '[]' as a value;
     print x[::-1].join(','); // reverses array and prints it
     print [1,2,3] + [4,5,6]; // joins to arrays
 ```
-You can concat two arays by using '+' operator.
-```
-var xArray = [1,2,3];
-var yArray = [4,5,6];
-var zArray = xArray + yArray;
-```
-### Implemented methods:
-- *.pop()*: removes last element from the array and returns it
-- *.push(value)*: adds an element at the end of the array
-- *.join(separator)*: returns a string representation of the array with value separated by separator
-- *.size()*: returns length of the array
-- *.each(@(value, index, array){})*: executes callback passing value, index and array as argument
-- *.map(@(value, index, array){})*: remaps the values of the array by executing mapping funciton passing value, index and array as argument
-- *.find (@value, index, array){})*: returns value from the array which if callback returns true
-- *.indexOf(value)*: returns the index of the value inside the array
-- *+* you can join to arrays by using plus operator, alternatively there is a concat method
-- *.concat(array)*: returns a new array with values of two joiner arrays.
-- *.slice(start, end)*: returns a slice of the array
 
-## Range:
-array[start : end : step];
+#### Implemented methods:
+- *.concat(list2)*: returns a new list with values of two joined lists.
+- *.each(@(value, index, list){})*: executes callback passing value, index and list as argument
+- *.includes(value)*: returns true if list contains value
+- *.indexOf(value)*: returns the index of the value inside the list
+- *.lastIndexOf(value)*: returns the last index of the value inside the list
+- *.join(separator)*: returns a string representation of the list with value separated by separator
+- *.map(@(value, index, list){})*: remaps the values of the list by executing mapping funciton passing value, index and list as argument
+- *.pop()*: removes last element from the list and returns it
+- *.push(value)*: adds an element at the end of the list
+- *.shift(value)*: adds an element at the start of the list
+- *.size()*: returns length of the list
+- *.slice(start, end)*: returns a slice of the list
+- *.unshift()*: removes first element from the list and returns it
+
+#### Range:
+list[start : end : step];
 Similar to python step provides the dirrection of the slice. Start provides from where to slice and end provides the end index of the slice
 
-## String
+### String
 - Accesing with a number index returns the string value.
 - Accesing with a range index returns a slice of the string.
 - Accesing with a string index returns the object property. (only for get, setting a property in string won't modify the property, similarly to javascript)
@@ -254,15 +267,24 @@ print s[::-1] // prints 'dlrow olleh';
 var d = ("hello" + " world").size();
 ```
 ### Implemented methods:
-- *.size()*: returns size of the string
-- *.substr(start, end)*: returns a substring
-- *.split(char)*: splits string into array using char as separator
-- *.toLowerCase()*: returns new string converted to lower case
-- *.toUpperCase()*: returns new string converted to upper case
+- *.concat()*: concatenates two strings together
+- *.includes(value)*: true if string contains value
+- *.indexOf(value)*: returns first index of the occurence of value in the string
+- *.lastIndexOf(value)*: returns last index of the occurence of value in the string
 - *.replace(needle, replacer)*: replaces the needle in the string with replacer
+- *.search(value)*
+- *.size()*: returns size of the string
+- *.slice(start, count)*: returns a slice of the string
+- *.split(char)*: splits string into array using char as separator
+- *.substring(start, end)*: returns a substring
+- *.toLower()*: returns new string converted to lower case
+- *.toUpper()*: returns new string converted to upper case
+- *.trim()*: removes trailing whitespaces
 
-## Dictionary / Table
-- To create a dictionary use '{ }' as a value.  You can also set pair of '{ key: value }'s
+
+### Dictionary / Table
+To create a dictionary use '{ }' as a value.  You can also set pair of '{ key: value }'s
+
 - Keys can be a string or a number value
 - Values can be any variable type, lambda functions included
 - To access the value use dot '.' or bracket notation '[]' getters
@@ -275,12 +297,16 @@ print dictionary.property; // prints 'value';
 print dictionary['method']; // prints '<lambda function>'
 print dictionary['method']('hello', 'world'); // prints 'helloworld';
 ```
-### Implemented methods:
+
+#### Implemented methods:
 - *.size()*: returns size of the dictionary
 - *.each(@(value, index, dictionary){})*: executes callback passing value, index and dictionary as argument
 - *.map(@(value, index, dictionary){})*: remaps the values of the dictionary by executing mapping funciton passing value, index and dictionary as argument
 - *.indexOf(value)*: returns the key of the value inside the dictionary
-- *+*: you can merge to dictionaries together by using the plus '+' operator
+- *.merge(dictionary)*: merges two dictionaries together and returns the new dicitonary
+- *.clear()*: removes all key value pairs from dictionary
+- *.has(key)*: true if dictionary contains key
+
 ```
 var a = {a: 'one'};
 var b = {b: 'two'};
