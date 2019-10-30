@@ -35,7 +35,7 @@ export class Interpreter implements
         return expr.result = expr.accept(this);
     }
 
-    private execute(stmt: Stmt.Stmt): $Any {
+    public execute(stmt: Stmt.Stmt): $Any {
         return stmt.result = stmt.accept(this);
     }
 
@@ -315,10 +315,11 @@ export class Interpreter implements
             */
            this.evaluate(
                new Expr.Call(
-                   new Expr.Get(new Expr.Literal(entity), new Expr.Key(conztructor.declaration.name)),
+                   new Expr.Get(new Expr.Literal(entity, expr.line), new Expr.Key(conztructor.declaration.name, expr.line), expr.line),
                    conztructor.declaration.name,
                    newCall.args,
-                   entity
+                   entity,
+                   expr.line
                 )
             );
         }
@@ -356,7 +357,7 @@ export class Interpreter implements
     public visitFuncStmt(stmt: Stmt.Func): $Any {
         const func = new $Function(stmt, this.scope);
         this.scope.define(stmt.name.lexeme, func);
-        return new $Null();
+        return func;
     }
 
     public visitClassStmt(stmt: Stmt.Class): $Any {
