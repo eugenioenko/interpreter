@@ -9,6 +9,7 @@ export class Scanner {
     public tokens: Token[] = [];
     private current = 0;
     private line = 1;
+    private col = 1;
     private start = 0;
 
     constructor(source: string) {
@@ -20,13 +21,18 @@ export class Scanner {
     }
 
     private advance(): string {
+        if (this.peek() === '\n') {
+            this.line++;
+            this.col = 0;
+        }
         this.current++;
+        this.col++;
         return this.source.charAt(this.current - 1);
     }
 
     private addToken(tokenType: TokenType, literal: any): void {
         const text = this.source.substring(this.start, this.current);
-        this.tokens.push(new Token(tokenType, text, literal, this.line));
+        this.tokens.push(new Token(tokenType, text, literal, this.line, this.col));
     }
 
     private match(expected: string): boolean {
@@ -62,11 +68,21 @@ export class Scanner {
         }
     }
 
+    private multilineComment(): void {
+        while (!this.eof() && !(this.peek() === '*' && this.peekNext() === '/')) {
+            this.advance();
+        }
+        if (this.eof()) {
+            this.scanError('Unterminated comment, expecting closing "*/"');
+        } else {
+            // the closing slash '*/'
+            this.advance();
+            this.advance();
+        }
+    }
+
     private string(quote: string, type: TokenType): void {
         while (this.peek() !== quote && !this.eof()) {
-            if (this.peek() === '\n') {
-                this.line++;
-            }
             this.advance();
         }
 
@@ -132,9 +148,6 @@ export class Scanner {
 
     private regex(): void {
         while (this.peek() !== '#' && !this.eof()) {
-            if (this.peek() === '\n') {
-                this.line++;
-            }
             this.advance();
         }
 
@@ -152,9 +165,6 @@ export class Scanner {
         if (['g', 'i', 's', 'u', 'y'].indexOf(this.peek()) !== -1) {
             const start = this.current;
             while (this.peek() !== '#' && !this.eof()) {
-                if (this.peek() === '\n') {
-                    this.line++;
-                }
                 this.advance();
             }
             if (this.eof()) {
@@ -175,7 +185,7 @@ export class Scanner {
             this.scanToken();
         }
 
-        this.tokens.push(new Token(TokenType.Eof, '', null, this.line));
+        this.tokens.push(new Token(TokenType.Eof, '', null, this.line, 0));
         return this.tokens;
     }
 
@@ -206,8 +216,15 @@ export class Scanner {
             case '=': this.addToken(this.match('=') ? TokenType.EqualEqual : this.match('>') ? TokenType.Arrow : TokenType.Equal, null); break;
             case '+': this.addToken(this.match('+') ? TokenType.PlusPlus : this.match('=') ? TokenType.PlusEqual : TokenType.Plus, null); break;
             case '-': this.addToken(this.match('-') ? TokenType.MinusMinus : this.match('>') ? TokenType.Return : this.match('=') ? TokenType.MinusEqual : TokenType.Minus, null); break;
-            case '/': this.match('/') ? this.comment() : this.addToken(this.match('=') ? TokenType.SlashEqual : TokenType.Slash, null); break;
-            case '\n': this.line++; break;
+            case '/':
+                if (this.match('/')) {
+                    this.comment();
+                } else if (this.match('*')) {
+                    this.multilineComment();
+                } else {
+                    this.addToken(this.match('=') ? TokenType.SlashEqual : TokenType.Slash, null);
+                }
+                break;
             case `'`:
             case `"`:
             case '`':
@@ -216,6 +233,7 @@ export class Scanner {
             case '#':
                 this.regex();
             // ignore cases
+            case '\n':
             case ' ':
             case '\r':
             case '\t':
@@ -234,7 +252,7 @@ export class Scanner {
     }
 
     private scanError(message: string): void {
-        conzole.error(`Error at (${this.line}):  ${message}`);
+        conzole.error(`Tokenizer error at (${this.line}:${this.col}) =>  ${message}`);
         throw new Error('Error while scanning. Execution has been stoped');
     }
 

@@ -5,23 +5,23 @@ This is a work in progress of an interpreter writen in typescript of a scripting
 ### > [Try it out in playground!](https://eugenioenko.github.io/interpreter/)
 
 ## statements
-AtScript applications consist of a list of statements.
+AtScript code consist of a list of statements which will be interpreted by AtScript interpreter.
 
-- A statement can span single or multiple lines.
-- Statements expression, var, print and return use semicolon ";" as separator.
-- Multiple statements can occur on a single line but they have to be separated by a semicolon.
+A statement can be single or multiple lines. Statements *expression*, **var**, **print** and **return** use semicolon "**;**" as delimiters. Multiple statements can occur on a single line but they have to be separated by a semicolon.
 
-AtScript interpreter recognizes the following statements:
+Expression, Var, Print and Return statements require a semicolon `;` at the end as delimiter;
+
+AtScript interpreter at its current stage recognizes the following statements:
 
 #### Declaration
-- var
-- function
-- class
+- var: variable definition
+- function: function definition
+- class: class definition
 
 #### Control Flow
-- block
-- if else
-- return
+- block: scope creation
+- if else: conditional flow
+- return: exit from function
 
 #### Loop
 - while
@@ -29,10 +29,8 @@ AtScript interpreter recognizes the following statements:
 - for
 
 #### Other
-- expression
-- print
-
-Expression, Var, Print and Return statements require a semicolon `;` at the end as delimiter;
+- expression: expression statement
+- print: prints value to the console
 
 ## variable definition
 
@@ -46,14 +44,18 @@ The **var** statement creates a variable and optionally initializes it.
 ```
     var boolean = true;
     var number = 1;
-    var variable = "string";
+    var string = "string";
     var list = ['one', 'two', 'three' ];
     var dictionary = {
         property: 'value'
 	    key: 'value',
 	};
     var object = new Object();
-    var something;
+    var nothing = null;
+    var something; // null value
+    var func = function(a, b, c) {
+        print a + b + c;
+    };
 ```
 
 Variables can't be defined twice with the same name, the interpreter will throw an error
