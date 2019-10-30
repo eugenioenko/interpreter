@@ -1,6 +1,7 @@
 import { Token } from './token';
 import { Console } from './console';
 import { $Any } from './types/any';
+import { $Null } from './types/null';
 declare var conzole: Console;
 
 export class Scope {
@@ -48,7 +49,13 @@ export class Scope {
         if (this.parent !== null ) {
             return this.parent.get(key);
         }
-        this.scopeError(`Runtime error at (${token.line}:${token.col}) => "${token.lexeme}" is not defined`);
+
+        if (token) {
+            this.scopeError(`Runtime error at (${token.line}:${token.col}) => "${token.lexeme}" is not defined`);
+        } else {
+            this.scopeError(`Runtime error => "${key} is not defined`);
+        }
+        return new $Null();
     }
 
 }
