@@ -109,9 +109,5 @@ var z = y.join('-');
     var c = a + b;
     print c; // prints {d: 'three', e: 'four'}
 }
-{
-    @f(s) => s.replace(re('[aeio]', 'gi'), @(m) => 'oi ea'.indexOf(m));
-    print f('hacker speak');
-}
 
 `;
