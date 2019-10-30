@@ -22,6 +22,8 @@ AtScript interpreter at its current stage recognizes the following statements:
 - block: scope creation
 - if else: conditional flow
 - return: exit from function
+- break: exits from current loop
+- continue: skips current iteration in the loop
 
 #### Loop
 - while

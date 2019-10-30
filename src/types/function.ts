@@ -1,6 +1,5 @@
 import * as Stmt from '../classes/statement';
 import { $Any } from './any';
-import { $Return } from './return';
 import { Console } from '../console';
 import { DataType } from './type.enum';
 import { Interpreter } from '../interpreter';
@@ -54,15 +53,15 @@ export class $Function extends $Callable {
             restoreScope = interpreter.scope;
             interpreter.executeBlock(this.declaration.body, scope);
         } catch (e) {
-            if (e instanceof $Return) {
+            if (e instanceof $Any && e.type === DataType.Return) {
                 if (restoreScope) {
                     interpreter.scope = restoreScope;
                 }
                 return e.value;
+            } else {
+                throw e;
             }
-            conzole.error("Runtime error. Execution has been stopped");
-            conzole.error(e.message);
-            throw new Error("Runtime error. Execution has been stopped");
+
         }
         return new $Null();
     }
