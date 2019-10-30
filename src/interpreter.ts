@@ -152,9 +152,9 @@ export class Interpreter implements
             case TokenType.LessEqual:
                 return new $Boolean(left.value <= right.value);
             case TokenType.EqualEqual:
-                return new $Boolean(left === right);
+                return new $Boolean(left.value === right.value);
             case TokenType.BangEqual:
-                return new $Boolean(left !== right);
+                return new $Boolean(left.value !== right.value);
             default:
                 this.interpreterError('Unknown binary operator ' + expr.operator);
                 return new $Null(); // unreachable
