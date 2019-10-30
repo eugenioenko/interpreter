@@ -1,17 +1,20 @@
 export enum DataType {
     Null,    // 0
-    Void,    // 1
-    Any,     // 2
-    Boolean, // 3
-    Number,  // 4
-    String,  // 5
-    List,    // 6
-    Dictionary, // 7
-    Object,   // 8
-    Class,    // 9
-    Function, // 10
-    Lambda,   // 11
-    Range,    // 12
-    RegExp,   // 13
-    Return    // 14
+    Any,     // 1
+    Boolean, // 2
+    Number,  // 3
+    String,  // 4
+    List,    // 5
+    Dictionary, // 6
+    Object,   // 7
+    Class,    // 8
+    Function, // 9
+    Lambda,   // 10
+    Range,    // 11
+    RegExp,   // 12
+    // internal types
+    Void = 100, //  100
+    Return,   // 101
+    Break,    // 102
+    Continue  // 103
 }

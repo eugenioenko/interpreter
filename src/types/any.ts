@@ -56,6 +56,7 @@ export class $Any {
         return this.type === DataType.Object;
     }
 
+
     public isTruthy(): boolean {
         if (this.isNull()) {
             return false;

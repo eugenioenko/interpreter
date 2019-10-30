@@ -54,8 +54,10 @@ export enum TokenType {
 
     // Keywords
     And,
+    Break,
     Base,
     Class,
+    Continue,
     Do,
     Else,
     Extends,

@@ -14,9 +14,9 @@ import { $Null } from './types/null';
 import { $Number } from './types/number';
 import { $Object } from './types/object';
 import { $Range, RangeValue } from './types/range';
-import { $Return } from './types/return';
 import { $String } from './types/string';
 import { $Void } from './types/void';
+import { DataType } from './types/type.enum';
 declare var conzole: Console;
 
 export class Interpreter implements
@@ -226,14 +226,34 @@ export class Interpreter implements
 
     public visitWhileStmt(stmt: Stmt.While): $Any {
         while (this.evaluate(stmt.condition).isTruthy()) {
-            this.execute(stmt.loop);
+            try {
+                this.execute(stmt.loop);
+            } catch (e) {
+                if (e instanceof $Any && e.type === DataType.Break) {
+                    break;
+                } else if (e instanceof $Any && e.type === DataType.Continue) {
+                    continue;
+                } else {
+                    throw e;
+                }
+            }
         }
         return new $Void('while');
     }
 
     public visitDoWhileStmt(stmt: Stmt.DoWhile): $Any {
         do {
-            this.execute(stmt.loop);
+            try {
+                this.execute(stmt.loop);
+            } catch (e) {
+                if (e instanceof $Any && e.type === DataType.Break) {
+                    break;
+                } else if (e instanceof $Any && e.type === DataType.Continue) {
+                    continue;
+                } else {
+                    throw e;
+                }
+            }
         } while (this.evaluate(stmt.condition).isTruthy());
         return new $Void('dowhile');
     }
@@ -390,7 +410,15 @@ export class Interpreter implements
         if (stmt.value) {
             value = this.evaluate(stmt.value);
         }
-        throw new $Return(value);
+        throw new $Any(value, DataType.Return);
+    }
+
+    public visitBreakStmt(stmt: Stmt.Break): $Any {
+        throw new $Any(null, DataType.Break);
+    }
+
+    public visitContinueStmt(stmt: Stmt.Continue): $Any {
+        throw new $Any(null, DataType.Continue);
     }
 
     public visitRangeExpr(expr: Expr.Range): $Any {

@@ -13,7 +13,9 @@ export abstract class Stmt {
 // tslint:disable-next-line
 export interface StmtVisitor<R> {
     visitBlockStmt(stmt: Block): R;
+    visitBreakStmt(stmt: Break): R;
     visitClassStmt(stmt: Class): R;
+    visitContinueStmt(stmt: Continue): R;
     visitDoWhileStmt(stmt: DoWhile): R;
     visitExpressionStmt(stmt: Expression): R;
     visitFuncStmt(stmt: Func): R;
@@ -42,6 +44,24 @@ export class Block extends Stmt {
     }
 }
 
+export class Break extends Stmt {
+    public keyword: Token;
+
+    constructor(keyword: Token, line: number) {
+        super();
+        this.keyword = keyword;
+        this.line = line;
+    }
+
+    public accept<R>(visitor: StmtVisitor<R>): R {
+        return visitor.visitBreakStmt(this);
+    }
+
+    public toString(): string {
+        return 'Stmt.Break';
+    }
+}
+
 export class Class extends Stmt {
     public name: Token;
     public parent: Token;
@@ -61,6 +81,24 @@ export class Class extends Stmt {
 
     public toString(): string {
         return 'Stmt.Class';
+    }
+}
+
+export class Continue extends Stmt {
+    public keyword: Token;
+
+    constructor(keyword: Token, line: number) {
+        super();
+        this.keyword = keyword;
+        this.line = line;
+    }
+
+    public accept<R>(visitor: StmtVisitor<R>): R {
+        return visitor.visitContinueStmt(this);
+    }
+
+    public toString(): string {
+        return 'Stmt.Continue';
     }
 }
 

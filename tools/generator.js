@@ -26,7 +26,9 @@ const ExpressionAST = {
 
 const StatementAST = {
     Block: ['statements: Stmt[]'],
+    Break: ['keyword: Token'],
     Class: ['name: Token', 'parent: Token', 'methods: Func[]'],
+    Continue: ['keyword: Token'],
     DoWhile: ['loop: Stmt', 'condition: Expr'],
     Expression : ['expression: Expr'],
     Func: ['name: Token', 'params: Token[]', 'body: Stmt[]'],

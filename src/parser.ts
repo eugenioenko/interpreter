@@ -235,6 +235,12 @@ export class Parser {
         if (this.match(TokenType.Return)) {
             return this.returnStatement();
         }
+        if (this.match(TokenType.Break)) {
+            return this.breakStatement();
+        }
+        if (this.match(TokenType.Continue)) {
+            return this.continueStatement();
+        }
         return this.expressionStatement();
     }
 
@@ -330,6 +336,18 @@ export class Parser {
 
         this.consume(TokenType.Semicolon, `Exected semicolon ";" after return statement`);
         return new Stmt.Return(keyword, value, keyword.line);
+    }
+
+    private breakStatement(): Stmt.Stmt {
+        const keyword: Token = this.previous();
+        this.consume(TokenType.Semicolon, `Exected semicolon ";" after break statement`);
+        return new Stmt.Break(keyword, keyword.line);
+    }
+
+    private continueStatement(): Stmt.Stmt {
+        const keyword: Token = this.previous();
+        this.consume(TokenType.Semicolon, `Exected semicolon ";" after continue statement`);
+        return new Stmt.Continue(keyword, keyword.line);
     }
 
     private block(): Stmt.Stmt[] {
