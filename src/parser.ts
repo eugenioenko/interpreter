@@ -391,7 +391,7 @@ export class Parser {
                 return new Expr.Assign(name, value, name.line);
             } else if (expr instanceof Expr.Get) {
                 if (operator.type !== TokenType.Equal) {
-                    value = new Expr.Binary(new Expr.Get(expr.entity, expr.key, expr.line), operator, value, operator.line);
+                    value = new Expr.Binary(new Expr.Get(expr.entity, expr.key, expr.type, expr.line), operator, value, operator.line);
                 }
                 return new Expr.Set(expr.entity, expr.key, value, expr.line);
             }
@@ -520,29 +520,28 @@ export class Parser {
                     expr = new Expr.Call(expr, paren, args, null, paren.line);
                 } while (this.match(TokenType.LeftParen));
             }
-            if (this.match(TokenType.Dot)) {
+            if (this.match(TokenType.Dot, TokenType.QuestionDot)) {
                 consumed = true;
-                expr = this.dotGet(expr);
+                expr = this.dotGet(expr, this.previous());
             }
             if (this.match(TokenType.LeftBracket)) {
                 consumed = true;
-                expr = this.bracketGet(expr);
+                expr = this.bracketGet(expr, this.previous());
             }
         } while (consumed);
         return expr;
     }
 
-    private dotGet(expr: Expr.Expr): Expr.Expr {
+    private dotGet(expr: Expr.Expr, operator: Token): Expr.Expr {
         const name: Token = this.consume(TokenType.Identifier, `Expect property name after '.'`);
         const key: Expr.Key = new Expr.Key(name, name.line);
-        return new Expr.Get(expr, key, name.line);
+        return new Expr.Get(expr, key, operator.type, name.line);
     }
 
-    private bracketGet(expr: Expr.Expr): Expr.Expr {
+    private bracketGet(expr: Expr.Expr, operator: Token): Expr.Expr {
         let key: Expr.Expr = null;
         let end: Expr.Expr = null;
         let step: Expr.Expr = null;
-        const leftBracket = this.previous();
         if (!this.check(TokenType.Colon)) {
             key = this.expression();
         }
@@ -554,10 +553,10 @@ export class Parser {
         }
         this.consume(TokenType.RightBracket, `Expected "]" after property name expression`);
         if (!key || end || step) {
-            const range = new Expr.Range(key, end, step, leftBracket.line);
-            return new Expr.Get(expr, range, leftBracket.line);
+            const range = new Expr.Range(key, end, step, operator.line);
+            return new Expr.Get(expr, range, operator.type, operator.line);
         }
-        return new Expr.Get(expr, key, leftBracket.line);
+        return new Expr.Get(expr, key, operator.type, operator.line);
     }
 
     private primary(): Expr.Expr {

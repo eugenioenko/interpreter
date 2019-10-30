@@ -335,7 +335,7 @@ export class Interpreter implements
             */
            this.evaluate(
                new Expr.Call(
-                   new Expr.Get(new Expr.Literal(entity, expr.line), new Expr.Key(conztructor.declaration.name, expr.line), expr.line),
+                   new Expr.Get(new Expr.Literal(entity, expr.line), new Expr.Key(conztructor.declaration.name, expr.line), TokenType.Dot, expr.line),
                    conztructor.declaration.name,
                    newCall.args,
                    entity,
@@ -363,6 +363,9 @@ export class Interpreter implements
     public visitGetExpr(expr: Expr.Get): $Any {
         const entity = this.evaluate(expr.entity);
         const key = this.evaluate(expr.key);
+        if (entity.isNull() && expr.type === TokenType.QuestionDot) {
+            return new $Null();
+        }
         return entity.get(key);
     }
 
