@@ -140,11 +140,13 @@ export class Dictionary extends Expr {
 export class Get extends Expr {
     public entity: Expr;
     public key: Expr;
+    public type: TokenType;
 
-    constructor(entity: Expr, key: Expr, line: number) {
+    constructor(entity: Expr, key: Expr, type: TokenType, line: number) {
         super();
         this.entity = entity;
         this.key = key;
+        this.type = type;
         this.line = line;
     }
 

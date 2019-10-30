@@ -86,6 +86,8 @@ var literal = {
     }
 };
 print literal.records.prev;
+// safe navigator operator ?.
+print literal.safeNavigator?.propertyDoesNotExist;
 
 var x = [1, 20, 300];
 var y = [100, x[1]];

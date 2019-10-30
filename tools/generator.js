@@ -6,7 +6,7 @@ const ExpressionAST = {
     Binary: ['left: Expr', 'operator: Token', 'right: Expr'],
     Call: ['callee: Expr', 'paren: Token', 'args: Expr[]', 'thiz: $Any'],
     Dictionary: ['properties: Expr[]'],
-    Get: ['entity: Expr', 'key: Expr'],
+    Get: ['entity: Expr', 'key: Expr', 'type: TokenType'],
     Grouping: ['expression: Expr'],
     Key: ['name: Token'],
     Lambda: ['lambda: Stmt'],

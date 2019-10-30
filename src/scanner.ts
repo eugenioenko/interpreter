@@ -202,10 +202,10 @@ export class Scanner {
             case '.': this.addToken(TokenType.Dot, null); break;
             case ';': this.addToken(TokenType.Semicolon, null); break;
             case '^': this.addToken(TokenType.Caret, null); break;
-            case '?': this.addToken(TokenType.Question, null); break;
             case ':': this.addToken(TokenType.Colon, null); break;
             case '$': this.addToken(TokenType.Dollar, null); break;
             case '@': this.addToken(TokenType.Function, '@'); break;
+            case '?': this.addToken(this.match('.') ? TokenType.QuestionDot : TokenType.Question, null); break;
             case '*': this.addToken(this.match('=') ? TokenType.StarEqual : TokenType.Star, null); break;
             case '%': this.addToken(this.match('=') ? TokenType.PercentEqual : TokenType.Percent, null); break;
             case '|': this.addToken(this.match('|') ? TokenType.Or : TokenType.Pipe, null); break;
