@@ -5,6 +5,7 @@ import { Console } from '../console';
 import { DataType } from './type.enum';
 import { Interpreter } from '../interpreter';
 import { Scope } from '../scope';
+import { $Null } from './null';
 declare var conzole: Console;
 
 export type FunctionCall = (thiz: $Any, args: $Any[], interpreter: Interpreter) => $Any;
@@ -63,7 +64,7 @@ export class $Function extends $Callable {
             conzole.error(e.message);
             throw new Error("Runtime error. Execution has been stopped");
         }
-        return null;
+        return new $Null();
     }
 
 }
