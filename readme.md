@@ -5,9 +5,9 @@ This is a work in progress of an interpreter writen in typescript of a scripting
 ### > [Try it out in playground!](https://eugenioenko.github.io/interpreter/)
 
 ## statements
-AtScript code consist of a list of statements which will be interpreted by AtScript interpreter.
+AtScript code consist of a list of statements which will be executed by AtScript interpreter.
 
-A statement can be single or multiple lines. Statements *expression*, **var**, **print** and **return** use semicolon "**;**" as delimiters. Multiple statements can occur on a single line but they have to be separated by a semicolon.
+Multiple statements can occur on a single line but they have to be separated by a semicolon.
 
 Expression, Var, Print and Return statements require a semicolon `;` at the end as delimiter;
 
@@ -82,7 +82,7 @@ The **if** statement executes a statement if the specified condition is evaluate
 > `if` `(` *`condition`* `)` `{` <br>
     *`statements`* `;` <br>
 `}` `else` `if` `(` *`condition`* `)` `{` <br>
-    *`statements`* `;`
+    *`statements`* `;` <br>
 `}` `else` `{` <br>
     *`statements`* `;` <br>
 `}`
