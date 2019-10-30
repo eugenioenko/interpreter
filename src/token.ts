@@ -76,16 +76,18 @@ export enum TokenType {
 export class Token {
     public name: string;
     public line: number;
+    public col: number;
     public type: TokenType;
     public literal: any;
     public lexeme: string;
 
-    constructor(type: TokenType, lexeme: string, literal: any, line: number) {
+    constructor(type: TokenType, lexeme: string, literal: any, line: number, col: number) {
         this.name = TokenType[type];
         this.type = type;
         this.lexeme = lexeme;
         this.literal = literal;
         this.line = line;
+        this.col = col;
     }
 
     public toString() {
