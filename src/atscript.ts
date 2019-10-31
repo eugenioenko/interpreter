@@ -3,7 +3,7 @@ import { Parser } from './parser';
 import { Interpreter } from './interpreter';
 import { Console } from './console';
 import { DemoSourceCode } from './demos/demo';
-import { Stmt } from './classes/statement';
+import { Stmt } from './types/statement';
 declare var window: any;
 declare var global: any;
 

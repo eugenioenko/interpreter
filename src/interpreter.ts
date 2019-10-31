@@ -1,5 +1,5 @@
-import * as Expr from './classes/expression';
-import * as Stmt from './classes/statement';
+import * as Expr from './types/expression';
+import * as Stmt from './types/statement';
 import { Console } from './console';
 import { Scope } from './scope';
 import { TokenType, Token } from './token';

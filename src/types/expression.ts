@@ -1,6 +1,6 @@
 import { Token, TokenType } from 'token';
 import { Stmt } from 'statement';
-import { $Any } from '../types/any';
+import { $Any } from './any';
 
 export abstract class Expr {
     public result: any;
