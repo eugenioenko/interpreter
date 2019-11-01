@@ -15,7 +15,7 @@ const atscript = {
         const tokens = scanner.scan(source);
         if (scanner.errors.length) {
             scanner.errors.forEach((e) => {
-            window.conzole.error(e);
+                window.conzole.error(e);
             });
             return [];
         }
