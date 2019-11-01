@@ -335,6 +335,7 @@ To compile the contents download the repo and:
 Inside tools folder there is a handy generator to create statement and expression classes lists. If modified to regenerate the files run
 > npm run generator
 
+### Cli
 An interactive cli is available
 > npm run cli
 
