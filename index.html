@@ -145,7 +145,7 @@
                         $scope.restart();
                     }
                     if ($scope.current < $scope.statements.length) {
-                        console.log($scope.interpreter.eval($scope.statements[$scope.current]));
+                        console.log($scope.interpreter.eval($scope.statements[$scope.current]).value);
                         $scope.current++;
                         var line = $scope.statements[$scope.current] ? $scope.statements[$scope.current].line - 1 : 0;
                         editor.scrollToLine(line, true, true)

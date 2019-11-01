@@ -34,14 +34,10 @@ export class Scanner {
             try {
                 this.getToken();
             } catch (e) {
-                if (e instanceof $Error) {
-                    this.errors.push(`Scan Error (${e.line}:${e.col}) => ${e.value}`);
-                } else {
-                    this.errors.push(e);
-                    if (this.errors.length > 100) {
-                        this.errors.push('Error limit exceeded');
-                        return this.tokens;
-                    }
+                this.errors.push(e.message);
+                if (this.errors.length > 100) {
+                    this.errors.push('Error limit exceeded');
+                    return this.tokens;
                 }
             }
         }

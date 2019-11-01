@@ -42,9 +42,15 @@ export class Interpreter implements
 
     public eval(stmt: Stmt.Stmt): any {
         try {
-            return  stmt.accept(this).toString();
+            return  {
+                error: false,
+                value: stmt.accept(this).toString(),
+            };
         } catch (e) {
-            return e.message;
+            return {
+                error: true,
+                value: e.message
+            };
         }
     }
 
