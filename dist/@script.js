@@ -13,6 +13,8 @@ console.log('AtScript interpreter cli v1.1.2');
 console.log('-------------------------------');
 console.log('Available cli commands:')
 console.log(' - "errors" to view current parse errors');
+console.log(' - "clear" to empty buffered source code');
+console.log(' - "buffer" to show currrently parsed source code');
 console.log(' - "exit" or "close" to exit');
 console.log('');
 
@@ -26,6 +28,11 @@ rl.on('line', (line) => {
     }
     if (line === 'errors') {
         printErrors();
+    } else if (line === 'clear') {
+        source = '';
+        console.clear();
+    } else if (line === 'buffer') {
+        console.log(source);
     }
     tryRun(line);
     rl.prompt();
@@ -57,7 +64,7 @@ function tryRun(line) {
     }
     if (statements.length) {
         statements.forEach((statement) => {
-            console.info(interpreter.eval(statement), {});
+            console.info(interpreter.eval(statement));
         });
     }
     source  = '';

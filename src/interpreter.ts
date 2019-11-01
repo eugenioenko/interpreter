@@ -96,8 +96,8 @@ export class Interpreter implements
     }
 
     public visitPostfixExpr(expr: Expr.Postfix): $Any {
-        const value = this.scope.get(expr.name.lexeme, expr.name).value;
-        const newValue = new $Number(value + expr.increment);
+        const value = this.scope.get(expr.name.lexeme, expr.name);
+        const newValue = new $Number(value.value + expr.increment);
         this.scope.assign(expr.name.lexeme, newValue);
         return value;
     }
