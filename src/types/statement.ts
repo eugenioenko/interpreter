@@ -1,6 +1,6 @@
 import { Token } from 'token';
 
-import { Expr } from 'expression';
+import { Expr } from '../types/expression';
 
 export abstract class Stmt {
     public result: any;

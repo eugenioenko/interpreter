@@ -1,5 +1,5 @@
-import * as Expr from './classes/expression';
-import * as Stmt from './classes/statement';
+import * as Expr from './types/expression';
+import * as Stmt from './types/statement';
 import { Console } from './console';
 import { Scope } from './scope';
 import { TokenType, Token } from './token';
@@ -24,6 +24,7 @@ export class Interpreter implements
     Stmt.StmtVisitor<$Any> {
     public global = new Scope();
     public scope = this.global;
+    public errors: string[] = [];
 
     constructor( ) {
         this.global.set('math', new $Dictionary(Runtime.Math));
@@ -35,20 +36,43 @@ export class Interpreter implements
         return expr.result = expr.accept(this);
     }
 
-    public execute(stmt: Stmt.Stmt): $Any {
+    private execute(stmt: Stmt.Stmt): $Any {
         return stmt.result = stmt.accept(this);
     }
 
+    public eval(stmt: Stmt.Stmt): any {
+        try {
+            return  {
+                error: false,
+                value: stmt.accept(this).toString(),
+            };
+        } catch (e) {
+            return {
+                error: true,
+                value: e.message
+            };
+        }
+    }
+
     public interpet(statements: Stmt.Stmt[]): Stmt.Stmt[] {
+        this.errors = [];
         for (const statement of statements) {
-            this.execute(statement);
+            try {
+                this.execute(statement);
+            } catch (e) {
+                conzole.error(e.message);
+                this.errors.push(e.message);
+                if (this.errors.length > 100) {
+                    this.errors.push('Runtime Error limit exceeded');
+                    return statements;
+                }
+            }
         }
         return statements;
     }
 
-    private interpreterError(message: string): void {
-        conzole.log(`Runtime error => ${message}`);
-        throw new Error();
+    private error(message: string): void {
+        throw new Error(`Runtime Error => ${message}`);
     }
 
     public visitExpressionStmt(stmt: Stmt.Expression): $Any {
@@ -78,8 +102,8 @@ export class Interpreter implements
     }
 
     public visitPostfixExpr(expr: Expr.Postfix): $Any {
-        const value = this.scope.get(expr.name.lexeme, expr.name).value;
-        const newValue = new $Number(value + expr.increment);
+        const value = this.scope.get(expr.name.lexeme, expr.name);
+        const newValue = new $Number(value.value + expr.increment);
         this.scope.assign(expr.name.lexeme, newValue);
         return value;
     }
@@ -156,7 +180,7 @@ export class Interpreter implements
             case TokenType.BangEqual:
                 return new $Boolean(left.value !== right.value);
             default:
-                this.interpreterError('Unknown binary operator ' + expr.operator);
+                this.error('Unknown binary operator ' + expr.operator);
                 return new $Null(); // unreachable
         }
     }
@@ -197,7 +221,7 @@ export class Interpreter implements
                 this.scope.assign((<Expr.Variable> expr.right).name.lexeme, new $Number(decValue));
                 return new $Number(decValue);
             default:
-                this.interpreterError('Unknown unary operator ' + expr.operator);
+                this.error('Unknown unary operator ' + expr.operator);
                 return new $Null(); // should be unreachable
         }
     }
@@ -262,7 +286,7 @@ export class Interpreter implements
         // verify callee is a function
         const callee = this.evaluate(expr.callee);
         if (!callee.isFunction()) {
-            this.interpreterError(`${callee} is not a function`);
+            this.error(`${callee} is not a function`);
         }
 
         // set this in function scope
@@ -301,13 +325,13 @@ export class Interpreter implements
         const thiz = this.scope.get(expr.paren.lexeme, expr.paren);
 
         if (!thiz.isObject()) {
-            this.interpreterError("base expression can be used only inside methods");
+            this.error("base expression can be used only inside methods");
         }
 
         const clazz: $Class = (thiz as $Object).conztructor as $Class;
         const parent = clazz.parent;
         if (parent.isNull()) {
-            this.interpreterError("Class " + clazz + " has not been extended and has no base");
+            this.error("Class " + clazz + " has not been extended and has no base");
         }
 
         return parent;
@@ -319,7 +343,7 @@ export class Interpreter implements
         const clazz: $Class = this.evaluate(newCall.callee) as $Class;
 
         if (!clazz.isClass()) {
-            this.interpreterError(`'${clazz}' is not a class. 'new' statement must be used with classes.`);
+            this.error(`'${clazz}' is not a class. 'new' statement must be used with classes.`);
         }
         // new object
         const entity = new $Object(new Map(), clazz);

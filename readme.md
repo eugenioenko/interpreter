@@ -326,15 +326,17 @@ print c; // prints {a: 'one', b: 'two'}
  - semicolons are required after each expression statement;
 
 
-### contents, compiling, installing
+### contents, compiling, installing, cli
 The package consist of a tokenizer/scanner, a parser and an interpreter.
 To compile the contents download the repo and:
 
-> npm install
-> npm run start
+> npm install <br> npm run start
 
 Inside tools folder there is a handy generator to create statement and expression classes lists. If modified to regenerate the files run
 > npm run generator
+
+An interactive cli is available
+> npm run cli
 
 ### > [Try it out in playground!](https://eugenioenko.github.io/interpreter/)
 

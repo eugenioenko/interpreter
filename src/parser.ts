@@ -1,26 +1,40 @@
-import * as Expr from './classes/expression';
-import * as Stmt from './classes/statement';
+import * as Expr from './types/expression';
+import * as Stmt from './types/statement';
 import { Console } from './console';
 import { Token, TokenType } from './token';
 import { $Boolean } from './types/boolean';
 import { $Null } from './types/null';
 import { $Number } from './types/number';
+import { $Error } from './types/error';
 declare var conzole: Console;
 
 export class Parser {
-    private current = 0;
+    private current: number;
     private tokens: Token[];
+    public errors: string[];
 
-    constructor(tokens: Token[]) {
+    public parse(tokens: Token[]): Stmt.Stmt[] {
+        this.current = 0;
         this.tokens = tokens;
-    }
-
-    public parse(): Stmt.Stmt[] {
-       const statements: Stmt.Stmt[] = [];
-       while (!this.eof()) {
-           statements.push(this.declaration());
-       }
-       return statements;
+        this.errors = [];
+        const statements: Stmt.Stmt[] = [];
+        while (!this.eof()) {
+            try {
+                statements.push(this.declaration());
+            } catch (e) {
+                if (e instanceof $Error) {
+                    this.errors.push(`Parse Error (${e.line}:${e.col}) => ${e.value}`);
+                } else {
+                    this.errors.push(e);
+                    if (this.errors.length > 100) {
+                        this.errors.push('Parse Error limit exceeded');
+                        return statements;
+                    }
+                }
+                this.synchronize();
+            }
+        }
+        return statements;
     }
 
     private match(...types: TokenType[]): boolean {
@@ -61,7 +75,7 @@ export class Parser {
             return this.advance();
         }
 
-        return this.parseError(this.previous(), message);
+        return this.error(this.previous(), message + `, unexpected token "${this.peek().lexeme}"`);
     }
 
     private extraSemicolon(): boolean {
@@ -74,30 +88,17 @@ export class Parser {
         return match;
     }
 
-    private parseError(token: Token, message: string): any {
-        // tslint:disable-next-line
-        if (token.type === TokenType.Eof) {
-            conzole.error(`Parse error at (${token.line}): at end ${message}`);
-        } else {
-            conzole.error(`Parse error at (${token.line}:${token.col}) near "${token.lexeme}" => ${message}`);
-        }
-        throw new Error ('Error parsing');
-        // unreachable code
-        return new Token(TokenType.Panic, 'error', 'error', 0, 0);
+    private error(token: Token, message: string): any {
+        throw new $Error(message, token.line, token.col);
     }
 
-    private parseWarning(message: string): void {
+    private warning(message: string): void {
         const token = this.previous();
         conzole.warn(`[line (${token.line}) parse warning at "${token.lexeme}"] => ${message}`);
     }
 
     private synchronize(): void {
-        this.advance();
-        while (!this.eof()) {
-            if (this.previous().type === TokenType.Semicolon) {
-                return;
-            }
-
+        do {
             switch (this.peek().type) {
                 case TokenType.Class:
                 case TokenType.Function:
@@ -105,33 +106,31 @@ export class Parser {
                 case TokenType.For:
                 case TokenType.If:
                 case TokenType.While:
+                case TokenType.Do:
                 case TokenType.Print:
                 case TokenType.Return:
+                    this.advance();
                     return;
             }
+            if (this.peek().type === TokenType.Semicolon || this.peek().type === TokenType.RightBrace) {
+                this.advance();
+                return;
+            }
             this.advance();
-        }
+        } while (!this.eof());
     }
 
     private declaration(): Stmt.Stmt {
-        try {
-            if (this.match(TokenType.Class)) {
-                return this.classDeclaration();
-            }
-            if (this.match(TokenType.Function)) {
-                return this.funcDeclaration("function");
-            }
-            if (this.match(TokenType.Var)) {
-                return this.varDeclaration();
-            }
-            return this.statement();
-        } catch (error) {
-            console.error(error);
-            throw new Error('Error parsing. Execution has been stopped');
-            // TODO: reenable synchronize
-            // this.synchronize();
-            return null;
+        if (this.match(TokenType.Class)) {
+            return this.classDeclaration();
         }
+        if (this.match(TokenType.Function)) {
+            return this.funcDeclaration("function");
+        }
+        if (this.match(TokenType.Var)) {
+            return this.varDeclaration();
+        }
+        return this.statement();
     }
 
     private classDeclaration(): Stmt.Class {
@@ -140,7 +139,7 @@ export class Parser {
         if (this.match(TokenType.Extends)) {
             parent  = this.consume(TokenType.Identifier, `Expected a parent name`);
         }
-        this.consume(TokenType.LeftBrace, `Expected "{" after class name`);
+        this.consume(TokenType.LeftBrace, `Expected open brace "{" after class name`);
         const methods: Stmt.Func[] = [];
 
         while (!this.check(TokenType.RightBrace) && !this.eof()) {
@@ -152,7 +151,7 @@ export class Parser {
 
         this.consume(TokenType.RightBrace, `Expected "}" after class "${name.literal}" methods`);
         if (this.extraSemicolon()) {
-            this.parseWarning(`Unnecessary semicolon after class ${name.lexeme} declaration`);
+            this.warning(`Unnecessary semicolon after class ${name.lexeme} declaration`);
         }
         return new Stmt.Class(name, parent, methods, name.line);
     }
@@ -162,28 +161,28 @@ export class Parser {
         return this.funcParamsBody(name, kind);
     }
 
-    private funcParams(): Token[] {
+    private funcParams(kind: string): Token[] {
         const params: Token[] = [];
         if (!this.check(TokenType.RightParen)) {
             do {
                 if (params.length >= 255) {
-                    this.parseError(this.peek(), `Parameter count exceeds 255`);
+                    this.error(this.peek(), `Parameter count exceeds 255`);
                 }
                 params.push(this.consume(TokenType.Identifier, `Expected a parameter name`));
             } while (this.match(TokenType.Comma));
         }
-        this.consume(TokenType.RightParen, `Expect ")" after parameters`);
+        this.consume(TokenType.RightParen, `Expected close parenthesis ")" after ${kind} parameters`);
         return params;
     }
 
     private funcParamsBody(name: Token, kind: string): Stmt.Func {
-        this.consume(TokenType.LeftParen, `Expected "(" after ${kind}`);
-        const params: Token[] = this.funcParams();
+        this.consume(TokenType.LeftParen, `Expected open parenthesis "(" after ${kind}`);
+        const params: Token[] = this.funcParams(kind);
 
         if (this.match(TokenType.LeftBrace)) {
             const body: Stmt.Stmt[] = this.block();
             if (name.type !== TokenType.Lambda && this.extraSemicolon()) {
-                this.parseWarning(`Unnecessary semicolon after function ${name.lexeme} declaration`);
+                this.warning(`Unnecessary semicolon after function ${name.lexeme} declaration`);
             }
             return new Stmt.Func(name, params, body, name.line);
         }
@@ -203,12 +202,12 @@ export class Parser {
     }
 
     private varDeclaration(): Stmt.Stmt {
-        const name: Token = this.consume(TokenType.Identifier, `Expected a variable name`);
+        const name: Token = this.consume(TokenType.Identifier, `Expected a variable name after "var" keyword`);
         let initializer: Expr.Expr  = null;
         if (this.match(TokenType.Equal)) {
             initializer = this.expression();
         }
-        this.consume(TokenType.Semicolon, `Expected semicolon ";" after a value.`);
+        this.consume(TokenType.Semicolon, `Expected semicolon ";" after a variable declaration`);
 
         return new Stmt.Var(name, null, initializer, name.line);
     }
@@ -246,9 +245,9 @@ export class Parser {
 
     private ifStatement(): Stmt.Stmt {
         const keyword = this.previous();
-        this.consume(TokenType.LeftParen, `Expected "(" after an if`);
+        this.consume(TokenType.LeftParen, `Expected open parenthesis "(" after an "if" keyword`);
         const condition: Expr.Expr = this.expression();
-        this.consume(TokenType.RightParen, `Expected ")" after if condition`);
+        this.consume(TokenType.RightParen, `Expected close parenthesis ")" after "if" statement condition`);
         const thenStmt: Stmt.Stmt = this.statement();
         let elseStmt: Stmt.Stmt =  null;
         if (this.match(TokenType.Else)) {
@@ -259,16 +258,16 @@ export class Parser {
 
     private whileStatement(): Stmt.Stmt {
         const keyword = this.previous();
-        this.consume(TokenType.LeftParen, `Expected "(" after a while statement`);
+        this.consume(TokenType.LeftParen, `Expected open parenthesis "(" after a "while" statement`);
         const condition: Expr.Expr = this.expression();
-        this.consume(TokenType.RightParen, `Expected ")" after while condition`);
+        this.consume(TokenType.RightParen, `Expected close parenthesis ")" after "while" condition`);
         const loop: Stmt.Stmt = this.statement();
         return new Stmt.While(condition, loop, keyword.line);
     }
 
     private forStatement(): Stmt.Stmt {
         const keyword = this.previous();
-        this.consume(TokenType.LeftParen, `Expected "(" after a for statement`);
+        this.consume(TokenType.LeftParen, `Expected open parenthesis "(" after a "for" statement`);
 
         let initializer: Stmt.Stmt;
         if (this.match(TokenType.Semicolon)) {
@@ -282,12 +281,12 @@ export class Parser {
         if (!this.check(TokenType.Semicolon)) {
             condition = this.expression();
         }
-        this.consume(TokenType.Semicolon, `Expected ";" after loop condition`);
+        this.consume(TokenType.Semicolon, `Expected semicolon ";" after a "for" statement loop condition`);
         let increment: Expr.Expr;
         if (!this.check(TokenType.RightParen)) {
             increment = this.expression();
         }
-        this.consume(TokenType.RightParen, `Expected ";" after loop condition`);
+        this.consume(TokenType.RightParen, `Expected semicolon ";" after a "for" stement increment expression`);
         let body: Stmt.Stmt = this.statement();
         if (increment !== null) {
             body = new Stmt.Block([
@@ -311,10 +310,10 @@ export class Parser {
     private doWhileStatement(): Stmt.Stmt {
         const keyword = this.previous();
         const loop: Stmt.Stmt = this.statement();
-        this.consume(TokenType.While, `Expected condition after do statement`);
-        this.consume(TokenType.LeftParen, `Expected "(" after a while`);
+        this.consume(TokenType.While, `Expected a "while" condition after "do" statement`);
+        this.consume(TokenType.LeftParen, `Expected open parenthesis "(" after a "while" keyword`);
         const condition: Expr.Expr = this.expression();
-        this.consume(TokenType.RightParen, `Expected ")" after while condition`);
+        this.consume(TokenType.RightParen, `Expected close parenthesis ")" after "while" condition`);
         this.consume(TokenType.Semicolon, `Expected semicolon ";" after a do while condition`);
         return new Stmt.DoWhile(loop, condition, keyword.line);
     }
@@ -322,7 +321,7 @@ export class Parser {
     private printStatement(): Stmt.Stmt {
         const keyword = this.previous();
         const value: Expr.Expr = this.expression();
-        this.consume(TokenType.Semicolon, `Expected semicolon ";" after expression.`);
+        this.consume(TokenType.Semicolon, `Expected semicolon ";" after expression`);
         return new Stmt.Print(value, keyword.line);
     }
 
@@ -355,7 +354,7 @@ export class Parser {
         while (!this.check(TokenType.RightBrace) && !this.eof()) {
             statements.push(this.declaration());
         }
-        this.consume(TokenType.RightBrace, `Expected closing brace "}" after block statement`);
+        this.consume(TokenType.RightBrace, `Expected close brace "}" after block statement`);
         return statements;
     }
 
@@ -395,7 +394,7 @@ export class Parser {
                 }
                 return new Expr.Set(expr.entity, expr.key, value, expr.line);
             }
-            this.parseError(operator, `Invalid l-value, is not an assigning target.`);
+            this.error(operator, `Invalid l-value, is not an assigning target.`);
         }
         return expr;
     }
@@ -551,7 +550,7 @@ export class Parser {
         if (this.match(TokenType.Colon) && !this.check(TokenType.RightBracket)) {
             step = this.expression();
         }
-        this.consume(TokenType.RightBracket, `Expected "]" after property name expression`);
+        this.consume(TokenType.RightBracket, `Expected "]" after an index`);
         if (!key || end || step) {
             const range = new Expr.Range(key, end, step, operator.line);
             return new Expr.Get(expr, range, operator.type, operator.line);
@@ -610,7 +609,7 @@ export class Parser {
             return this.list();
         }
 
-        throw this.parseError(this.peek(), `Expected expression`);
+        throw this.error(this.peek(), `Expected expression, unexpected token "${this.peek().lexeme}"`);
         // unreacheable code
         return new Expr.Literal(null, 0);
     }
@@ -628,7 +627,7 @@ export class Parser {
                 const value = this.expression();
                 properties.push(new Expr.Set(null, new Expr.Key(key, key.line), value, key.line));
             } else {
-                this.parseError(this.peek(), `String, Number or Identifier expected as a Key of Dictionary {`);
+                this.error(this.peek(), `String, Number or Identifier expected as a Key of Dictionary {, unexpected token ${this.peek().lexeme}`);
             }
         } while (this.match(TokenType.Comma));
         this.consume(TokenType.RightBrace, `Expected "}" after object literal`);

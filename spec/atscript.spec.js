@@ -1,13 +1,10 @@
-require('../dist/atscript.min.js');
+const atscript = require('../dist/atscript.min.js');
 
 describe("atscript interpreter", () => {
 
     it("atscript should be defined ", () => {
-        expect(atscript).toBeDefined();
+        expect(atscript.atscript).toBeDefined();
     });
 
-    it("atscript should have the console ", () => {
-        expect(conzole).toBeDefined();
-    });
 
 });

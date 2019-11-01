@@ -6,10 +6,12 @@ import { $Class } from './class';
 export class $Object extends $Any {
     public value: Map<string, $Any>;
     public conztructor: $Class | $Any;
+    public name: string;
 
     constructor(value: Map<string, $Any>, conztructor: $Class | $Any) {
         super(value, DataType.Object);
         this.conztructor = conztructor;
+        this.name = (conztructor as $Class).name;
     }
 
     public get(key: $Any): $Any {
@@ -32,6 +34,6 @@ export class $Object extends $Any {
     }
 
     public toString(): string {
-        return `<${this.constructor.name} object>`;
+        return `<${this.name} object>`;
     }
 }

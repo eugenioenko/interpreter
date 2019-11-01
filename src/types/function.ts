@@ -1,4 +1,4 @@
-import * as Stmt from '../classes/statement';
+import * as Stmt from './statement';
 import { $Any } from './any';
 import { Console } from '../console';
 import { DataType } from './type.enum';
