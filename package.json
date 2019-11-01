@@ -9,7 +9,7 @@
     "lint": "npx tslint -c tslint.json 'src/*.ts'",
     "travis": "npm run build && npm run test && tslint -c tslint.json 'src/*.ts'",
     "generator": "node tools/generator.js",
-    "start2": "tsc --watch src/interpreter.ts",
+    "cli": "node dist/@script",
     "test": "jasmine"
   },
   "keywords": [
@@ -26,5 +26,8 @@
     "typescript": "^3.3.3333",
     "webpack": "^4.29.5",
     "webpack-cli": "^3.2.3"
+  },
+  "dependencies": {
+    "@types/node": "^12.12.3"
   }
 }

@@ -12,6 +12,7 @@ export enum DataType {
     Lambda,   // 10
     Range,    // 11
     RegExp,   // 12
+    Error,    // 13
     // internal types
     Void = 100, //  100
     Return,   // 101

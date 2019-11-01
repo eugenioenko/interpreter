@@ -1,19 +1,52 @@
 import { Token, TokenType } from './token';
 import { Console } from './console';
 import * as Utils from './utils';
+import { $Error } from './types/error';
 declare var conzole: Console;
 
 export class Scanner {
-
+    /** scripts source code */
     public source: string;
-    public tokens: Token[] = [];
-    private current = 0;
-    private line = 1;
-    private col = 1;
-    private start = 0;
+    /** containes the source code represented as list of tokens */
+    public tokens: Token[];
+    /** List of errors from scanning */
+    public errors: string[];
+    /** points to the current character being tokenized */
+    private current: number;
+    /** points to the start of the token frase */
+    private start: number;
+    /** current line of source code bieng tokenized */
+    private line: number;
+    /** current column of the character being tokenized */
+    private col: number;
 
-    constructor(source: string) {
+    public scan(source: string): Token[] {
         this.source = source;
+        this.tokens = [];
+        this.errors = [];
+        this.current = 0;
+        this.start = 0;
+        this.line = 1;
+        this.col = 1;
+
+        while (!this.eof()) {
+            this.start = this.current;
+            try {
+                this.getToken();
+            } catch (e) {
+                if (e instanceof $Error) {
+                    this.errors.push(`Scan Error (${e.line}:${e.col}) => ${e.value}`);
+                } else {
+                    this.errors.push(e);
+                    if (this.errors.length > 100) {
+                        this.errors.push('Error limit exceeded');
+                        return this.tokens;
+                    }
+                }
+            }
+        }
+        this.tokens.push(new Token(TokenType.Eof, '', null, this.line, 0));
+        return this.tokens;
     }
 
     private eof(): boolean {
@@ -73,7 +106,7 @@ export class Scanner {
             this.advance();
         }
         if (this.eof()) {
-            this.scanError('Unterminated comment, expecting closing "*/"');
+            this.error('Unterminated comment, expecting closing "*/"');
         } else {
             // the closing slash '*/'
             this.advance();
@@ -88,7 +121,7 @@ export class Scanner {
 
         // Unterminated string.
         if (this.eof()) {
-            this.scanError(`Unterminated string, expecting closing ${quote}`);
+            this.error(`Unterminated string, expecting closing ${quote}`);
             return;
         }
 
@@ -146,50 +179,7 @@ export class Scanner {
         }
     }
 
-    private regex(): void {
-        while (this.peek() !== '#' && !this.eof()) {
-            this.advance();
-        }
-
-        // Unterminated regex.
-        if (this.eof()) {
-            this.scanError(`Unterminated RegEx, expecting closing #`);
-            return;
-        }
-
-        // The closing #.
-        this.advance();
-        const regex = this.source.substring(this.start + 1, this.current - 1);
-
-        let flags = '';
-        if (['g', 'i', 's', 'u', 'y'].indexOf(this.peek()) !== -1) {
-            const start = this.current;
-            while (this.peek() !== '#' && !this.eof()) {
-                this.advance();
-            }
-            if (this.eof()) {
-                this.scanError(`Unterminated RegEx, expecting closing # after flags`);
-                return;
-            }
-            flags = this.source.substring(start, this.current);
-            // The closing # after flags.
-            this.advance();
-        }
-
-        this.addToken(TokenType.Regex, new RegExp(regex, flags));
-    }
-
-    public scan(): Token[] {
-        while (!this.eof()) {
-            this.start = this.current;
-            this.scanToken();
-        }
-
-        this.tokens.push(new Token(TokenType.Eof, '', null, this.line, 0));
-        return this.tokens;
-    }
-
-    private scanToken(): void {
+    private getToken(): void {
         const char = this.advance();
         switch (char) {
             case '(': this.addToken(TokenType.LeftParen, null); break;
@@ -230,8 +220,6 @@ export class Scanner {
             case '`':
                 this.string(char, TokenType.String);
                 break;
-            case '#':
-                this.regex();
             // ignore cases
             case '\n':
             case ' ':
@@ -245,15 +233,14 @@ export class Scanner {
                 } else if (Utils.isAlpha(char)) {
                     this.identifier();
                 } else {
-                    this.scanError(`Unexpected character '${char}'`);
+                    this.error(`Unexpected character '${char}'`);
                 }
                 break;
         }
     }
 
-    private scanError(message: string): void {
-        conzole.error(`Tokenizer error at (${this.line}:${this.col}) =>  ${message}`);
-        throw new Error('Error while scanning. Execution has been stoped');
+    private error(message: string): void {
+        throw new Error(`Scan Error (${this.line}:${this.col}) => ${message}`);
     }
 
 }

@@ -120,9 +120,24 @@
                 $scope.restart = function() {
                     var source = editor.getValue();
                     conzole.clear();
-                    $scope.statements = atscript.parse(source);
-                    $scope.interpreter = new atscript.interpreter();
                     $scope.current = 0;
+                    var scanner = new atscript.scanner();
+                    var tokens = scanner.scan(source);
+                    if (scanner.errors.length) {
+                        scanner.errors.forEach((e) => {
+                            window.conzole.error(e);
+                        });
+                    }
+                    var parser = new atscript.parser();
+                    $scope.statements = parser.parse(tokens);
+                    if (parser.errors.length) {
+                        parser.errors.forEach((e) => {
+                            window.conzole.error(e);
+                        });
+                        $scope.statements = [];
+                        return;
+                    }
+                    $scope.interpreter = new atscript.interpreter();
                 }
 
                 $scope.step = function() {
@@ -130,7 +145,7 @@
                         $scope.restart();
                     }
                     if ($scope.current < $scope.statements.length) {
-                        console.log($scope.interpreter.execute($scope.statements[$scope.current]));
+                        console.log($scope.interpreter.eval($scope.statements[$scope.current]));
                         $scope.current++;
                         var line = $scope.statements[$scope.current] ? $scope.statements[$scope.current].line - 1 : 0;
                         editor.scrollToLine(line, true, true)

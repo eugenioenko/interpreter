@@ -14,9 +14,8 @@ export class Scope {
         this.parent = parent;
     }
 
-    private scopeError(message: string): void {
-        conzole.error(`[scope error] => ${message}`);
-        throw new Error();
+    private error(message: string): void {
+        throw new Error(`Runtime Error => ${message}`);
     }
 
     public set(name: string, value: $Any) {
@@ -25,7 +24,7 @@ export class Scope {
 
     public define(name: string, value: $Any) {
         if (this.values.has(name)) {
-            this.scopeError(`identifier "${name}" has already been defined`);
+            this.error(`Identifier "${name}" has already been defined`);
         } else {
             this.set(name, value);
         }
@@ -38,7 +37,7 @@ export class Scope {
             if (this.parent !== null) {
                 return this.parent.assign(name, value);
             }
-            this.scopeError(`Runtime error identifier "${name}" has not been defined`);
+            this.error(`Identifier "${name}" has not been defined`);
         }
     }
 
@@ -51,9 +50,9 @@ export class Scope {
         }
 
         if (token) {
-            this.scopeError(`Runtime error at (${token.line}:${token.col}) => "${token.lexeme}" is not defined`);
+            this.error(` at (${token.line}:${token.col}) => "${token.lexeme}" is not defined`);
         } else {
-            this.scopeError(`Runtime error => "${key} is not defined`);
+            this.error(`"${key}" is not defined`);
         }
         return new $Null();
     }
