@@ -443,7 +443,7 @@ export class Parser {
     }
 
     private instanceof(): Expr.Expr {
-        let expr  = this.comparison();
+        let expr  = this.typeof();
         while (this.match(TokenType.Is, TokenType.Instanceof)) {
             const operator = this.previous();
             if (this.match(TokenType.Identifier, TokenType.Class, TokenType.Function, TokenType.Null)) {
@@ -458,6 +458,15 @@ export class Parser {
             }
         }
         return expr;
+    }
+
+    private typeof(): Expr.Expr {
+        if (this.match(TokenType.Typeof)) {
+            const operator: Token = this.previous();
+            const value: Expr.Expr = this.typeof();
+            return new Expr.Typeof(value, operator.line);
+        }
+        return this.comparison();
     }
 
     private comparison(): Expr.Expr {
@@ -625,10 +634,6 @@ export class Parser {
         }
         if (this.match(TokenType.LeftBracket)) {
             return this.list();
-        }
-        if (this.match(TokenType.Typeof)) {
-            const value = this.expression();
-            return new Expr.Typeof(value, this.previous().line);
         }
 
         throw this.error(this.peek(), `Expected expression, unexpected token "${this.peek().lexeme}"`);
