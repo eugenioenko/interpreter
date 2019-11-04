@@ -8,6 +8,8 @@ const ExpressionAST = {
     Dictionary: ['properties: Expr[]'],
     Get: ['entity: Expr', 'key: Expr', 'type: TokenType'],
     Grouping: ['expression: Expr'],
+    InstanceOf: ['left: Expr', 'right: Token'],
+    Is: ['left: Expr', 'right: Token'],
     Key: ['name: Token'],
     Lambda: ['lambda: Stmt'],
     Logical: ['left: Expr', 'operator: Token', 'right: Expr'],
@@ -86,5 +88,5 @@ function generateAST(baseClass, AST, filename, imports = '') {
     });
 }
 
-generateAST('Expr', ExpressionAST, 'expression', `import { Token, TokenType } from 'token';\nimport { Stmt } from 'statement';\nimport { $Any } from 'types';\n\n`);
+generateAST('Expr', ExpressionAST, 'expression', `import { Token, TokenType } from 'token';\nimport { Stmt } from 'statement';\nimport { $Any } from 'any';\n\n`);
 generateAST('Stmt', StatementAST, 'statement', `import { Token } from 'token';\n\nimport { Expr } from 'expression';\n\n`);

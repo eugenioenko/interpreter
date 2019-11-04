@@ -17,6 +17,7 @@ import { $Range, RangeValue } from './types/range';
 import { $String } from './types/string';
 import { $Void } from './types/void';
 import { DataType } from './types/type.enum';
+import { capitalize } from './utils';
 declare var conzole: Console;
 
 export class Interpreter implements
@@ -459,6 +460,47 @@ export class Interpreter implements
     public visitTypeofExpr(expr: Expr.Typeof): $Any {
         const value = this.evaluate(expr.value);
         return new $String(DataType[value.type].toLowerCase());
+    }
+
+    public visitIsExpr(expr: Expr.InstanceOf): $Any {
+        const left = this.evaluate(expr.left);
+        const right = DataType[capitalize(expr.right.lexeme)];
+        // is direct instance of class
+        if (left.isObject() && (left as $Object).name === expr.right.lexeme) {
+            return new $Boolean(true);
+        }
+        // is not a type
+        if (typeof right === 'undefined' || isNaN(right)) {
+            return new $Boolean(false);
+        }
+        // is a type
+        return new $Boolean(left.type === right);
+    }
+
+    public visitInstanceOfExpr(expr: Expr.InstanceOf): $Any {
+        const left = this.evaluate(expr.left);
+        if (!left.isObject()) {
+            return new $Boolean(false);
+        }
+        const className = expr.right.lexeme;
+
+        // All instances derive from Object
+        if (className.toLowerCase() === 'object') {
+            return new $Boolean(true);
+        }
+        const instance = left as $Object;
+        let conztructor = instance.conztructor as $Class;
+        if (conztructor.name === className) {
+            return new $Boolean(true);
+        }
+        while (!conztructor.parent.isNull()) {
+            conztructor = conztructor.parent as $Class;
+            if (conztructor.name === className) {
+                return new $Boolean(true);
+            }
+        }
+        return new $Boolean(false);
+
     }
 
 }

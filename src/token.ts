@@ -67,6 +67,7 @@ export enum TokenType {
     Function,
     If,
     Instanceof,
+    Is,
     New,
     Null,
     Or,
