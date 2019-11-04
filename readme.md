@@ -317,14 +317,106 @@ print c; // prints {a: 'one', b: 'two'}
 ```
 
 
-### utility functions / statements
+### utility statements
 ```
     print variable; // prints in the interperter console.
 ```
 
-#### random notes:
- - semicolons are required after each expression statement;
+## Operators
 
+### `?.` Safe Navigation
+Safe navigation operator can be used to avoid an  error when reading a property from null value.
+When reading a property from a null value, it will return null instead of erroring out.
+```
+    var dict = {
+        property: {
+            okey: "str"
+        }
+    }
+    print dict.property.okey; // prints "str"
+    print dict.noproperty.wrong; // Error,  wrong doesn't exist on null
+    print dict.noproperty?.wrong; // prints null
+```
+
+### `?:` Ternary
+Ternary operator evaluates the condition and depending if the condition is truthy it will evaluate truthy or falsy expression.
+It can be used as a shorthand of an "if" statement.
+
+>  *`expression`* `?` *`truthy expression`* : *`falsy expression`* `;`
+
+```
+    var t = value ? 'yes' : 'no';
+    this.method() ? trueBlock() : falseBlock();
+```
+
+### `typeof`
+"typeof*" operator outputs the data type of a given expression in string format;
+
+> `typeof`  *`expression`* `;`
+
+```
+    print typeof "str"; // prints string
+    print typeof  1; // prints number
+    print typeof true; // prints boolean
+    print typeof null; // null
+```
+- Null: "null"
+- Boolean: "boolean"
+- Number: "number"
+- String: "string"
+- List: "list"
+- Dictionary: "dictionary"
+- Object: "object"
+- Class: "class"
+- Function: "function"
+
+### `is`
+The is operator checks if the result of an expression is compatible with a given type
+> *`expression`* `is` *`type`* `;`
+```
+    print ['one', 'two'] is list; // prints true
+    function test() {
+        // to do
+    }
+    print test is function; // prints true
+
+```
+
+It will also return true if an object is direct instance of a class.
+To check if an object is an inherited instance of a class use "instanceof" operator
+
+```
+    class Parent { }
+    class Child extends Parent { }
+
+    var entity = new Child();
+
+    print entity is class;   // false: entity is an object, not a class
+    print entity is object;  // true: entity is an object
+    print entity is Parent;  // false: entity is not direct instance of Parent, it was constructed with Child constructor
+    print entity is Child;   // true: entity is a direct instance of Child
+
+```
+
+### `instanceof`
+The "instanceof" operator is used to test whether the object is an instance of the specified class or subclass.
+As side effect, it will also return false if the object is not an object.
+
+> *`expression`* `instanceof` *`class name`* `;`
+
+```
+    class Parent { }
+    class Child extends Parent { }
+    class Unrelated { }
+
+    var entity = new Child();
+
+    print entity instanceof object;    // true: all objects derrive from an object
+    print entity instanceof Child;     // true: entity is a direct instance of Child
+    print entity instanceof Parent;    // true: entity is an indirect instance of Parent. Child class inherits from Parent class
+    print entity instanceof Unrelated; // false: entity is not an instance of Unrelated
+
+```
 
 ### contents, compiling, installing, cli
 The package consist of a tokenizer/scanner, a parser and an interpreter.

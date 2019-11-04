@@ -167,7 +167,7 @@ export class Scanner {
         }
 
         const value = this.source.substring(this.start, this.current);
-        const capitalized = value.charAt(0).toUpperCase() + value.substr(1).toLowerCase();
+        const capitalized = Utils.capitalize(value);
         if (Utils.isKeyword(capitalized)) {
             this.addToken(TokenType[capitalized], value);
         } else {

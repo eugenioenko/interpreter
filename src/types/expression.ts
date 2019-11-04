@@ -1,6 +1,6 @@
 import { Token, TokenType } from 'token';
 import { Stmt } from 'statement';
-import { $Any } from './any';
+import { $Any } from 'any';
 
 export abstract class Expr {
     public result: any;
@@ -19,6 +19,8 @@ export interface ExprVisitor<R> {
     visitDictionaryExpr(expr: Dictionary): R;
     visitGetExpr(expr: Get): R;
     visitGroupingExpr(expr: Grouping): R;
+    visitInstanceOfExpr(expr: InstanceOf): R;
+    visitIsExpr(expr: Is): R;
     visitKeyExpr(expr: Key): R;
     visitLambdaExpr(expr: Lambda): R;
     visitLogicalExpr(expr: Logical): R;
@@ -30,6 +32,7 @@ export interface ExprVisitor<R> {
     visitRegExExpr(expr: RegEx): R;
     visitSetExpr(expr: Set): R;
     visitTernaryExpr(expr: Ternary): R;
+    visitTypeofExpr(expr: Typeof): R;
     visitUnaryExpr(expr: Unary): R;
     visitVariableExpr(expr: Variable): R;
     visitZtringExpr(expr: Ztring): R;
@@ -174,6 +177,46 @@ export class Grouping extends Expr {
 
     public toString(): string {
         return 'Expr.Grouping';
+    }
+}
+
+export class InstanceOf extends Expr {
+    public left: Expr;
+    public right: Token;
+
+    constructor(left: Expr, right: Token, line: number) {
+        super();
+        this.left = left;
+        this.right = right;
+        this.line = line;
+    }
+
+    public accept<R>(visitor: ExprVisitor<R>): R {
+        return visitor.visitInstanceOfExpr(this);
+    }
+
+    public toString(): string {
+        return 'Expr.InstanceOf';
+    }
+}
+
+export class Is extends Expr {
+    public left: Expr;
+    public right: Token;
+
+    constructor(left: Expr, right: Token, line: number) {
+        super();
+        this.left = left;
+        this.right = right;
+        this.line = line;
+    }
+
+    public accept<R>(visitor: ExprVisitor<R>): R {
+        return visitor.visitIsExpr(this);
+    }
+
+    public toString(): string {
+        return 'Expr.Is';
     }
 }
 
@@ -390,6 +433,24 @@ export class Ternary extends Expr {
 
     public toString(): string {
         return 'Expr.Ternary';
+    }
+}
+
+export class Typeof extends Expr {
+    public value: Expr;
+
+    constructor(value: Expr, line: number) {
+        super();
+        this.value = value;
+        this.line = line;
+    }
+
+    public accept<R>(visitor: ExprVisitor<R>): R {
+        return visitor.visitTypeofExpr(this);
+    }
+
+    public toString(): string {
+        return 'Expr.Typeof';
     }
 }
 

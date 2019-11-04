@@ -8,6 +8,8 @@ const ExpressionAST = {
     Dictionary: ['properties: Expr[]'],
     Get: ['entity: Expr', 'key: Expr', 'type: TokenType'],
     Grouping: ['expression: Expr'],
+    InstanceOf: ['left: Expr', 'right: Token'],
+    Is: ['left: Expr', 'right: Token'],
     Key: ['name: Token'],
     Lambda: ['lambda: Stmt'],
     Logical: ['left: Expr', 'operator: Token', 'right: Expr'],
@@ -19,6 +21,7 @@ const ExpressionAST = {
     RegEx: ['value: RegExp'],
     Set: ['entity: Expr', 'key: Expr', 'value: Expr'],
     Ternary: ['condition: Expr', 'thenExpr: Expr', 'elseExpr: Expr'],
+    Typeof: ['value: Expr'],
     Unary: ['operator: Token', 'right: Expr'],
     Variable: ['name: Token'],
     Ztring: ['value: string']
@@ -79,11 +82,11 @@ function generateAST(baseClass, AST, filename, imports = '') {
         file += '}\n\n'
     });
 
-    fs.writeFile(`src/classes/${filename}.ts`, file, function (err, data) {
+    fs.writeFile(`src/types/${filename}.ts`, file, function (err, data) {
         if (err) console.log(err);
         console.log(`${filename}.ts generated`);
     });
 }
 
-generateAST('Expr', ExpressionAST, 'expression', `import { Token, TokenType } from 'token';\nimport { Stmt } from 'statement';\nimport { $Any } from 'types';\n\n`);
+generateAST('Expr', ExpressionAST, 'expression', `import { Token, TokenType } from 'token';\nimport { Stmt } from 'statement';\nimport { $Any } from 'any';\n\n`);
 generateAST('Stmt', StatementAST, 'statement', `import { Token } from 'token';\n\nimport { Expr } from 'expression';\n\n`);

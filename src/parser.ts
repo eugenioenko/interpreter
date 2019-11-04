@@ -431,13 +431,31 @@ export class Parser {
     }
 
     private equality(): Expr.Expr {
-        let expr  = this.comparison();
+        let expr  = this.instanceof();
         while (this.match(
             TokenType.BangEqual, TokenType.EqualEqual)
         ) {
             const operator: Token = this.previous();
-            const right: Expr.Expr = this.comparison();
+            const right: Expr.Expr = this.instanceof();
             expr = new Expr.Binary(expr, operator, right, operator.line);
+        }
+        return expr;
+    }
+
+    private instanceof(): Expr.Expr {
+        let expr  = this.comparison();
+        while (this.match(TokenType.Is, TokenType.Instanceof)) {
+            const operator = this.previous();
+            if (this.match(TokenType.Identifier, TokenType.Class, TokenType.Function, TokenType.Null)) {
+                const right = this.previous();
+                if (operator.type === TokenType.Instanceof) {
+                    expr = new Expr.InstanceOf(expr, right, operator.line);
+                } else {
+                    expr = new Expr.Is(expr, right, operator.line);
+                }
+            } else {
+                this.error(this.previous(), `Expected a Type or ClassName identifier after "is" operator`);
+            }
         }
         return expr;
     }
@@ -607,6 +625,10 @@ export class Parser {
         }
         if (this.match(TokenType.LeftBracket)) {
             return this.list();
+        }
+        if (this.match(TokenType.Typeof)) {
+            const value = this.expression();
+            return new Expr.Typeof(value, this.previous().line);
         }
 
         throw this.error(this.peek(), `Expected expression, unexpected token "${this.peek().lexeme}"`);
