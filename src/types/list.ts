@@ -8,6 +8,7 @@ import { DataType } from './type.enum';
 import { $Range } from './range';
 import { $Boolean } from './boolean';
 import { $Iterator } from './iterator';
+import { $Boolean } from './boolean';
 
 export class $List extends $Any {
     public value: $Any[];
@@ -73,6 +74,23 @@ export class $List extends $Any {
        return new $Iterator(thiz);
     }
 
+    public static next(thiz: $Any, args: $Any[], interpreter: Interpreter): $Any {
+        // empty list
+        if (!thiz.value.length) {
+            return new $Null();
+        }
+        // first value
+        if (args[0].isNull()) {
+            return new $Number(0);
+        }
+        // no more values to iterate
+        if (args[0].value >= thiz.value.length - 1) {
+            return new $Null();
+        }
+
+        return new $Number(args[0].value + 1);
+    }
+
     public static runtime =  new Map([
         ['concat', fromJavaScriptMethod('concat', -1, DataType.List)],
         ['each', new $Callable('each', 1, $List.each)],
@@ -88,7 +106,8 @@ export class $List extends $Any {
         ['slice', fromJavaScriptMethod('slice', -1, DataType.List)],
         ['splice', fromJavaScriptMethod('splice', -1, DataType.List)],
         ['unshift', fromJavaScriptMethod('unshift', -1, DataType.List)],
-        ['iterator', new $Callable('iterator', 0, $List.iterator)]
+        ['iterator', new $Callable('iterator', 0, $List.iterator)],
+        ['next', new $Callable('next', 0, $List.next)]
     ]);
 
 }

@@ -83,33 +83,19 @@ var literal = {
         prev: "previous",
         next: "next"
     }
+var d = {
+    'one': 1,
+    'two': 2,
+    'three': 3,
+    'four': 4
 };
-print literal.records.prev;
-// safe navigator operator ?.
-print literal.safeNavigator?.propertyDoesNotExist;
-
-var x = [1, 20, 300];
-var y = [100, x[1]];
-print y[0];
-y.push(x);
-y.newProperty = "anything";
-print y.join(',');
-var z = y.join('-');
-
-// new scope test
-{
-    var a = {a: 'one'};
-    var b = {b: 'two'};
-    var c = a + b;
-    print c; // prints {a: 'one', b: 'two'}
-}
-// new scope test
-{
-    var a = {d: 'three'};
-    var b = {e: 'four'};
-    var c = a + b;
-    print c; // prints {d: 'three', e: 'four'}
-}
+var it = d.iterator();
+print it.next();
+print it.next();
+print it.next();
+print it.next();
+print it.next();
+print it.next();
 
 // typeof, is, instanceof operator
 

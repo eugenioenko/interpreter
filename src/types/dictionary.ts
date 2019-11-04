@@ -8,6 +8,8 @@ import { $Number } from './number';
 import { $String } from './string';
 import { DataType } from './type.enum';
 import { $Boolean } from './boolean';
+import { $Iterator } from './iterator';
+import { $Object } from './object';
 
 export class $Dictionary extends $Any {
     public value: Map<any, $Any>;
@@ -67,6 +69,29 @@ export class $Dictionary extends $Any {
         return new $Null();
     }
 
+    public static iterator(thiz: $Any, args: $Any[], interpreter: Interpreter): $Any {
+        return new $Iterator(thiz);
+    }
+
+    public static next(thiz: $Any, args: $Any[], interpreter: Interpreter): $Any {
+        // empty list
+        if (!thiz.value.size) {
+            return new $Null();
+        }
+        // first value
+        if (args[0].isNull()) {
+            return new $Any(thiz.value.keys(), DataType.Object);
+        }
+
+        const nextValue = args[0].value.next();
+        // no more values to iterate
+        if (nextValue.done) {
+            return new $Null();
+        }
+
+        return nextValue.value;
+    }
+
     public static runtime =  new Map([
         ['clear', fromJavaScriptMethod('clear', 0, DataType.Null)],
         ['delete', fromJavaScriptMethod('delete', 1, DataType.Boolean)],
@@ -75,7 +100,9 @@ export class $Dictionary extends $Any {
         ['indexOf', new $Callable('indexOf', 1, $Dictionary.indexOf)],
         ['map', new $Callable('map', 1, $Dictionary.map)],
         ['merge', new $Callable('merge', 1,  (thiz: $Any, args: $Any[]): $Any => new $Dictionary(new Map([...(thiz.value), ...(args[0].value)])))],
-        ['size', new $Callable('size', 0,  (thiz: $Any, args: $Any[]): $Any => new $Number(thiz.value.size))]
+        ['size', new $Callable('size', 0,  (thiz: $Any, args: $Any[]): $Any => new $Number(thiz.value.size))],
+        ['iterator', new $Callable('iterator', 0, $Dictionary.iterator)],
+        ['next', new $Callable('next', 0, $Dictionary.next)]
     ]);
 
 }
