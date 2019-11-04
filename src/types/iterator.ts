@@ -3,27 +3,29 @@ import { $Any } from './any';
 import { Interpreter } from '../interpreter';
 import { $Dictionary } from './dictionary';
 import { $Null } from './null';
-
-export class IteratorValue {
-    public index: string | number;
-    public value: $Any;
-
-    constructor(index: string | number, value: $Any) {
-        this.index = index;
-        this.value = value;
-    }
-}
+import { $Callable, $Function } from './function';
+import { $String } from './string';
 
 export class $Iterator extends $Any {
 
     public value: $Any;
-    public key: $Any;
+    public index: $Any;
 
     constructor(value: $Any) {
         super(value, DataType.RegExp);
+        this.index = new $Null();
     }
 
     public get(key: $Any): $Any {
+        if (key.value === 'key' || key.value === 'index') {
+            return this.index;
+        }
+        if (key.value === 'value') {
+            return this.value.get(this.index);
+        }
+        if ($Iterator.runtime.has(key.value)) {
+            return $Iterator.runtime.get(key.value);
+        }
         return new $Null();
 
     }
@@ -36,6 +38,15 @@ export class $Iterator extends $Any {
         return `"${this.value}"`;
     }
 
+    public static next(thiz: $Any, args: $Any[], interpreter: Interpreter): $Any {
+        (thiz as $Iterator).index = (thiz.value.get(new $String('next')) as $Callable).call(thiz.value, [(thiz as $Iterator).index], interpreter);
+        return (thiz as $Iterator).index;
+    }
+
+    public static complete(thiz: $Any, args: $Any[], interpreter: Interpreter): $Any {
+        return (thiz.value.get(new $String('complete')) as $Callable).call(thiz.value, [(thiz as $Iterator).index], interpreter);
+    }
+
     public static first(thiz: $Any, args: $Any[], interpreter: Interpreter): $Any {
         if ((thiz as $Iterator).value.isList()) {
             return new $Dictionary(new Map([
@@ -46,6 +57,12 @@ export class $Iterator extends $Any {
         return new $Null();
     }
 
+    public static runtime = new Map([
+        ['first', new $Callable('first', 0, $Iterator.first)],
+        ['next', new $Callable('next', 0, $Iterator.next)],
+        ['complete', new $Callable('complete', 0, $Iterator.complete)]
+    ]);
+
 
     /*
     var it = dictionary.iterator()
@@ -53,8 +70,9 @@ export class $Iterator extends $Any {
         it.key();
         it.value
 
-    } while (it.next() != it.last())
-    } while (it.prev() != it.first())
+    } while (!it.complete()) {
+        print l[it.index];
+    }
 
      */
 
