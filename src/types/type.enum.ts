@@ -13,6 +13,7 @@ export enum DataType {
     Range,    // 11
     RegExp,   // 12
     Error,    // 13
+    Iterator, // 14
     // internal types
     Void = 100, //  100
     Return,   // 101

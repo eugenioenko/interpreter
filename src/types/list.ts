@@ -7,6 +7,7 @@ import { $Number } from './number';
 import { DataType } from './type.enum';
 import { $Range } from './range';
 import { $Boolean } from './boolean';
+import { $Iterator } from './iterator';
 
 export class $List extends $Any {
     public value: $Any[];
@@ -68,6 +69,10 @@ export class $List extends $Any {
         return thiz;
     }
 
+    public static iterator(thiz: $Any, args: $Any[], interpreter: Interpreter): $Any {
+       return new $Iterator(thiz);
+    }
+
     public static runtime =  new Map([
         ['concat', fromJavaScriptMethod('concat', -1, DataType.List)],
         ['each', new $Callable('each', 1, $List.each)],
@@ -82,7 +87,8 @@ export class $List extends $Any {
         ['size', new $Callable('size', 0,  (thiz: $Any, args: $Any[]): $Any => new $Number(thiz.value.length))],
         ['slice', fromJavaScriptMethod('slice', -1, DataType.List)],
         ['splice', fromJavaScriptMethod('splice', -1, DataType.List)],
-        ['unshift', fromJavaScriptMethod('unshift', -1, DataType.List)]
+        ['unshift', fromJavaScriptMethod('unshift', -1, DataType.List)],
+        ['iterator', new $Callable('iterator', 0, $List.iterator)]
     ]);
 
 }
