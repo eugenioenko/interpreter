@@ -608,6 +608,10 @@ export class Parser {
         if (this.match(TokenType.LeftBracket)) {
             return this.list();
         }
+        if (this.match(TokenType.Typeof)) {
+            const value = this.expression();
+            return new Expr.Typeof(value, this.previous().line);
+        }
 
         throw this.error(this.peek(), `Expected expression, unexpected token "${this.peek().lexeme}"`);
         // unreacheable code

@@ -456,4 +456,9 @@ export class Interpreter implements
         ));
     }
 
+    public visitTypeofExpr(expr: Expr.Typeof): $Any {
+        const value = this.evaluate(expr.value);
+        return new $String(DataType[value.type].toLowerCase());
+    }
+
 }

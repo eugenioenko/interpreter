@@ -19,6 +19,7 @@ const ExpressionAST = {
     RegEx: ['value: RegExp'],
     Set: ['entity: Expr', 'key: Expr', 'value: Expr'],
     Ternary: ['condition: Expr', 'thenExpr: Expr', 'elseExpr: Expr'],
+    Typeof: ['value: Expr'],
     Unary: ['operator: Token', 'right: Expr'],
     Variable: ['name: Token'],
     Ztring: ['value: string']
@@ -79,7 +80,7 @@ function generateAST(baseClass, AST, filename, imports = '') {
         file += '}\n\n'
     });
 
-    fs.writeFile(`src/classes/${filename}.ts`, file, function (err, data) {
+    fs.writeFile(`src/types/${filename}.ts`, file, function (err, data) {
         if (err) console.log(err);
         console.log(`${filename}.ts generated`);
     });
