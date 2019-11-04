@@ -443,7 +443,7 @@ export class Parser {
     }
 
     private instanceof(): Expr.Expr {
-        let expr  = this.typeof();
+        let expr = this.typeof();
         while (this.match(TokenType.Is, TokenType.Instanceof)) {
             const operator = this.previous();
             if (this.match(TokenType.Identifier, TokenType.Class, TokenType.Function, TokenType.Null)) {
