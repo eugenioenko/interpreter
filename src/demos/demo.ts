@@ -112,15 +112,15 @@ var z = y.join('-');
 }
 
 // typeof, is, instanceof operator
-/*
+
 print typeof Person;
 print typeof student;
-print 'Student is Class: ' + Student is Class;
-print 'student is Object: ' + student is Object;
-print 'student is Person: ' + student is Person;
-print 'student is Student: ' + student is Student;
-print 'student instanceof Person: ' + student instanceof Person;
-*/
-print typeof '' + '';
+print 'Student is Class: ' + (Student is Class);
+print 'student is Object: ' + (student is Object);
+print 'student is Person: ' + (student is Person);
+print 'student is Student: ' + (student is Student);
+print 'student instanceof Person: ' + (student instanceof Person);
+
+print typeof '' + 'string';
 
 `;
