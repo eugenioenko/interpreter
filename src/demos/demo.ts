@@ -35,7 +35,6 @@ class Student extends Person {
 var student = new Student('John', 3);
 student.hello();
 
-
 // Recursive function
 function factorialize(n) {
     if (n < 0) {
@@ -111,5 +110,14 @@ var z = y.join('-');
     var c = a + b;
     print c; // prints {d: 'three', e: 'four'}
 }
+
+// typeof, is, instanceof operator
+print typeof Person;
+print typeof student;
+print Student is Class;
+print student is Object;
+print student is Person;
+pritn student is Student;
+print student instanceof Person;
 
 `;
