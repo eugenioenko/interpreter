@@ -411,7 +411,7 @@ As side effect, it will also return false if the object is not an object.
 
     var entity = new Child();
 
-    print entity instanceof object;    // true: all objects derrive from an object
+    print entity instanceof Object;    // true: all objects derrive from internal Object Class
     print entity instanceof Child;     // true: entity is a direct instance of Child
     print entity instanceof Parent;    // true: entity is an indirect instance of Parent. Child class inherits from Parent class
     print entity instanceof Unrelated; // false: entity is not an instance of Unrelated
