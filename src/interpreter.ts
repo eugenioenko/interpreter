@@ -214,15 +214,22 @@ export class Interpreter implements
             case TokenType.Bang:
                 return new $Boolean(!right.isTruthy());
             case TokenType.PlusPlus:
-                const incValue = Number(right.value) + 1;
-                this.scope.assign((<Expr.Variable> expr.right).name.lexeme, new $Number(incValue));
-                return new $Number(incValue);
             case TokenType.MinusMinus:
-                const decValue = Number(right.value) - 1;
-                this.scope.assign((<Expr.Variable> expr.right).name.lexeme, new $Number(decValue));
-                return new $Number(decValue);
+                if (!right.isNumber()) {
+                    this.error(`Invalid right-hand side expression in prefix operation:  "${DataType[right.type]} ${right} is not a number`);
+                }
+                const newValue = Number(right.value) + (expr.operator.type === TokenType.PlusPlus ? 1 : -1);
+                if (expr.right instanceof Expr.Variable) {
+                    this.scope.assign(expr.right.name.lexeme, new $Number(newValue));
+                } else if (expr.right instanceof Expr.Get) {
+                    const assing = new Expr.Set(expr.right.entity, expr.right.key, new Expr.Literal(new $Number(newValue), expr.line), expr.line);
+                    this.evaluate(assing);
+                } else {
+                    this.error(`Invalid right-hand side expression in prefix operation:  ${expr.right}`);
+                }
+                return new $Number(newValue);
             default:
-                this.error('Unknown unary operator ' + expr.operator);
+                this.error(`Unknown unary operator ' + expr.operator`);
                 return new $Null(); // should be unreachable
         }
     }
