@@ -121,5 +121,6 @@ print 'student is Person: ' + student is Person;
 print 'student is Student: ' + student is Student;
 print 'student instanceof Person: ' + student instanceof Person;
 */
+print typeof '' + '';
 
 `;
