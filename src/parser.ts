@@ -443,7 +443,7 @@ export class Parser {
     }
 
     private instanceof(): Expr.Expr {
-        let expr = this.typeof();
+        let expr = this.comparison();
         while (this.match(TokenType.Is, TokenType.Instanceof)) {
             const operator = this.previous();
             if (this.match(TokenType.Identifier, TokenType.Class, TokenType.Function, TokenType.Null)) {
@@ -458,15 +458,6 @@ export class Parser {
             }
         }
         return expr;
-    }
-
-    private typeof(): Expr.Expr {
-        if (this.match(TokenType.Typeof)) {
-            const operator: Token = this.previous();
-            const value: Expr.Expr = this.typeof();
-            return new Expr.Typeof(value, operator.line);
-        }
-        return this.comparison();
     }
 
     private comparison(): Expr.Expr {
@@ -500,13 +491,22 @@ export class Parser {
     }
 
     private multiplication(): Expr.Expr {
-        let expr: Expr.Expr = this.unary();
+        let expr: Expr.Expr = this.typeof();
         while (this.match(TokenType.Slash, TokenType.Star)) {
             const operator: Token = this.previous();
-            const right: Expr.Expr = this.unary();
+            const right: Expr.Expr = this.typeof();
             expr = new Expr.Binary(expr, operator, right, operator.line);
         }
         return expr;
+    }
+
+    private typeof(): Expr.Expr {
+        if (this.match(TokenType.Typeof)) {
+            const operator: Token = this.previous();
+            const value: Expr.Expr = this.typeof();
+            return new Expr.Typeof(value, operator.line);
+        }
+        return this.unary();
     }
 
     private unary(): Expr.Expr {
