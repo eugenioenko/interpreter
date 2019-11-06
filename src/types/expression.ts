@@ -28,6 +28,7 @@ export interface ExprVisitor<R> {
     visitListExpr(expr: List): R;
     visitLiteralExpr(expr: Literal): R;
     visitNewExpr(expr: New): R;
+    visitNullCoalescingExpr(expr: NullCoalescing): R;
     visitPostfixExpr(expr: Postfix): R;
     visitRangeExpr(expr: Range): R;
     visitRegExExpr(expr: RegEx): R;
@@ -351,6 +352,26 @@ export class New extends Expr {
 
     public toString(): string {
         return 'Expr.New';
+    }
+}
+
+export class NullCoalescing extends Expr {
+    public left: Expr;
+    public right: Expr;
+
+    constructor(left: Expr, right: Expr, line: number) {
+        super();
+        this.left = left;
+        this.right = right;
+        this.line = line;
+    }
+
+    public accept<R>(visitor: ExprVisitor<R>): R {
+        return visitor.visitNullCoalescingExpr(this);
+    }
+
+    public toString(): string {
+        return 'Expr.NullCoalescing';
     }
 }
 

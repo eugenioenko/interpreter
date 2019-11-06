@@ -44,6 +44,7 @@ export enum TokenType {
     PlusPlus,
     Question,
     QuestionDot,
+    QuestionQuestion,
     SlashEqual,
     StarEqual,
 

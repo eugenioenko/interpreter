@@ -191,7 +191,6 @@ export class Scanner {
             case ':': this.addToken(TokenType.Colon, null); break;
             case '$': this.addToken(TokenType.Dollar, null); break;
             case '@': this.addToken(TokenType.Function, '@'); break;
-            case '?': this.addToken(this.match('.') ? TokenType.QuestionDot : TokenType.Question, null); break;
             case '*': this.addToken(this.match('=') ? TokenType.StarEqual : TokenType.Star, null); break;
             case '%': this.addToken(this.match('=') ? TokenType.PercentEqual : TokenType.Percent, null); break;
             case '|': this.addToken(this.match('|') ? TokenType.Or : TokenType.Pipe, null); break;
@@ -199,6 +198,7 @@ export class Scanner {
             case '<': this.addToken(this.match('=') ? TokenType.LessEqual : TokenType.Less, null); break;
             case '>': this.addToken(this.match('=') ? TokenType.GreaterEqual : TokenType.Greater, null); break;
             case '!': this.addToken(this.match('=') ? TokenType.BangEqual : TokenType.Bang, null); break;
+            case '?': this.addToken(this.match('?') ? TokenType.QuestionQuestion : this.match('.') ? TokenType.QuestionDot : TokenType.Question, null); break;
             case '=': this.addToken(this.match('=') ? TokenType.EqualEqual : this.match('>') ? TokenType.Arrow : TokenType.Equal, null); break;
             case '+': this.addToken(this.match('+') ? TokenType.PlusPlus : this.match('=') ? TokenType.PlusEqual : TokenType.Plus, null); break;
             case '-': this.addToken(this.match('-') ? TokenType.MinusMinus : this.match('>') ? TokenType.Return : this.match('=') ? TokenType.MinusEqual : TokenType.Minus, null); break;

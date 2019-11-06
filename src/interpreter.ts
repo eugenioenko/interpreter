@@ -198,6 +198,14 @@ export class Interpreter implements
         return this.evaluate(expr.condition).isTruthy() ? this.evaluate(expr.thenExpr) : this.evaluate(expr.elseExpr);
     }
 
+    public visitNullCoalescingExpr(expr: Expr.NullCoalescing): $Any {
+        const left = this.evaluate(expr.left);
+        if (left.isNull()) {
+            return this.evaluate(expr.right);
+        }
+        return left;
+    }
+
     public visitGroupingExpr(expr: Expr.Grouping): $Any {
         return this.evaluate(expr.expression);
     }

@@ -17,6 +17,7 @@ const ExpressionAST = {
     List: ['value: Expr[]'],
     Literal: ['value: $Any'],
     New: ['clazz: Expr'],
+    NullCoalescing: ['left: Expr', 'right: Expr'],
     Postfix: ['name: Token', 'increment: number'],
     Range: ['start: Expr', 'end: Expr', 'step: Expr'],
     RegEx: ['value: RegExp'],
