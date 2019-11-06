@@ -400,12 +400,21 @@ export class Parser {
     }
 
     private ternary(): Expr.Expr {
-        const expr = this.logicalOr();
+        const expr = this.nullCoalescing();
         if (this.match(TokenType.Question)) {
             const thenExpr: Expr.Expr = this.ternary();
             this.consume(TokenType.Colon, `Expected ":" after ternary ? expression`);
             const elseExpr: Expr.Expr = this.ternary();
             return new Expr.Ternary(expr, thenExpr, elseExpr, expr.line);
+        }
+        return expr;
+    }
+
+    private nullCoalescing(): Expr.Expr {
+        const expr = this.logicalOr();
+        if (this.match(TokenType.QuestionQuestion)) {
+            const rightExpr: Expr.Expr = this.nullCoalescing();
+            return new Expr.NullCoalescing(expr, rightExpr, expr.line);
         }
         return expr;
     }

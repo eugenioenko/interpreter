@@ -441,6 +441,16 @@ As side effect, it will also return false if the object is not an object.
     print 3   in ['one', 'two', 'three', 'four'];
     print 'key' in {key: 'value', property: 'value'};
 ```
+### ??
+The null-coalescing operator "??" returns the value of its left-hand operand if it isn't null; otherwise, it evaluates the right-hand operand and returns its result. The "??" operator doesn't evaluate its right-hand operand if the left-hand operand evaluates to non-null.
+
+> *`expression`* ?? *`expression`* `;`
+
+```
+   print null ?? true;  // prints true
+   print false ?? true; // prints false
+```
+
 
 ## contents, compiling, installing, cli
 The package consist of a tokenizer/scanner, a parser and an interpreter.
