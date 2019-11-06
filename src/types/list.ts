@@ -16,7 +16,11 @@ export class $List extends $Any {
 
     public get(key: $Any): $Any {
         if (key.isNumber()) {
-            return this.value[key.value];
+            if (typeof this.value[key.value] !== 'undefined') {
+                return this.value[key.value];
+            } else {
+                return new $Null();
+            }
         } else if (key.isRange()) {
             return this.range(<$Range> key);
         } else if ($List.runtime.has(key.value)) {
