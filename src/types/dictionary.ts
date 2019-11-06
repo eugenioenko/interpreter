@@ -7,6 +7,7 @@ import { $Null } from './null';
 import { $Number } from './number';
 import { $String } from './string';
 import { DataType } from './type.enum';
+import { $Boolean } from './boolean';
 
 export class $Dictionary extends $Any {
     public value: Map<any, $Any>;

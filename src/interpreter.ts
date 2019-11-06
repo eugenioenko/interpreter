@@ -515,4 +515,20 @@ export class Interpreter implements
         return new $Null();
     }
 
+    public visitInExpr(expr: Expr.In): $Any {
+        const key = this.evaluate(expr.key);
+        const entity = this.evaluate(expr.entity);
+        if (entity.isKeyValue()) {
+            return new $Boolean(entity.value.has(key.value));
+        }
+        if (entity.isList()) {
+            return new $Boolean(typeof entity.value[key.value] !== 'undefined');
+        }
+        if (entity.isString()) {
+            return new $Boolean(entity.value.includes(key.value));
+        }
+        this.error(`Operator "in" can't be used on type ${DataType[entity.type]} with value "${entity}"`);
+        return new $Null();
+    }
+
 }

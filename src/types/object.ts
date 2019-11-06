@@ -2,13 +2,14 @@ import { DataType } from './type.enum';
 import { $Any } from './any';
 import { $Null } from './null';
 import { $Class } from './class';
+import { $Boolean } from './boolean';
 
 export class $Object extends $Any {
     public value: Map<string, $Any>;
-    public conztructor: $Class | $Any;
+    public conztructor: $Any;
     public name: string;
 
-    constructor(value: Map<string, $Any>, conztructor: $Class | $Any) {
+    constructor(value: Map<string, $Any>, conztructor: $Any) {
         super(value, DataType.Object);
         this.conztructor = conztructor;
         this.name = (conztructor as $Class).name;

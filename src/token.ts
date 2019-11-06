@@ -66,6 +66,7 @@ export enum TokenType {
     For,
     Function,
     If,
+    In,
     Instanceof,
     Is,
     New,

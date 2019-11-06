@@ -443,7 +443,7 @@ export class Parser {
     }
 
     private instanceof(): Expr.Expr {
-        let expr = this.comparison();
+        let expr = this.in();
         while (this.match(TokenType.Is, TokenType.Instanceof)) {
             const operator = this.previous();
             if (this.match(TokenType.Identifier, TokenType.Class, TokenType.Function, TokenType.Null)) {
@@ -456,6 +456,16 @@ export class Parser {
             } else {
                 this.error(this.previous(), `Expected a Type or ClassName identifier after "is" operator`);
             }
+        }
+        return expr;
+    }
+
+    private in(): Expr.Expr {
+        let expr = this.comparison();
+        while (this.match(TokenType.In)) {
+            const operator = this.previous();
+            const entity = this.expression();
+            expr = new Expr.In(expr, entity, operator.line);
         }
         return expr;
     }

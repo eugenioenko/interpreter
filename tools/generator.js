@@ -8,6 +8,7 @@ const ExpressionAST = {
     Dictionary: ['properties: Expr[]'],
     Get: ['entity: Expr', 'key: Expr', 'type: TokenType'],
     Grouping: ['expression: Expr'],
+    In: ['key: Expr', 'entity: Expr'],
     InstanceOf: ['left: Expr', 'right: Token'],
     Is: ['left: Expr', 'right: Token'],
     Key: ['name: Token'],

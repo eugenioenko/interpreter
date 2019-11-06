@@ -6,6 +6,7 @@ import { $Null } from './null';
 import { $Number } from './number';
 import { DataType } from './type.enum';
 import { $Range } from './range';
+import { $Boolean } from './boolean';
 
 export class $List extends $Any {
     public value: $Any[];

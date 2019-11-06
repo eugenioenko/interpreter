@@ -426,6 +426,22 @@ As side effect, it will also return false if the object is not an object.
     print void 2 * (5 + 10) + 100; // prints null
 ```
 
+### in
+"in" operator evaluates whether a key/index exists in an enumerable entity.
+ - key exists in a dictionary
+ - index exists in a list
+ - property is part of an object
+ - method is part of a class
+ - string is included in another string
+
+ > *`expression key`* `in` `*expression entity*` `;`
+
+```
+    print 'b' in 'abcdefg';
+    print 3   in ['one', 'two', 'three', 'four'];
+    print 'key' in {key: 'value', property: 'value'};
+```
+
 ## contents, compiling, installing, cli
 The package consist of a tokenizer/scanner, a parser and an interpreter.
 To compile the contents download the repo and:

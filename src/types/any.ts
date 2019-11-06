@@ -84,8 +84,18 @@ export class $Any {
         return true;
     }
 
-    public isEqual(other: $Any) {
+    public isEqual(other: $Any): boolean {
         return this.value === other.value;
+    }
+
+    public isKeyValue(): boolean {
+        if (this.type === DataType.Class ||
+            this.type === DataType.Dictionary ||
+            this.type === DataType.Object
+        ) {
+            return true;
+        }
+        return false;
     }
 
     public get(key: $Any): $Any {
