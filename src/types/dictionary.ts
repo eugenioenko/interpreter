@@ -67,10 +67,6 @@ export class $Dictionary extends $Any {
         return new $Null();
     }
 
-    public operatorIn(key: $Any): $Any {
-        return new $Boolean(this.value.has(key.value));
-    }
-
     public static runtime =  new Map([
         ['clear', fromJavaScriptMethod('clear', 0, DataType.Null)],
         ['delete', fromJavaScriptMethod('delete', 1, DataType.Boolean)],

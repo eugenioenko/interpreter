@@ -31,10 +31,6 @@ export class $Class extends $Any {
         return value;
     }
 
-    public operatorIn(key: $Any): $Any {
-        return new $Boolean(this.value.has(key.value));
-    }
-
     public toString(): string {
         return `<${this.name} class>`;
     }

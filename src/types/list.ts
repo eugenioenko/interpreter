@@ -50,10 +50,6 @@ export class $List extends $Any {
         return new $Number(args[0].value.length);
     }
 
-    public operatorIn(key: $Any): $Any {
-        return new $Boolean(typeof this.value[key.value] !== 'undefined');
-    }
-
     public static each(thiz: $Any, args: $Any[], interpreter: Interpreter): $Any {
         for (let i = 0; i < thiz.value.length; ++i) {
             (args[0] as $Function).call(thiz, [thiz.value[i], new $Number(i), thiz], interpreter);
