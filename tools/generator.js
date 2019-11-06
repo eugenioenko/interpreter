@@ -24,6 +24,7 @@ const ExpressionAST = {
     Typeof: ['value: Expr'],
     Unary: ['operator: Token', 'right: Expr'],
     Variable: ['name: Token'],
+    Void: ['value: Expr'],
     Ztring: ['value: string']
 };
 

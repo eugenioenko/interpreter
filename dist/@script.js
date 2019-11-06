@@ -1,4 +1,4 @@
-const atscript = require('./atscript.min');
+const atscript = require('./atscript');
 global.conzole = console;
 const readline = require('readline');
 const exitKeywords = ['exit', 'close', 'quit'];
