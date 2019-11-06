@@ -35,6 +35,7 @@ export interface ExprVisitor<R> {
     visitTypeofExpr(expr: Typeof): R;
     visitUnaryExpr(expr: Unary): R;
     visitVariableExpr(expr: Variable): R;
+    visitVoidExpr(expr: Void): R;
     visitZtringExpr(expr: Ztring): R;
 }
 
@@ -489,6 +490,24 @@ export class Variable extends Expr {
 
     public toString(): string {
         return 'Expr.Variable';
+    }
+}
+
+export class Void extends Expr {
+    public value: Expr;
+
+    constructor(value: Expr, line: number) {
+        super();
+        this.value = value;
+        this.line = line;
+    }
+
+    public accept<R>(visitor: ExprVisitor<R>): R {
+        return visitor.visitVoidExpr(this);
+    }
+
+    public toString(): string {
+        return 'Expr.Void';
     }
 }
 

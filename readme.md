@@ -418,7 +418,15 @@ As side effect, it will also return false if the object is not an object.
 
 ```
 
-### contents, compiling, installing, cli
+### void
+"void" operator evaluates an expression and discards its value returning always null
+> `void` *`expression`* `;`
+
+```
+    print void 2 * (5 + 10) + 100; // prints null
+```
+
+## contents, compiling, installing, cli
 The package consist of a tokenizer/scanner, a parser and an interpreter.
 To compile the contents download the repo and:
 

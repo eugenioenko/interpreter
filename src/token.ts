@@ -76,6 +76,7 @@ export enum TokenType {
     True,
     Typeof,
     Var,
+    Void,
     While
 }
 

@@ -510,4 +510,9 @@ export class Interpreter implements
 
     }
 
+    public visitVoidExpr(expr: Expr.Void): $Any {
+        this.evaluate(expr.value);
+        return new $Null();
+    }
+
 }
