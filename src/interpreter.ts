@@ -517,8 +517,12 @@ export class Interpreter implements
 
     public visitInExpr(expr: Expr.In): $Any {
         const key = this.evaluate(expr.key);
-        const entity = this.evaluate(expr.entity);
-        return entity.operatorIn(key);
+        const entity = <any> this.evaluate(expr.entity);
+        if (typeof entity.operatorIn !== 'undefined') {
+            return entity.operatorIn(key);
+        } else {
+            this.error(`Operator "in" can't be used on type ${DataType[entity.type]} with value "${entity}"`);
+        }
     }
 
 }

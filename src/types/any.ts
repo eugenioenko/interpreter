@@ -98,10 +98,6 @@ export class $Any {
         throw new Error("Error in Any setter");
     }
 
-    public operatorIn(key: $Any): $Any {
-        throw new Error("Operator In can be used only on List, Dictionary, Class or Object");
-    }
-
     public toString(): string {
         return this.value.toString();
     }
