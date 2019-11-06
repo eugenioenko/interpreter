@@ -515,4 +515,10 @@ export class Interpreter implements
         return new $Null();
     }
 
+    public visitInExpr(expr: Expr.In): $Any {
+        const key = this.evaluate(expr.key);
+        const entity = this.evaluate(expr.entity);
+        return entity.operatorIn(key);
+    }
+
 }

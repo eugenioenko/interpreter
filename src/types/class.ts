@@ -1,13 +1,14 @@
 import { DataType } from './type.enum';
 import { $Any } from './any';
 import { $Null } from './null';
+import { $Boolean } from './boolean';
 
 export class $Class extends $Any {
     public value: Map<string, $Any>;
     public name: string;
-    public parent: $Class | $Any;
+    public parent: $Any;
 
-    constructor(name: string, value: Map<string, $Any>, parent: $Any | $Class) {
+    constructor(name: string, value: Map<string, $Any>, parent: $Any) {
         super(value, DataType.Class);
         this.name = name;
         this.parent = parent;
@@ -28,6 +29,10 @@ export class $Class extends $Any {
     public set(key: $Any, value: $Any): $Any {
         this.value.set(key.value, value);
         return value;
+    }
+
+    public operatorIn(key: $Any): $Any {
+        return new $Boolean(this.value.has(key.value));
     }
 
     public toString(): string {

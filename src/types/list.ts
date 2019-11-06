@@ -6,6 +6,7 @@ import { $Null } from './null';
 import { $Number } from './number';
 import { DataType } from './type.enum';
 import { $Range } from './range';
+import { $Boolean } from './boolean';
 
 export class $List extends $Any {
     public value: $Any[];
@@ -47,6 +48,10 @@ export class $List extends $Any {
 
     public static size(thiz: $Any, args: $Any[]): $Any {
         return new $Number(args[0].value.length);
+    }
+
+    public operatorIn(key: $Any): $Any {
+        return new $Boolean(typeof this.value[key.value] !== 'undefined');
     }
 
     public static each(thiz: $Any, args: $Any[], interpreter: Interpreter): $Any {

@@ -7,6 +7,7 @@ import { $Null } from './null';
 import { $Number } from './number';
 import { $String } from './string';
 import { DataType } from './type.enum';
+import { $Boolean } from './boolean';
 
 export class $Dictionary extends $Any {
     public value: Map<any, $Any>;
@@ -64,6 +65,10 @@ export class $Dictionary extends $Any {
             return new $String(index);
         }
         return new $Null();
+    }
+
+    public operatorIn(key: $Any): $Any {
+        return new $Boolean(this.value.has(key.value));
     }
 
     public static runtime =  new Map([

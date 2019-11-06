@@ -19,6 +19,7 @@ export interface ExprVisitor<R> {
     visitDictionaryExpr(expr: Dictionary): R;
     visitGetExpr(expr: Get): R;
     visitGroupingExpr(expr: Grouping): R;
+    visitInExpr(expr: In): R;
     visitInstanceOfExpr(expr: InstanceOf): R;
     visitIsExpr(expr: Is): R;
     visitKeyExpr(expr: Key): R;
@@ -178,6 +179,26 @@ export class Grouping extends Expr {
 
     public toString(): string {
         return 'Expr.Grouping';
+    }
+}
+
+export class In extends Expr {
+    public key: Expr;
+    public entity: Expr;
+
+    constructor(key: Expr, entity: Expr, line: number) {
+        super();
+        this.key = key;
+        this.entity = entity;
+        this.line = line;
+    }
+
+    public accept<R>(visitor: ExprVisitor<R>): R {
+        return visitor.visitInExpr(this);
+    }
+
+    public toString(): string {
+        return 'Expr.In';
     }
 }
 
