@@ -140,9 +140,12 @@ export class Interpreter implements
     }
 
     public visitTemplateExpr(expr: Expr.Template): $Any {
-        const result = expr.value.replace(/\$\{(.+?)\}/g, (m, placeholder) =>
-            this.templateParse(placeholder + ';')
-        );
+        const result = expr.value.replace(/\$\{\{([\s\S]+?)\}\}/g, (m, placeholder) => {
+            if (placeholder[placeholder.length] !== ';') {
+                placeholder += ';';
+            }
+            return this.templateParse(placeholder);
+        });
         return new $String(result);
     }
 
@@ -212,11 +215,19 @@ export class Interpreter implements
     }
 
     public visitLogicalExpr(expr: Expr.Logical): $Any {
-        if (expr.operator.type === TokenType.And) {
-            return this.evaluate(expr.left) && this.evaluate(expr.right);
+        const left = this.evaluate(expr.left);
+
+        if (expr.operator.type === TokenType.Or) {
+            if (left.isTruthy()) {
+                return left;
+            }
         } else {
-            return this.evaluate(expr.left) || this.evaluate(expr.right);
+            if (!left.isTruthy()) {
+                return left;
+            }
         }
+
+        return this.evaluate(expr.right);
     }
 
     public visitTernaryExpr(expr: Expr.Ternary): $Any {
