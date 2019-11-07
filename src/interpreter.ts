@@ -121,6 +121,13 @@ export class Interpreter implements
         return new $String(expr.value);
     }
 
+    public visitTemplateExpr(expr: Expr.Template): $Any {
+        const result = expr.value.replace(/\$\{(.+?)\}/g, (m, name) =>
+            this.scope.get(name).toString()
+        );
+        return new $String(result);
+    }
+
     public visitRegExExpr(expr: Expr.RegEx): $Any {
         /*
         return new RegExEntity(expr.value);

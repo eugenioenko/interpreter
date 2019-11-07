@@ -33,6 +33,7 @@ export interface ExprVisitor<R> {
     visitRangeExpr(expr: Range): R;
     visitRegExExpr(expr: RegEx): R;
     visitSetExpr(expr: Set): R;
+    visitTemplateExpr(expr: Template): R;
     visitTernaryExpr(expr: Ternary): R;
     visitTypeofExpr(expr: Typeof): R;
     visitUnaryExpr(expr: Unary): R;
@@ -454,6 +455,24 @@ export class Set extends Expr {
 
     public toString(): string {
         return 'Expr.Set';
+    }
+}
+
+export class Template extends Expr {
+    public value: string;
+
+    constructor(value: string, line: number) {
+        super();
+        this.value = value;
+        this.line = line;
+    }
+
+    public accept<R>(visitor: ExprVisitor<R>): R {
+        return visitor.visitTemplateExpr(this);
+    }
+
+    public toString(): string {
+        return 'Expr.Template';
     }
 }
 

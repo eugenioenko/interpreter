@@ -620,6 +620,9 @@ export class Parser {
         if (this.match(TokenType.String)) {
             return new Expr.Ztring(this.previous().literal, this.previous().line);
         }
+        if (this.match(TokenType.Template)) {
+            return new Expr.Template(this.previous().literal, this.previous().line);
+        }
         if (this.match(TokenType.Regex)) {
             return new Expr.RegEx(this.previous().literal, this.previous().line);
         }

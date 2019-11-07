@@ -110,7 +110,7 @@ export class Scanner {
         }
     }
 
-    private string(quote: string, type: TokenType): void {
+    private string(quote: string): void {
         while (this.peek() !== quote && !this.eof()) {
             this.advance();
         }
@@ -126,7 +126,7 @@ export class Scanner {
 
         // Trim the surrounding quotes.
         const value = this.source.substring(this.start + 1, this.current - 1);
-        this.addToken(TokenType.String, value);
+        this.addToken(quote !== '`' ? TokenType.String : TokenType.Template, value);
     }
 
     private number(): void {
@@ -214,7 +214,7 @@ export class Scanner {
             case `'`:
             case `"`:
             case '`':
-                this.string(char, TokenType.String);
+                this.string(char);
                 break;
             // ignore cases
             case '\n':
