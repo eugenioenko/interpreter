@@ -50,6 +50,7 @@ export enum TokenType {
 
     // Literals
     Identifier,
+    Template,
     String,
     Number,
     Regex,
