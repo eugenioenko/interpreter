@@ -134,7 +134,7 @@ export class Interpreter implements
         }
         let result = '';
         for (const statement of statements) {
-            result += this.execute(statement).value;
+            result += this.execute(statement).toString();
         }
         return result;
     }
