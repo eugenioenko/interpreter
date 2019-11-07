@@ -12,6 +12,7 @@ export class Parser {
     private current: number;
     private tokens: Token[];
     public errors: string[];
+    public errorLevel = 1;
 
     public parse(tokens: Token[]): Stmt.Stmt[] {
         this.current = 0;
@@ -93,8 +94,10 @@ export class Parser {
     }
 
     private warning(message: string): void {
-        const token = this.previous();
-        conzole.warn(`[line (${token.line}) parse warning at "${token.lexeme}"] => ${message}`);
+        if (this.errorLevel === 1) {
+            const token = this.previous();
+            conzole.warn(`[line (${token.line}) parse warning at "${token.lexeme}"] => ${message}`);
+        }
     }
 
     private synchronize(): void {
@@ -363,7 +366,7 @@ export class Parser {
         this.consume(TokenType.Semicolon, `Expected semicolon ";" after ${expression} expression`);
         if (this.match(TokenType.Semicolon)) {
             const token = this.previous();
-            conzole.warn(`[line (${token.line}) parse warning at "${token.lexeme}"] => unnecessary semicolon or empty statement`);
+            this.warning(`[line (${token.line}) parse warning at "${token.lexeme}"] => unnecessary semicolon or empty statement`);
             // consume all semicolons
             // tslint:disable-next-line
             while (this.match(TokenType.Semicolon)){ };

@@ -18,6 +18,8 @@ import { $String } from './types/string';
 import { $Void } from './types/void';
 import { DataType } from './types/type.enum';
 import { capitalize } from './utils';
+import { Scanner } from './scanner';
+import { Parser } from './parser';
 declare var conzole: Console;
 
 export class Interpreter implements
@@ -26,11 +28,14 @@ export class Interpreter implements
     public global = new Scope();
     public scope = this.global;
     public errors: string[] = [];
+    private scanner = new Scanner();
+    private parser = new Parser();
 
     constructor( ) {
         this.global.set('math', new $Dictionary(Runtime.Math));
         this.global.set('console', new $Dictionary(Runtime.Console));
         this.global.set('re', Runtime.Utils.get('re'));
+        this.parser.errorLevel = 0;
     }
 
     private evaluate(expr: Expr.Expr): $Any {
@@ -121,9 +126,22 @@ export class Interpreter implements
         return new $String(expr.value);
     }
 
+    private templateParse(source: string): string {
+        const tokens = this.scanner.scan(source);
+        const statements = this.parser.parse(tokens);
+        if (this.parser.errors.length) {
+            this.error(`Template string  error: ${this.parser.errors[0]}`);
+        }
+        let result = '';
+        for (const statement of statements) {
+            result += this.execute(statement).value;
+        }
+        return result;
+    }
+
     public visitTemplateExpr(expr: Expr.Template): $Any {
-        const result = expr.value.replace(/\$\{(.+?)\}/g, (m, name) =>
-            this.scope.get(name).toString()
+        const result = expr.value.replace(/\$\{(.+?)\}/g, (m, placeholder) =>
+            this.templateParse(placeholder + ';')
         );
         return new $String(result);
     }
