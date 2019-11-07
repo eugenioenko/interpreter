@@ -191,7 +191,7 @@ export class Interpreter implements
                 if (left.isDictionary() && right.isDictionary()) {
                     return new $Dictionary(new Map([...left.value, ...right.value]));
                 }
-                return new $String(left.value.toString() + right.value.toString());
+                return new $String(left.toString() + right.toString());
             case TokenType.Pipe:
                 return new $Number(left.value | right.value);
             case TokenType.Caret:

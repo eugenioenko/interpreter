@@ -34,7 +34,7 @@ export class $String extends $Any {
     }
 
     public toString(): string {
-        return `"${this.value}"`;
+        return `${this.value}`;
     }
 
     private range(range: $Range): $String {
