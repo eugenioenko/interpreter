@@ -35,6 +35,7 @@ export class Interpreter implements
         this.global.set('math', new $Dictionary(Runtime.Math));
         this.global.set('console', new $Dictionary(Runtime.Console));
         this.global.set('re', Runtime.Utils.get('re'));
+        this.global.set('iter', Runtime.Utils.get('iter'));
         this.parser.errorLevel = 0;
     }
 

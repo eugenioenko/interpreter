@@ -12,7 +12,7 @@ export class $Iterator extends $Any {
 
     public value: $Any;
     public index: $Any;
-    public iter: any;
+    public iter: any;   // internal index or iterator
 
     constructor(value: $Any) {
         super(value, DataType.RegExp);
@@ -73,19 +73,4 @@ export class $Iterator extends $Any {
         ['next', new $Callable('next', 0, $Iterator.next)],
         ['complete', new $Callable('complete', 0, $Iterator.complete)]
     ]);
-
-
-    /*
-    var it = dictionary.iterator()
-    do {
-        it.key();
-        it.value
-
-    } while (!it.complete()) {
-        print l[it.index];
-    }
-
-     */
-
-
 }
