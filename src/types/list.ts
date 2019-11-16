@@ -6,12 +6,12 @@ import { $Null } from './null';
 import { $Number } from './number';
 import { DataType } from './type.enum';
 import { $Range } from './range';
-import { $Boolean } from './boolean';
 import { $Iterator } from './iterator';
 import { $Boolean } from './boolean';
 
 export class $List extends $Any {
     public value: $Any[];
+
     constructor(value: $Any[]) {
         super(value, DataType.List);
     }
@@ -74,21 +74,24 @@ export class $List extends $Any {
        return new $Iterator(thiz);
     }
 
-    public static next(thiz: $Any, args: $Any[], interpreter: Interpreter): $Any {
-        // empty list
-        if (!thiz.value.length) {
+    public static next(thiz: $Any) {
+        const it = thiz as $Iterator;
+        const list = it.value as $List;
+
+        // emtpy list or iteration over
+        if (!list.value.length || it.index.isNull()) {
             return new $Null();
         }
         // first value
-        if (args[0].isNull()) {
+        if (it.iter === null) {
+            it.iter = true;
             return new $Number(0);
         }
         // no more values to iterate
-        if (args[0].value >= thiz.value.length - 1) {
+        if (it.index.value >= list.value.length - 1) {
             return new $Null();
         }
-
-        return new $Number(args[0].value + 1);
+        return new $Number(it.index.value + 1);
     }
 
     public static runtime =  new Map([
@@ -106,8 +109,7 @@ export class $List extends $Any {
         ['slice', fromJavaScriptMethod('slice', -1, DataType.List)],
         ['splice', fromJavaScriptMethod('splice', -1, DataType.List)],
         ['unshift', fromJavaScriptMethod('unshift', -1, DataType.List)],
-        ['iterator', new $Callable('iterator', 0, $List.iterator)],
-        ['next', new $Callable('next', 0, $List.next)]
+        ['iterator', new $Callable('iterator', 0, $List.iterator)]
     ]);
 
 }

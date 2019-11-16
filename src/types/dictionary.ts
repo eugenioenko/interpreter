@@ -26,7 +26,6 @@ export class $Dictionary extends $Any {
         } else {
             return new $Null();
         }
-        return new $Null();
     }
 
     public set(key: $Any, value: $Any): $Any {
@@ -73,23 +72,25 @@ export class $Dictionary extends $Any {
         return new $Iterator(thiz);
     }
 
-    public static next(thiz: $Any, args: $Any[], interpreter: Interpreter): $Any {
+    public static next(thiz: $Any): $Any {
+        const it = thiz as $Iterator;
+        const dict = it.value as $Dictionary;
         // empty list
-        if (!thiz.value.size) {
+        if (!dict.value.size) {
             return new $Null();
         }
         // first value
-        if (args[0].isNull()) {
-            return new $Any(thiz.value.keys(), DataType.Object);
+        if (it.iter === null) {
+            it.iter = dict.value.keys();
         }
 
-        const nextValue = args[0].value.next();
+        const next = it.iter.next();
         // no more values to iterate
-        if (nextValue.done) {
+        if (next.done) {
             return new $Null();
         }
 
-        return nextValue.value;
+        return new $String(next.value);
     }
 
     public static runtime =  new Map([

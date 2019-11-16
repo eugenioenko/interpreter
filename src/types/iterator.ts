@@ -5,15 +5,19 @@ import { $Dictionary } from './dictionary';
 import { $Null } from './null';
 import { $Callable, $Function } from './function';
 import { $String } from './string';
+import { $Number } from './number';
+import { $List } from './list';
 
 export class $Iterator extends $Any {
 
     public value: $Any;
     public index: $Any;
+    public iter: any;
 
     constructor(value: $Any) {
         super(value, DataType.RegExp);
         this.index = new $Null();
+        this.iter = null;
     }
 
     public get(key: $Any): $Any {
@@ -38,9 +42,16 @@ export class $Iterator extends $Any {
         return `"${this.value}"`;
     }
 
-    public static next(thiz: $Any, args: $Any[], interpreter: Interpreter): $Any {
-        (thiz as $Iterator).index = (thiz.value.get(new $String('next')) as $Callable).call(thiz.value, [(thiz as $Iterator).index], interpreter);
-        return (thiz as $Iterator).index;
+    public static next(thiz: $Any): $Any {
+        const it = thiz as $Iterator;
+        if (it.value.isList()) {
+            it.index = $List.next(thiz);
+        }
+        if (it.value.isDictionary()) {
+            it.index = $Dictionary.next(thiz);
+        }
+        // (thiz as $Iterator).index = (thiz.value.get(new $String('next')) as $Callable).call(thiz.value, [(thiz as $Iterator).index], interpreter);
+        return it.index;
     }
 
     public static complete(thiz: $Any, args: $Any[], interpreter: Interpreter): $Any {
