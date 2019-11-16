@@ -30,6 +30,9 @@ export class Interpreter implements
     public errors: string[] = [];
     private scanner = new Scanner();
     private parser = new Parser();
+    public strings = {
+        next: new $String('next')
+    };
 
     constructor( ) {
         this.global.set('math', new $Dictionary(Runtime.Math));

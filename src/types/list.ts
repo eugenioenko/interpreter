@@ -78,14 +78,18 @@ export class $List extends $Any {
         const it = thiz as $Iterator;
         const list = it.value as $List;
 
-        // emtpy list or iteration over
-        if (!list.value.length || it.index.isNull()) {
+        // emtpy list
+        if (!list.value.length) {
             return new $Null();
         }
         // first value
         if (it.iter === null) {
             it.iter = true;
             return new $Number(0);
+        }
+        // already iterated
+        if (it.index.isNull()) {
+            return it.index;
         }
         // no more values to iterate
         if (it.index.value >= list.value.length - 1) {

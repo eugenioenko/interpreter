@@ -39,10 +39,10 @@ export class $Iterator extends $Any {
     }
 
     public toString(): string {
-        return `"${this.value}"`;
+        return `<${DataType[this.value.type]} iterator>`;
     }
 
-    public static next(thiz: $Any): $Any {
+    public static next(thiz: $Any, args: $Any[], interpreter: Interpreter): $Any {
         const it = thiz as $Iterator;
         if (it.value.isList()) {
             it.index = $List.next(thiz);
@@ -50,7 +50,9 @@ export class $Iterator extends $Any {
         if (it.value.isDictionary()) {
             it.index = $Dictionary.next(thiz);
         }
-        // (thiz as $Iterator).index = (thiz.value.get(new $String('next')) as $Callable).call(thiz.value, [(thiz as $Iterator).index], interpreter);
+        if (it.value.isObject()) {
+            it.index =  (thiz.value.get(interpreter.strings.next) as $Callable).call(thiz.value, [(thiz as $Iterator)], interpreter);
+        }
         return it.index;
     }
 
@@ -73,4 +75,5 @@ export class $Iterator extends $Any {
         ['next', new $Callable('next', 0, $Iterator.next)],
         ['complete', new $Callable('complete', 0, $Iterator.complete)]
     ]);
+
 }
