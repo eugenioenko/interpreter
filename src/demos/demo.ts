@@ -1,5 +1,6 @@
 export const DemoSourceCode =
 `
+<<<<<<< HEAD
 // slicing strings
 print "one two three four"[4:7:1]; // prints two
 print "hello world"[6::1].size(); // 5
@@ -83,6 +84,8 @@ var literal = {
         prev: "previous",
         next: "next"
     }
+=======
+>>>>>>> 195953d63ef74e2ca630852c754dee917458145d
 var d = {
     'one': 1,
     'two': 2,
@@ -96,6 +99,7 @@ print it.next();
 print it.next();
 print it.next();
 print it.next();
+<<<<<<< HEAD
 
 // typeof, is, instanceof operator
 
@@ -108,5 +112,7 @@ print 'student is Student: ' + (student is Student);
 print 'student instanceof Person: ' + (student instanceof Person);
 
 print typeof '' + 'string';
+=======
+>>>>>>> 195953d63ef74e2ca630852c754dee917458145d
 
 `;
