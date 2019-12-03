@@ -3,9 +3,7 @@ import { $Any } from './any';
 import { Interpreter } from '../interpreter';
 import { $Dictionary } from './dictionary';
 import { $Null } from './null';
-import { $Callable, $Function } from './function';
-import { $String } from './string';
-import { $Number } from './number';
+import { $Callable } from './function';
 import { $List } from './list';
 import { $Boolean } from './boolean';
 
@@ -46,7 +44,6 @@ export class $Iterator extends $Any {
             return $Iterator.runtime.get(key.value);
         }
         return new $Null();
-
     }
 
     public complete(): void {

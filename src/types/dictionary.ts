@@ -80,6 +80,7 @@ export class $Dictionary extends $Any {
             it.complete();
             return it;
         }
+
         // first value
         if (it.iter.inner === null) {
             it.iter.inner = dict.value.keys();
