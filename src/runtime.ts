@@ -8,6 +8,7 @@ import { $Number } from './types/number';
 import { $String } from './types/string';
 import { $Void } from './types/void';
 import { $RegExp } from './types/regex';
+import { $Iterator } from './types/iterator';
 
 export function fromJavaScriptMethod(jsName: string, arity: number, type: DataType): $Callable {
     return new $Callable(jsName, arity, (thiz: $Any, args: $Any[]): $Any => {
@@ -76,6 +77,9 @@ export const Runtime = {
                 return new $RegExp(new RegExp(values[0]));
             }
             return new $RegExp(new RegExp(values[0], values[1]));
+        })],
+        ['iter', new $Callable('iter', 1, (thiz: $Any, args: $Any[]): $Any => {
+            return new $Iterator(args[0]);
         })]
     ])
 };

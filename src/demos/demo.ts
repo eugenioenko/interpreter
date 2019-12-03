@@ -4,13 +4,11 @@ export const DemoSourceCode =
 print "one two three four"[4:7:1]; // prints two
 print "hello world"[6::1].size(); // 5
 print "hello world"[::-1]; //prints dlrow olleh
-
 // functions
 function sayHello(text) {
     print text;
 }
 sayHello('hello');
-
 // classes
 class Person {
     constructor(name) {
@@ -20,7 +18,6 @@ class Person {
         print this.name + ' says hi';
     }
 }
-
 class Student extends Person {
     constructor(name, grade) {
         base.constructor(name);
@@ -31,10 +28,8 @@ class Student extends Person {
         print 'from ' + this.grade + ' grade';
     }
 }
-
 var student = new Student('John', 3);
 student.hello();
-
 // Recursive function
 function factorialize(n) {
     if (n < 0) {
@@ -46,18 +41,14 @@ function factorialize(n) {
     return (n * factorialize(n - 1));
 }
 print 'factor of 11: ' + factorialize(11);
-
 // same as factorialize but with ternary
 // and short form function definition
 @factor(n) =>
     n < 0 ? -1 : (n == 0 ? 1 : (n * factorialize(n - 1)));
-
 print 'factor of 11: ' +factor(11);
-
 // nested function returns function
 @add(a) => @(b) => @(c) => a + b + c;
 print add(100)(20)(3);
-
 function sub(a) {
     return function (b) {
         return function (c) {
@@ -66,7 +57,6 @@ function sub(a) {
     };
 }
 print sub(100)(10)(1);
-
 // while loop and ternary operator
 var i = 0;
 var counts = '';
@@ -87,7 +77,6 @@ var literal = {
 print literal.records.prev;
 // safe navigator operator ?.
 print literal.safeNavigator?.propertyDoesNotExist;
-
 var x = [1, 20, 300];
 var y = [100, x[1]];
 print y[0];
@@ -95,7 +84,6 @@ y.push(x);
 y.newProperty = "anything";
 print y.join(',');
 var z = y.join('-');
-
 // new scope test
 {
     var a = {a: 'one'};
@@ -110,9 +98,7 @@ var z = y.join('-');
     var c = a + b;
     print c; // prints {d: 'three', e: 'four'}
 }
-
 // typeof, is, instanceof operator
-
 print typeof Person;
 print typeof student;
 print 'Student is Class: ' + (Student is Class);
@@ -120,7 +106,12 @@ print 'student is Object: ' + (student is Object);
 print 'student is Person: ' + (student is Person);
 print 'student is Student: ' + (student is Student);
 print 'student instanceof Person: ' + (student instanceof Person);
-
 print typeof '' + 'string';
 
+
+// iterators
+var it = iter(['one', 'two', 'three']);
+while (!it.next().done) {
+    print it.value;
+}
 `;
