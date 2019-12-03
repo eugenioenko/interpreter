@@ -114,4 +114,9 @@ var it = iter(['one', 'two', 'three']);
 while (!it.next().done) {
     print it.value;
 }
+
+// foreach statement
+foreach (item with key in ['one', 'two', 'three']) {
+    print item;
+}
 `;
