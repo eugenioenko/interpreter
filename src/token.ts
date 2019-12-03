@@ -66,6 +66,7 @@ export enum TokenType {
     Extends,
     False,
     For,
+    Foreach,
     Function,
     If,
     In,
@@ -80,7 +81,8 @@ export enum TokenType {
     Typeof,
     Var,
     Void,
-    While
+    While,
+    With
 }
 
 export class Token {
