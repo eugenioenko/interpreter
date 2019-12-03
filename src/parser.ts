@@ -231,6 +231,9 @@ export class Parser {
         if (this.match(TokenType.For)) {
             return this.forStatement();
         }
+        if (this.match(TokenType.Foreach)) {
+            return this.foreachStatement();
+        }
         if (this.match(TokenType.LeftBrace)) {
             return new Stmt.Block(this.block(), this.previous().line);
         }
@@ -308,6 +311,22 @@ export class Parser {
             ], keyword.line);
         }
         return body;
+    }
+
+    private foreachStatement(): Stmt.Stmt {
+        const keyword = this.previous();
+        this.consume(TokenType.LeftParen, `Expected open parenthesis "(" after a "foreach" statement`);
+        const name = this.consume(TokenType.Identifier, `Expected an identifier inside "foreach" statement`);
+        let key: Token = null;
+        if (this.match(TokenType.With)) {
+            key = this.consume(TokenType.Identifier, `Expected a "key" identifier after "with" keyword in foreach statement`);
+        }
+        this.consume(TokenType.In, `Expected "in" keyword inside foreach statement`);
+        const iterable = this.expression();
+        this.consume(TokenType.RightParen, `Expected close parenthesis ")" after a "foreach" initialization`);
+
+        const loop: Stmt.Stmt = this.statement();
+        return new Stmt.Foreach(name, key, iterable, loop, keyword.line);
     }
 
     private doWhileStatement(): Stmt.Stmt {

@@ -116,6 +116,17 @@ Falsy values are:
       // todo
     }
 ```
+#### foreach
+```
+    for (item with key in list) {
+        print item;
+        print key;
+    }
+
+    for (item in list) {
+        print item;
+    }
+```
 
  ## function
  Functions are defined by using the 'function' keyword or '@', followed by an optional list of parameters and a body statement (block statement or single statement).

@@ -20,6 +20,7 @@ import { DataType } from './types/type.enum';
 import { capitalize } from './utils';
 import { Scanner } from './scanner';
 import { Parser } from './parser';
+import { $Iterator } from './types/iterator';
 declare var conzole: Console;
 
 export class Interpreter implements
@@ -144,7 +145,7 @@ export class Interpreter implements
     }
 
     public visitTemplateExpr(expr: Expr.Template): $Any {
-        const result = expr.value.replace(/\$\{\{([\s\S]+?)\}\}/g, (m, placeholder) => {
+        const result = expr.value.replace(/\$\{([\s\S]+?)\}/g, (m, placeholder) => {
             if (placeholder[placeholder.length] !== ';') {
                 placeholder += ';';
             }
@@ -336,6 +337,31 @@ export class Interpreter implements
             }
         } while (this.evaluate(stmt.condition).isTruthy());
         return new $Void('dowhile');
+    }
+
+    public visitForeachStmt(stmt: Stmt.Foreach): $Any {
+        const it = new $Iterator(this.evaluate(stmt.iterable));
+        const restoreScope = this.scope;
+        while (!($Iterator.next(it, [], this) as $Iterator).iter.done.value) {
+            const foreachScope = new Scope(this.scope);
+            foreachScope.set(stmt.name.lexeme, it.iter.value);
+            if (stmt.key) {
+                foreachScope.set(stmt.key.lexeme, it.iter.index);
+            }
+            try {
+                this.executeBlock([stmt.loop], foreachScope);
+            } catch (e) {
+                this.scope = restoreScope;
+                if (e instanceof $Any && e.type === DataType.Break) {
+                    break;
+                } else if (e instanceof $Any && e.type === DataType.Continue) {
+                    continue;
+                } else {
+                    throw e;
+                }
+            }
+        }
+        return new $Void('foreach');
     }
 
     public visitCallExpr(expr: Expr.Call): $Any {
