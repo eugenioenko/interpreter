@@ -77,20 +77,22 @@ export class $Dictionary extends $Any {
         const dict = it.value as $Dictionary;
         // empty list
         if (!dict.value.size) {
-            return new $Null();
+            it.complete();
+            return it;
         }
         // first value
-        if (it.iter === null) {
-            it.iter = dict.value.keys();
+        if (it.iter.inner === null) {
+            it.iter.inner = dict.value.keys();
         }
 
-        const next = it.iter.next();
+        const current = it.iter.inner.next();
+        it.iter.value = current.value;
+
         // no more values to iterate
-        if (next.done) {
-            return new $Null();
+        if (current.done) {
+            it.complete();
         }
-
-        return new $String(next.value);
+        return it;
     }
 
     public static runtime =  new Map([

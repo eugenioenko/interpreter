@@ -77,25 +77,37 @@ export class $List extends $Any {
     public static next(thiz: $Any) {
         const it = thiz as $Iterator;
         const list = it.value as $List;
+        const index = it.iter.index;
 
         // emtpy list
         if (!list.value.length) {
-            return new $Null();
+            it.complete();
+            return it;
         }
+
         // first value
-        if (it.iter === null) {
-            it.iter = true;
-            return new $Number(0);
+        if (it.iter.inner === null) {
+            it.iter.inner = true;
+            it.iter.index = new $Number(0);
+            it.iter.value = list.value[0];
+            return it;
         }
+
         // already iterated
-        if (it.index.isNull()) {
-            return it.index;
+        if (it.iter.done.value) {
+            return it;
         }
+
         // no more values to iterate
-        if (it.index.value >= list.value.length - 1) {
-            return new $Null();
+        if (index.value >= list.value.length - 1) {
+            it.complete();
+            return it;
         }
-        return new $Number(it.index.value + 1);
+
+        const newIndex = index.value + 1;
+        it.iter.index = new $Number(newIndex);
+        it.iter.value = list.value[newIndex];
+        return it;
     }
 
     public static runtime =  new Map([
