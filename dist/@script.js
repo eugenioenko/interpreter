@@ -1,5 +1,4 @@
 const atscript = require('./atscript');
-global.conzole = console;
 const readline = require('readline');
 const exitKeywords = ['exit', 'close', 'quit'];
 const rl = readline.createInterface(process.stdin, process.stdout);
