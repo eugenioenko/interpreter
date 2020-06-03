@@ -1,8 +1,8 @@
-require('../dist/atscript.min.js');
+const exec = require('../dist/atscript.js').atscript.execute;
 
 describe("atscript expression calculator", () => {
 
-    xit("atscript should perform correct math calculations ", () => {
+    it("atscript should perform correct math calculations ", () => {
         function mathOperationGenerator() {
 
             function rand(max) {
@@ -12,16 +12,15 @@ describe("atscript expression calculator", () => {
             const operations = "+-/*";
             let calc = Math.random().toString();
             for (let i = 0; i <= 100; ++i) {
-                calc += operations[rand(4)] + Math.random().toString();
+                calc += operations[rand(operations.length)] + Math.random().toString();
             }
             calc += ';';
             return calc;
-
         }
 
-        for (let i = 0; i <= 10; ++i) {
+        for (let i = 0; i <= 100; ++i) {
             const calc = mathOperationGenerator();
-            expect(atscript(calc)).toEqual(eval(calc));
+            expect(exec(calc)[0].result.value).toEqual(eval(calc));
         }
 
     });
