@@ -124,8 +124,15 @@ export class Interpreter implements
         for (const expression of expr.value) {
             if (expression instanceof Expr.Spread) {
                 const value = this.evaluate(expression.value);
-                for (let val of value.value) {
-                    values.push(val);
+                if (value.isList()) {
+                    for (let val of value.value) {
+                        values.push(val);
+                    }
+                } else if(value.isString()) {
+                    for (let char of value.value.split('')) {
+                        values.push(new $String(char));
+                    }
+
                 }
             } else {
                 const value = this.evaluate(expression);
@@ -470,9 +477,24 @@ export class Interpreter implements
     public visitDictionaryExpr(expr: Expr.Dictionary): $Any {
         const dict = new $Dictionary(new Map());
         for (const property of expr.properties) {
-            const key  = this.evaluate((property as Expr.Set).key);
-            const value = this.evaluate((property as Expr.Set).value);
-            dict.set(key, value);
+            if (property instanceof Expr.Spread) {
+                const value = this.evaluate(property.value);
+                if (value.isList()) {
+                    value.value.forEach((v: $Any, i:number) => {
+                        dict.set(new $Number(i), v);
+                    });
+                } else if (value.isString) {
+                    value.value.split('').forEach((v: string, i:number) => {
+                        dict.set(new $Number(i), new $String(v));
+                    });
+                } else if (value.isDictionary) {
+
+                }
+            } else {
+                const key  = this.evaluate((property as Expr.Set).key);
+                const value = this.evaluate((property as Expr.Set).value);
+                dict.set(key, value);
+            }
         }
         return dict;
     }

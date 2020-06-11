@@ -698,13 +698,20 @@ export class Parser {
         if (this.match(TokenType.RightBrace)) {
             return new Expr.Dictionary([], this.previous().line);
         }
-        const properties: Expr.Set[] = [];
+        const properties: Expr.Expr[] = [];
         do {
             if (this.match(TokenType.String, TokenType.Identifier, TokenType.Number)) {
                 const key: Token = this.previous();
-                this.consume(TokenType.Colon, `Expected ":" colon after member`);
+                if (this.match(TokenType.Colon)) {
+                    const value = this.expression();
+                    properties.push(new Expr.Set(null, new Expr.Key(key, key.line), value, key.line));
+                } else {
+                    const value = new Expr.Variable(key, key.line);
+                    properties.push(new Expr.Set(null, new Expr.Key(key, key.line), value, key.line));
+                }
+            } else if (this.match(TokenType.DotDotDot)) {
                 const value = this.expression();
-                properties.push(new Expr.Set(null, new Expr.Key(key, key.line), value, key.line));
+                properties.push(new Expr.Spread(value, value.line));
             } else {
                 this.error(this.peek(), `String, Number or Identifier expected as a Key of Dictionary {, unexpected token ${this.peek().lexeme}`);
             }

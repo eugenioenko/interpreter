@@ -1,8 +1,12 @@
 export const DemoSourceCode = `
-var a = ['one', 'two', 'three'];
-print a;
-var b = [...a, 'four', 'five'];
-print b;
+
+var two = 'dos';
+var l = ['one', 'two', 'three'];
+var d = {
+    ...l
+};
+
+print d;
 `;
 export const DemoSourceCodes =
 `
