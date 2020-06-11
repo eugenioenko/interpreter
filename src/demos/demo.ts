@@ -1,4 +1,10 @@
-export const DemoSourceCode =
+export const DemoSourceCode = `
+var a = ['one', 'two', 'three'];
+print a;
+var b = [...a, 'four', 'five'];
+print b;
+`;
+export const DemoSourceCodes =
 `
 // slicing strings
 print "one two three four"[4:7:1]; // prints two

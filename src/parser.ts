@@ -683,6 +683,10 @@ export class Parser {
             const expr: Expr.Expr = this.expression();
             return new Expr.Void(expr, this.previous().line);
         }
+        if (this.match(TokenType.DotDotDot)) {
+            const expr: Expr.Expr = this.expression();
+            return new Expr.Spread(expr, this.previous().line);
+        }
 
         throw this.error(this.peek(), `Expected expression, unexpected token "${this.peek().lexeme}"`);
         // unreacheable code

@@ -22,6 +22,7 @@ const ExpressionAST = {
     Range: ['start: Expr', 'end: Expr', 'step: Expr'],
     RegEx: ['value: RegExp'],
     Set: ['entity: Expr', 'key: Expr', 'value: Expr'],
+    Spread: ['value: Expr'],
     Template: ['value: string'],
     Ternary: ['condition: Expr', 'thenExpr: Expr', 'elseExpr: Expr'],
     Typeof: ['value: Expr'],

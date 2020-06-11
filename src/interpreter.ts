@@ -122,7 +122,15 @@ export class Interpreter implements
     public visitListExpr(expr: Expr.List): $Any {
         const values: $Any[] = [];
         for (const expression of expr.value) {
-            values.push(this.evaluate(expression));
+            if (expression instanceof Expr.Spread) {
+                const value = this.evaluate(expression.value);
+                for (let val of value.value) {
+                    values.push(val);
+                }
+            } else {
+                const value = this.evaluate(expression);
+                values.push(value);
+            }
         }
         return new $List(values);
     }
@@ -602,6 +610,11 @@ export class Interpreter implements
             return new $Boolean(entity.value.includes(key.value));
         }
         this.error(`Operator "in" can't be used on type ${DataType[entity.type]} with value "${entity}"`);
+        return new $Null();
+    }
+
+    public visitSpreadExpr(expr: Expr.Spread): $Any {
+        this.error(`unexpected spread '...' operator at line ${expr.line}`);
         return new $Null();
     }
 
