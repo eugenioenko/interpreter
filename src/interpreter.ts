@@ -124,22 +124,30 @@ export class Interpreter implements
         for (const expression of expr.value) {
             if (expression instanceof Expr.Spread) {
                 const value = this.evaluate(expression.value);
-                if (value.isList()) {
-                    for (let val of value.value) {
-                        values.push(val);
-                    }
-                } else if(value.isString()) {
-                    for (let char of value.value.split('')) {
-                        values.push(new $String(char));
-                    }
+                this.spreadAnyIntoList(value, values);
 
-                }
             } else {
                 const value = this.evaluate(expression);
                 values.push(value);
             }
         }
         return new $List(values);
+    }
+
+    private spreadAnyIntoList(value: $Any, values: $Any[]): void{
+        if (value.isList()) {
+            for (let val of value.value) {
+                values.push(val);
+            }
+        } else if(value.isString()) {
+            for (let char of value.value.split('')) {
+                values.push(new $String(char));
+            }
+        } else if(value.isDictionary) {
+            value.value.forEach((val: $Any) => {
+                values.push(val);
+            });
+        }
     }
 
     public visitZtringExpr(expr: Expr.Ztring): $Any {
@@ -403,9 +411,7 @@ export class Interpreter implements
         for (const argument of expr.args) {
             if (argument instanceof Expr.Spread) {
                 const value = this.evaluate(argument.value);
-                for (let val of value.value) {
-                    args.push(val);
-                }
+                this.spreadAnyIntoList(value, args);
             } else {
                 args.push(this.evaluate(argument));
             }
