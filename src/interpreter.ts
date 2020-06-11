@@ -483,12 +483,14 @@ export class Interpreter implements
                     value.value.forEach((v: $Any, i:number) => {
                         dict.set(new $Number(i), v);
                     });
-                } else if (value.isString) {
+                } else if (value.isString()) {
                     value.value.split('').forEach((v: string, i:number) => {
                         dict.set(new $Number(i), new $String(v));
                     });
-                } else if (value.isDictionary) {
-
+                } else if (value.isDictionary()) {
+                    value.value.forEach((v: $Any, k: any) => {
+                        dict.set(new $Any(k), v);
+                    });
                 }
             } else {
                 const key  = this.evaluate((property as Expr.Set).key);

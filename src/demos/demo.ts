@@ -2,8 +2,12 @@ export const DemoSourceCode = `
 
 var two = 'dos';
 var l = ['one', 'two', 'three'];
+var da = {
+    'one': 'uno',
+    2: 'two'
+};
 var d = {
-    ...l
+    ...da
 };
 
 print d;
