@@ -394,7 +394,14 @@ export class Interpreter implements
         // evaluate function arguments
         const args = [];
         for (const argument of expr.args) {
-            args.push(this.evaluate(argument));
+            if (argument instanceof Expr.Spread) {
+                const value = this.evaluate(argument.value);
+                for (let val of value.value) {
+                    args.push(val);
+                }
+            } else {
+                args.push(this.evaluate(argument));
+            }
         }
 
         // pass arguments to function
