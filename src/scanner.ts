@@ -185,7 +185,6 @@ export class Scanner {
             case '{': this.addToken(TokenType.LeftBrace, null); break;
             case '}': this.addToken(TokenType.RightBrace, null); break;
             case ',': this.addToken(TokenType.Comma, null); break;
-            case '.': this.addToken(TokenType.Dot, null); break;
             case ';': this.addToken(TokenType.Semicolon, null); break;
             case '^': this.addToken(TokenType.Caret, null); break;
             case ':': this.addToken(TokenType.Colon, null); break;
@@ -202,6 +201,17 @@ export class Scanner {
             case '=': this.addToken(this.match('=') ? TokenType.EqualEqual : this.match('>') ? TokenType.Arrow : TokenType.Equal, null); break;
             case '+': this.addToken(this.match('+') ? TokenType.PlusPlus : this.match('=') ? TokenType.PlusEqual : TokenType.Plus, null); break;
             case '-': this.addToken(this.match('-') ? TokenType.MinusMinus : this.match('>') ? TokenType.Return : this.match('=') ? TokenType.MinusEqual : TokenType.Minus, null); break;
+            case '.':
+                if (this.match('.')) {
+                    if (this.match('.')) {
+                        this.addToken(TokenType.DotDotDot, null);
+                    } else {
+                        this.error(`Unexpected character '..'`);
+                    }
+                } else {
+                    this.addToken(TokenType.Dot, null);
+                }
+                break;
             case '/':
                 if (this.match('/')) {
                     this.comment();

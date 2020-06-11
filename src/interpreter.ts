@@ -122,9 +122,45 @@ export class Interpreter implements
     public visitListExpr(expr: Expr.List): $Any {
         const values: $Any[] = [];
         for (const expression of expr.value) {
-            values.push(this.evaluate(expression));
+            if (expression instanceof Expr.Spread) {
+                const value = this.evaluate(expression.value);
+                this.spreadAnyIntoList(value, values);
+            } else if (expression instanceof Expr.Range) {
+                const range: RangeValue = (this.evaluate(expression) as $Range).value;
+                range.step = range.step ? range.step : 1;
+                if (range.step > 0 && range.start <= range.end) {
+                    for (let i = range.start; i <= range.end; i += range.step) {
+                        values.push(new $Number(i));
+                    }
+                } else if (range.step < 0 && range.start >= range.end) {
+                    for (let i = range.start; i >= range.end; i += range.step) {
+                        values.push(new $Number(i));
+                    }
+                } else {
+                    this.error(`Invalid range expression at line ${expression.line} with range value of [${range.start}:${range.end}:${range.step}]`);
+                }
+            } else {
+                const value = this.evaluate(expression);
+                values.push(value);
+            }
         }
         return new $List(values);
+    }
+
+    private spreadAnyIntoList(value: $Any, values: $Any[]): void {
+        if (value.isList()) {
+            for (const val of value.value) {
+                values.push(val);
+            }
+        } else if (value.isString()) {
+            for (const char of value.value.split('')) {
+                values.push(new $String(char));
+            }
+        } else if (value.isDictionary) {
+            value.value.forEach((val: $Any) => {
+                values.push(val);
+            });
+        }
     }
 
     public visitZtringExpr(expr: Expr.Ztring): $Any {
@@ -386,7 +422,12 @@ export class Interpreter implements
         // evaluate function arguments
         const args = [];
         for (const argument of expr.args) {
-            args.push(this.evaluate(argument));
+            if (argument instanceof Expr.Spread) {
+                const value = this.evaluate(argument.value);
+                this.spreadAnyIntoList(value, args);
+            } else {
+                args.push(this.evaluate(argument));
+            }
         }
 
         // pass arguments to function
@@ -455,9 +496,26 @@ export class Interpreter implements
     public visitDictionaryExpr(expr: Expr.Dictionary): $Any {
         const dict = new $Dictionary(new Map());
         for (const property of expr.properties) {
-            const key  = this.evaluate((property as Expr.Set).key);
-            const value = this.evaluate((property as Expr.Set).value);
-            dict.set(key, value);
+            if (property instanceof Expr.Spread) {
+                const value = this.evaluate(property.value);
+                if (value.isList()) {
+                    value.value.forEach( (v: $Any, i: number) => {
+                        dict.set(new $Number(i), v);
+                    });
+                } else if (value.isString()) {
+                    value.value.split('').forEach( (v: string, i: number) => {
+                        dict.set(new $Number(i), new $String(v));
+                    });
+                } else if (value.isDictionary()) {
+                    value.value.forEach((v: $Any, k: any) => {
+                        dict.set(new $Any(k), v);
+                    });
+                }
+            } else {
+                const key  = this.evaluate((property as Expr.Set).key);
+                const value = this.evaluate((property as Expr.Set).value);
+                dict.set(key, value);
+            }
         }
         return dict;
     }
@@ -602,6 +660,11 @@ export class Interpreter implements
             return new $Boolean(entity.value.includes(key.value));
         }
         this.error(`Operator "in" can't be used on type ${DataType[entity.type]} with value "${entity}"`);
+        return new $Null();
+    }
+
+    public visitSpreadExpr(expr: Expr.Spread): $Any {
+        this.error(`unexpected spread '...' operator at line ${expr.line}`);
         return new $Null();
     }
 

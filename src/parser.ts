@@ -63,6 +63,13 @@ export class Parser {
         return this.tokens[this.current - 1];
     }
 
+    private peekNext(): Token {
+        if (!this.eof()) {
+            return this.tokens[this.current + 1];
+        }
+        return this.peek();
+    }
+
     private check(type: TokenType): boolean {
         return this.peek().type === type;
     }
@@ -115,7 +122,7 @@ export class Parser {
                     this.advance();
                     return;
             }
-            if (this.peek().type === TokenType.Semicolon || this.peek().type === TokenType.RightBrace) {
+            if (this.check(TokenType.Semicolon) || this.check(TokenType.RightBrace)) {
                 this.advance();
                 return;
             }
@@ -683,6 +690,10 @@ export class Parser {
             const expr: Expr.Expr = this.expression();
             return new Expr.Void(expr, this.previous().line);
         }
+        if (this.match(TokenType.DotDotDot)) {
+            const expr: Expr.Expr = this.expression();
+            return new Expr.Spread(expr, this.previous().line);
+        }
 
         throw this.error(this.peek(), `Expected expression, unexpected token "${this.peek().lexeme}"`);
         // unreacheable code
@@ -694,13 +705,20 @@ export class Parser {
         if (this.match(TokenType.RightBrace)) {
             return new Expr.Dictionary([], this.previous().line);
         }
-        const properties: Expr.Set[] = [];
+        const properties: Expr.Expr[] = [];
         do {
             if (this.match(TokenType.String, TokenType.Identifier, TokenType.Number)) {
                 const key: Token = this.previous();
-                this.consume(TokenType.Colon, `Expected ":" colon after member`);
+                if (this.match(TokenType.Colon)) {
+                    const value = this.expression();
+                    properties.push(new Expr.Set(null, new Expr.Key(key, key.line), value, key.line));
+                } else {
+                    const value = new Expr.Variable(key, key.line);
+                    properties.push(new Expr.Set(null, new Expr.Key(key, key.line), value, key.line));
+                }
+            } else if (this.match(TokenType.DotDotDot)) {
                 const value = this.expression();
-                properties.push(new Expr.Set(null, new Expr.Key(key, key.line), value, key.line));
+                properties.push(new Expr.Spread(value, value.line));
             } else {
                 this.error(this.peek(), `String, Number or Identifier expected as a Key of Dictionary {, unexpected token ${this.peek().lexeme}`);
             }
@@ -711,17 +729,32 @@ export class Parser {
     }
 
     private list(): Expr.Expr {
-        const values = [];
+        const values: Expr.Expr[] = [];
         const leftBracket = this.previous();
+
         if (this.match(TokenType.RightBracket)) {
             return new Expr.List([], this.previous().line);
         }
-        do {
-            values.push(this.expression());
-        } while (this.match(TokenType.Comma));
-        this.consume(TokenType.RightBracket, `Expected "]" after array declaration`);
 
+        if (this.peekNext().type === TokenType.Colon) {
+            let step = null;
+            const start: Expr.Expr = this.expression();
+            this.consume(TokenType.Colon, `Expected ":" color after start of range expression`);
+            const end =  this.expression();
+            this.consume(TokenType.Colon, `Expected ":" color after end of range expression`);
+            if (!this.check(TokenType.RightBracket)) {
+                step = this.expression();
+            }
+            values.push(new Expr.Range(start, end, step, start.line));
+        } else {
+            do {
+                values.push(this.expression());
+            } while (this.match(TokenType.Comma));
+        }
+
+        this.consume(TokenType.RightBracket, `Expected "]" after array declaration`);
         return new Expr.List(values, leftBracket.line);
+
     }
 
 }

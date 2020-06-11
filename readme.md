@@ -455,11 +455,28 @@ As side effect, it will also return false if the object is not an object.
 ### ??
 The null-coalescing operator "??" returns the value of its left-hand operand if it isn't null; otherwise, it evaluates the right-hand operand and returns its result. The "??" operator doesn't evaluate its right-hand operand if the left-hand operand evaluates to non-null.
 
-> *`expression`* ?? *`expression`* `;`
+> *`expression`* `??` *`expression`* `;`
 
 ```
    print null ?? true;  // prints true
    print false ?? true; // prints false
+```
+
+### ...
+Spread operator allows strings, lists and dictionaries to be expanded into elements where a list or key-value pair separated by comma is expected.
+> `...` *`expression`* `;`
+
+Can be used in call expressions, list and dictionary expressions;
+> `[` `...` *`expression`* `]` `;`
+> `{` `...` *`expression`* `}` `;`
+> `myFunc(` `...` *`expression`* `)` `;`
+
+```
+   var dict1 = {one: 'first', two: 'second'};
+   var dict2 = {...dict1}; // expands each key-value pair of dict1 into dict2
+   var list1 = [...dict1]; // expands the values of the dict1 into the list, keys are ignored
+   var dict3 = {...list1}; // expands the values of the list1 into the dict, keys are the index of the value in the list
+
 ```
 
 

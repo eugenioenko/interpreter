@@ -4,6 +4,7 @@ export const DemoSourceCode =
 print "one two three four"[4:7:1]; // prints two
 print "hello world"[6::1].size(); // 5
 print "hello world"[::-1]; //prints dlrow olleh
+print [0:10:3]; // prints a list [0,3,6,9]
 // functions
 function sayHello(text) {
     print text;
@@ -118,5 +119,17 @@ while (!it.next().done) {
 // foreach statement
 foreach (item with key in ['one', 'two', 'three']) {
     print item;
+}
+
+// spread operator
+{
+    var a1 = ['one', 'two', 'three'];
+    var b2 = [...a1, ..."spreading"];
+    var d3 = {
+        ...a1,
+        ..."spreding"
+    };
+    print b2;
+    print d3;
 }
 `;
