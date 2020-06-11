@@ -209,7 +209,7 @@ export class Scanner {
                         this.error(`Unexpected character '..'`);
                     }
                 } else {
-                    this.addToken(TokenType.Dot, null)
+                    this.addToken(TokenType.Dot, null);
                 }
                 break;
             case '/':

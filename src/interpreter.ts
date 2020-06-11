@@ -125,7 +125,20 @@ export class Interpreter implements
             if (expression instanceof Expr.Spread) {
                 const value = this.evaluate(expression.value);
                 this.spreadAnyIntoList(value, values);
-
+            } else if (expression instanceof Expr.Range) {
+                const range: RangeValue = (this.evaluate(expression) as $Range).value;
+                range.step = range.step ? range.step : 1;
+                if (range.step > 0 && range.start <= range.end) {
+                    for (let i = range.start; i <= range.end; i += range.step) {
+                        values.push(new $Number(i));
+                    }
+                } else if (range.step < 0 && range.start >= range.end) {
+                    for (let i = range.start; i >= range.end; i += range.step) {
+                        values.push(new $Number(i));
+                    }
+                } else {
+                    this.error(`Invalid range expression at line ${expression.line} with range value of [${range.start}:${range.end}:${range.step}]`);
+                }
             } else {
                 const value = this.evaluate(expression);
                 values.push(value);
@@ -134,16 +147,16 @@ export class Interpreter implements
         return new $List(values);
     }
 
-    private spreadAnyIntoList(value: $Any, values: $Any[]): void{
+    private spreadAnyIntoList(value: $Any, values: $Any[]): void {
         if (value.isList()) {
-            for (let val of value.value) {
+            for (const val of value.value) {
                 values.push(val);
             }
-        } else if(value.isString()) {
-            for (let char of value.value.split('')) {
+        } else if (value.isString()) {
+            for (const char of value.value.split('')) {
                 values.push(new $String(char));
             }
-        } else if(value.isDictionary) {
+        } else if (value.isDictionary) {
             value.value.forEach((val: $Any) => {
                 values.push(val);
             });
@@ -486,11 +499,11 @@ export class Interpreter implements
             if (property instanceof Expr.Spread) {
                 const value = this.evaluate(property.value);
                 if (value.isList()) {
-                    value.value.forEach((v: $Any, i:number) => {
+                    value.value.forEach( (v: $Any, i: number) => {
                         dict.set(new $Number(i), v);
                     });
                 } else if (value.isString()) {
-                    value.value.split('').forEach((v: string, i:number) => {
+                    value.value.split('').forEach( (v: string, i: number) => {
                         dict.set(new $Number(i), new $String(v));
                     });
                 } else if (value.isDictionary()) {
