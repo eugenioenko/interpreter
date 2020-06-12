@@ -149,7 +149,7 @@ export class Interpreter implements
 
     private spreadAnyIntoList(value: $Any, values: $Any[]): void {
         const it = new $Iterator(value);
-        while(!($Iterator.next(it, [], this) as $Iterator).iter.done.value) {
+        while (!($Iterator.next(it, [], this) as $Iterator).iter.done.value) {
             values.push(it.iter.value);
         }
     }
@@ -490,7 +490,7 @@ export class Interpreter implements
             if (property instanceof Expr.Spread) {
                 const value = this.evaluate(property.value);
                 const it = new $Iterator(value);
-                while(!($Iterator.next(it, [], this) as $Iterator).iter.done.value) {
+                while (!($Iterator.next(it, [], this) as $Iterator).iter.done.value) {
                     dict.set(it.iter.index, it.iter.value);
                 }
             } else {
