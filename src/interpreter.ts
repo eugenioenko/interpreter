@@ -571,11 +571,10 @@ export class Interpreter implements
     }
 
     public visitRangeExpr(expr: Expr.Range): $Any {
-        return new $Range(new RangeValue(
-            expr.start ? this.evaluate(expr.start).value : null,
-            expr.end ? this.evaluate(expr.end).value : null,
-            expr.step ? this.evaluate(expr.step).value : null
-        ));
+        const start = expr.start ? this.evaluate(expr.start).value : null;
+        const end = expr.end ? this.evaluate(expr.end).value : null;
+        const step = expr.step ? this.evaluate(expr.step).value : (start <= end ? 1 : -1);
+        return new $Range(new RangeValue(start, end, step));
     }
 
     public visitTypeofExpr(expr: Expr.Typeof): $Any {

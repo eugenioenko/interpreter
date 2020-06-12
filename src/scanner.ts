@@ -206,7 +206,7 @@ export class Scanner {
                     if (this.match('.')) {
                         this.addToken(TokenType.DotDotDot, null);
                     } else {
-                        this.error(`Unexpected character '..'`);
+                        this.addToken(TokenType.DotDot, null);
                     }
                 } else {
                     this.addToken(TokenType.Dot, null);

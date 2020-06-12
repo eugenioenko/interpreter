@@ -8,6 +8,7 @@ import { $List } from './list';
 import { $Boolean } from './boolean';
 import { $Number } from './number';
 import { $String } from './string';
+import { $Range, RangeValue } from './range';
 
 export class IteratorValue {
     public value: $Any;
@@ -90,6 +91,11 @@ export class $Iterator extends $Any {
 
         if (it.value.isNumber()) {
             $Iterator.numberNext(thiz);
+            return it;
+        }
+
+        if(it.value.isRange()) {
+            $Iterator.rangeNext(thiz);
             return it;
         }
 
@@ -197,6 +203,50 @@ export class $Iterator extends $Any {
         const newIndex = index.value + 1;
         it.iter.index = new $Number(newIndex);
         it.iter.value = it.iter.index;
+        return it;
+    }
+
+    public static rangeNext(thiz: $Any) {
+        const it = thiz as $Iterator;
+        const range = it.value as $Range;
+        const value: RangeValue = range.value;
+
+        // imposible range
+        if (
+            value.step === 0 ||
+            (value.start > value.end && value.step > 0) ||
+            (value.start < value.end && value.step < 0)
+        ) {
+            it.complete();
+            return it;
+        }
+
+        // first value
+        if (it.iter.inner === null) {
+            it.iter.inner =  true;
+            it.iter.index = new $Number(0);
+            it.iter.value = new $Number(value.start);
+            return it;
+        }
+
+
+        if (value.step > 0) {
+            if(it.iter.value.value >= value.end) {
+                it.complete();
+                return it;
+            }
+        } else {
+            if(it.iter.value.value <= value.end) {
+                it.complete();
+                return it;
+            }
+        }
+
+        // normal iteration
+        const newIndex = it.iter.index.value + 1;
+        const newValue = it.iter.value.value + value.step;
+        it.iter.index = new $Number(newIndex);
+        it.iter.value = new $Number(newValue);
         return it;
     }
 
