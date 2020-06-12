@@ -47,4 +47,8 @@ export class $Range extends $Any {
             conzole.warn(`[range error] => 0 is not a valid step`);
         }
     }
+
+    public toString(): string {
+        return `[${this.value.start}:${this.value.end}:${this.value.step}]`;
+    }
 }

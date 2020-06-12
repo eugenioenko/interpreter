@@ -82,7 +82,7 @@ export class Interpreter implements
         return statements;
     }
 
-    private error(message: string): void {
+    public error(message: string): void {
         throw new Error(`Runtime Error => ${message}`);
     }
 
@@ -148,18 +148,9 @@ export class Interpreter implements
     }
 
     private spreadAnyIntoList(value: $Any, values: $Any[]): void {
-        if (value.isList()) {
-            for (const val of value.value) {
-                values.push(val);
-            }
-        } else if (value.isString()) {
-            for (const char of value.value.split('')) {
-                values.push(new $String(char));
-            }
-        } else if (value.isDictionary) {
-            value.value.forEach((val: $Any) => {
-                values.push(val);
-            });
+        const it = new $Iterator(value);
+        while (!($Iterator.next(it, [], this) as $Iterator).iter.done.value) {
+            values.push(it.iter.value);
         }
     }
 
@@ -498,18 +489,9 @@ export class Interpreter implements
         for (const property of expr.properties) {
             if (property instanceof Expr.Spread) {
                 const value = this.evaluate(property.value);
-                if (value.isList()) {
-                    value.value.forEach( (v: $Any, i: number) => {
-                        dict.set(new $Number(i), v);
-                    });
-                } else if (value.isString()) {
-                    value.value.split('').forEach( (v: string, i: number) => {
-                        dict.set(new $Number(i), new $String(v));
-                    });
-                } else if (value.isDictionary()) {
-                    value.value.forEach((v: $Any, k: any) => {
-                        dict.set(new $Any(k), v);
-                    });
+                const it = new $Iterator(value);
+                while (!($Iterator.next(it, [], this) as $Iterator).iter.done.value) {
+                    dict.set(it.iter.index, it.iter.value);
                 }
             } else {
                 const key  = this.evaluate((property as Expr.Set).key);
@@ -589,11 +571,10 @@ export class Interpreter implements
     }
 
     public visitRangeExpr(expr: Expr.Range): $Any {
-        return new $Range(new RangeValue(
-            expr.start ? this.evaluate(expr.start).value : null,
-            expr.end ? this.evaluate(expr.end).value : null,
-            expr.step ? this.evaluate(expr.step).value : null
-        ));
+        const start = expr.start ? this.evaluate(expr.start).value : null;
+        const end = expr.end ? this.evaluate(expr.end).value : null;
+        const step = expr.step ? this.evaluate(expr.step).value : (start <= end ? 1 : -1);
+        return new $Range(new RangeValue(start, end, step));
     }
 
     public visitTypeofExpr(expr: Expr.Typeof): $Any {

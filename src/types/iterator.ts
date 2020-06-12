@@ -6,6 +6,9 @@ import { $Null } from './null';
 import { $Callable } from './function';
 import { $List } from './list';
 import { $Boolean } from './boolean';
+import { $Number } from './number';
+import { $String } from './string';
+import { $Range, RangeValue } from './range';
 
 export class IteratorValue {
     public value: $Any;
@@ -65,17 +68,216 @@ export class $Iterator extends $Any {
 
     public static next(thiz: $Any, args: $Any[], interpreter: Interpreter): $Any {
         const it = thiz as $Iterator;
+
+        // already iterated, return completed iterator
+        if (it.iter.done.value) {
+            return it;
+        }
+
         if (it.value.isList()) {
-            $List.next(thiz);
+            $Iterator.listNext(thiz);
+            return it;
         }
+
         if (it.value.isDictionary()) {
-            $Dictionary.next(thiz);
+            $Iterator.dictionaryNext(thiz);
+            return it;
         }
+
+        if (it.value.isString()) {
+            $Iterator.stringNext(thiz);
+            return it;
+        }
+
+        if (it.value.isNumber()) {
+            $Iterator.numberNext(thiz);
+            return it;
+        }
+
+        if(it.value.isRange()) {
+            $Iterator.rangeNext(thiz);
+            return it;
+        }
+
         if (it.value.isObject()) {
             (thiz.value.get(interpreter.strings.next) as $Callable).call(thiz.value, [(thiz as $Iterator)], interpreter);
+            return it;
         }
+
+        // default
+        interpreter.error(`${DataType[it.value.type].toLowerCase()} with value ${it.value} is not an iterable`);
+        it.complete();
         return it;
     }
+
+    public static listNext(thiz: $Any) {
+        const it = thiz as $Iterator;
+        const list = it.value as $List;
+        const index = it.iter.index;
+
+        // list is empty, no iteration required
+        if (!list.value.length) {
+            it.complete();
+            return it;
+        }
+
+        // first value
+        if (it.iter.inner === null) {
+            it.iter.inner = true;
+            it.iter.index = new $Number(0);
+            it.iter.value = list.value[0];
+            return it;
+        }
+
+        // no more values to iterate
+        if (index.value >= list.value.length - 1) {
+            it.complete();
+            return it;
+        }
+
+        // normal iteration
+        const newIndex = index.value + 1;
+        it.iter.index = new $Number(newIndex);
+        it.iter.value = list.value[newIndex];
+        return it;
+    }
+
+    public static stringNext(thiz: $Any) {
+        const it = thiz as $Iterator;
+        const str = it.value as $String;
+        const index = it.iter.index;
+
+        // string is empty
+        if (!str.value.length) {
+            it.complete();
+            return it;
+        }
+
+        // first value
+        if (it.iter.inner === null) {
+            it.iter.inner = true;
+            it.iter.index = new $Number(0);
+            it.iter.value = new $String(str.value.charAt(0));
+            return it;
+        }
+
+        // no more values to iterate
+        if (index.value >= str.value.length - 1) {
+            it.complete();
+            return it;
+        }
+
+        // normal iteration
+        const newIndex = index.value + 1;
+        it.iter.index = new $Number(newIndex);
+        it.iter.value = new $String(str.value.charAt(newIndex));
+        return it;
+    }
+
+    public static numberNext(thiz: $Any) {
+        const it = thiz as $Iterator;
+        const number = it.value as $Number;
+        const index = it.iter.index;
+
+        // number is 0 or negative
+        if (number.value <= 0) {
+            it.complete();
+            return it;
+        }
+
+        // first value
+        if (it.iter.inner === null) {
+            it.iter.inner = number.value - 1; //inner holds last value
+            it.iter.index = new $Number(0);
+            it.iter.value = it.iter.index;
+            return it;
+        }
+
+        // no more values to iterate
+        if (index.value >= it.iter.inner) {
+            it.complete();
+            return it;
+        }
+
+        // normal iteration
+        const newIndex = index.value + 1;
+        it.iter.index = new $Number(newIndex);
+        it.iter.value = it.iter.index;
+        return it;
+    }
+
+    public static rangeNext(thiz: $Any) {
+        const it = thiz as $Iterator;
+        const range = it.value as $Range;
+        const value: RangeValue = range.value;
+
+        // imposible range
+        if (
+            value.step === 0 ||
+            (value.start > value.end && value.step > 0) ||
+            (value.start < value.end && value.step < 0)
+        ) {
+            it.complete();
+            return it;
+        }
+
+        // first value
+        if (it.iter.inner === null) {
+            it.iter.inner =  true;
+            it.iter.index = new $Number(0);
+            it.iter.value = new $Number(value.start);
+            return it;
+        }
+
+
+        if (value.step > 0) {
+            if(it.iter.value.value >= value.end) {
+                it.complete();
+                return it;
+            }
+        } else {
+            if(it.iter.value.value <= value.end) {
+                it.complete();
+                return it;
+            }
+        }
+
+        // normal iteration
+        const newIndex = it.iter.index.value + 1;
+        const newValue = it.iter.value.value + value.step;
+        it.iter.index = new $Number(newIndex);
+        it.iter.value = new $Number(newValue);
+        return it;
+    }
+
+    public static dictionaryNext(thiz: $Any): $Any {
+        const it = thiz as $Iterator;
+        const dict = it.value as $Dictionary;
+
+        // empty dictionary
+        if (!dict.value.size) {
+            it.complete();
+            return it;
+        }
+
+        // first value
+        if (it.iter.inner === null) {
+            it.iter.inner = dict.value.keys();
+        }
+
+        // normal iteration
+        const current = it.iter.inner.next();
+        it.iter.value = it.value.get(new $Any(current.value));
+        it.iter.index = new $String(current.value);
+
+        // no more values to iterate
+        if (current.done) {
+            it.complete();
+        }
+
+        return it;
+    }
+
 
     public static first(thiz: $Any, args: $Any[], interpreter: Interpreter): $Any {
         if ((thiz as $Iterator).value.value.isList()) {

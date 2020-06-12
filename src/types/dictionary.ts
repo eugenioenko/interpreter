@@ -66,30 +66,6 @@ export class $Dictionary extends $Any {
         return new $Null();
     }
 
-    public static next(thiz: $Any): $Any {
-        const it = thiz as $Iterator;
-        const dict = it.value as $Dictionary;
-        // empty list
-        if (!dict.value.size) {
-            it.complete();
-            return it;
-        }
-
-        // first value
-        if (it.iter.inner === null) {
-            it.iter.inner = dict.value.keys();
-        }
-
-        const current = it.iter.inner.next();
-        it.iter.value = current.value;
-
-        // no more values to iterate
-        if (current.done) {
-            it.complete();
-        }
-        return it;
-    }
-
     public static runtime =  new Map([
         ['clear', fromJavaScriptMethod('clear', 0, DataType.Null)],
         ['delete', fromJavaScriptMethod('delete', 1, DataType.Boolean)],
@@ -98,8 +74,7 @@ export class $Dictionary extends $Any {
         ['indexOf', new $Callable('indexOf', 1, $Dictionary.indexOf)],
         ['map', new $Callable('map', 1, $Dictionary.map)],
         ['merge', new $Callable('merge', 1,  (thiz: $Any, args: $Any[]): $Any => new $Dictionary(new Map([...(thiz.value), ...(args[0].value)])))],
-        ['size', new $Callable('size', 0,  (thiz: $Any, args: $Any[]): $Any => new $Number(thiz.value.size))],
-        ['next', new $Callable('next', 0, $Dictionary.next)]
+        ['size', new $Callable('size', 0,  (thiz: $Any, args: $Any[]): $Any => new $Number(thiz.value.size))]
     ]);
 
 }

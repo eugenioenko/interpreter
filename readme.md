@@ -462,6 +462,17 @@ The null-coalescing operator "??" returns the value of its left-hand operand if 
    print false ?? true; // prints false
 ```
 
+### ..
+Range operator allows to define range data type with a fixed step.
+If start is smaller than end, step will be +1
+If start is bigger than end, step will be -1
+> *`start`* `..` *`end`* `;`
+
+```
+    const a = [1..5]; // [1,2,3,4,5]
+    const b = [1..5, 10..15]; // [1,2,3,4,5, 10,11, 12,13,14,15]
+```
+
 ### ...
 Spread operator allows strings, lists and dictionaries to be expanded into elements where a list or key-value pair separated by comma is expected.
 > `...` *`expression`* `;`
@@ -476,6 +487,7 @@ Can be used in call expressions, list and dictionary expressions;
    var dict2 = {...dict1}; // expands each key-value pair of dict1 into dict2
    var list1 = [...dict1]; // expands the values of the dict1 into the list, keys are ignored
    var dict3 = {...list1}; // expands the values of the list1 into the dict, keys are the index of the value in the list
+   var range = [...1..100]; // expands the range into values
 
 ```
 

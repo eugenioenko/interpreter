@@ -554,7 +554,16 @@ export class Parser {
             const value: Expr.Expr = this.typeof();
             return new Expr.Typeof(value, operator.line);
         }
-        return this.unary();
+        return this.range();
+    }
+
+    private range(): Expr.Expr {
+        let expr: Expr.Expr = this.unary();
+        if (this.match(TokenType.DotDot)) {
+            const end: Expr.Expr = this.unary();
+            expr = new Expr.Range(expr, end, null, expr.line);
+        }
+        return expr;
     }
 
     private unary(): Expr.Expr {
@@ -615,7 +624,7 @@ export class Parser {
     private bracketGet(expr: Expr.Expr, operator: Token): Expr.Expr {
         let key: Expr.Expr = null;
         let end: Expr.Expr = null;
-        let step: Expr.Expr = null;
+        let step: Expr.Expr = new Expr.Literal(new $Number(1), operator.line);
         if (!this.check(TokenType.Colon)) {
             key = this.expression();
         }
@@ -737,7 +746,7 @@ export class Parser {
         }
 
         if (this.peekNext().type === TokenType.Colon) {
-            let step = null;
+            let step: Expr.Expr = new Expr.Literal(new $Number(1), leftBracket.line);
             const start: Expr.Expr = this.expression();
             this.consume(TokenType.Colon, `Expected ":" color after start of range expression`);
             const end =  this.expression();

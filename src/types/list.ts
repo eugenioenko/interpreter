@@ -6,8 +6,6 @@ import { $Null } from './null';
 import { $Number } from './number';
 import { DataType } from './type.enum';
 import { $Range } from './range';
-import { $Iterator } from './iterator';
-import { $Boolean } from './boolean';
 
 export class $List extends $Any {
     public value: $Any[];
@@ -68,42 +66,6 @@ export class $List extends $Any {
             thiz.value[i] = (args[0] as $Function).call(thiz, [new $Any(thiz.value[i]), new $Number(i), thiz], interpreter);
         }
         return thiz;
-    }
-
-    public static next(thiz: $Any) {
-        const it = thiz as $Iterator;
-        const list = it.value as $List;
-        const index = it.iter.index;
-
-        // emtpy list
-        if (!list.value.length) {
-            it.complete();
-            return it;
-        }
-
-        // first value
-        if (it.iter.inner === null) {
-            it.iter.inner = true;
-            it.iter.index = new $Number(0);
-            it.iter.value = list.value[0];
-            return it;
-        }
-
-        // already iterated
-        if (it.iter.done.value) {
-            return it;
-        }
-
-        // no more values to iterate
-        if (index.value >= list.value.length - 1) {
-            it.complete();
-            return it;
-        }
-
-        const newIndex = index.value + 1;
-        it.iter.index = new $Number(newIndex);
-        it.iter.value = list.value[newIndex];
-        return it;
     }
 
     public static runtime =  new Map([
