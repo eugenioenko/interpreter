@@ -154,6 +154,22 @@ export class Interpreter implements
         }
     }
 
+    private spreadAnyIntoList(value: $Any, values: $Any[]): void {
+        if (value.isList()) {
+            for (const val of value.value) {
+                values.push(val);
+            }
+        } else if (value.isString()) {
+            for (const char of value.value.split('')) {
+                values.push(new $String(char));
+            }
+        } else if (value.isDictionary) {
+            value.value.forEach((val: $Any) => {
+                values.push(val);
+            });
+        }
+    }
+
     public visitZtringExpr(expr: Expr.Ztring): $Any {
         return new $String(expr.value);
     }
