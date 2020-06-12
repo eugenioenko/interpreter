@@ -88,6 +88,11 @@ export class $Iterator extends $Any {
             return it;
         }
 
+        if (it.value.isNumber()) {
+            $Iterator.numberNext(thiz);
+            return it;
+        }
+
         if (it.value.isObject()) {
             (thiz.value.get(interpreter.strings.next) as $Callable).call(thiz.value, [(thiz as $Iterator)], interpreter);
             return it;
@@ -160,6 +165,38 @@ export class $Iterator extends $Any {
         const newIndex = index.value + 1;
         it.iter.index = new $Number(newIndex);
         it.iter.value = new $String(str.value.charAt(newIndex));
+        return it;
+    }
+
+    public static numberNext(thiz: $Any) {
+        const it = thiz as $Iterator;
+        const number = it.value as $Number;
+        const index = it.iter.index;
+
+        // number is 0 or negative
+        if (number.value <= 0) {
+            it.complete();
+            return it;
+        }
+
+        // first value
+        if (it.iter.inner === null) {
+            it.iter.inner = number.value - 1; //inner holds last value
+            it.iter.index = new $Number(0);
+            it.iter.value = it.iter.index;
+            return it;
+        }
+
+        // no more values to iterate
+        if (index.value >= it.iter.inner) {
+            it.complete();
+            return it;
+        }
+
+        // normal iteration
+        const newIndex = index.value + 1;
+        it.iter.index = new $Number(newIndex);
+        it.iter.value = it.iter.index;
         return it;
     }
 
