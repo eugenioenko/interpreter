@@ -82,7 +82,7 @@ export class Interpreter implements
         return statements;
     }
 
-    private error(message: string): void {
+    public error(message: string): void {
         throw new Error(`Runtime Error => ${message}`);
     }
 

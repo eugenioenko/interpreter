@@ -7,6 +7,7 @@ import { $Callable } from './function';
 import { $List } from './list';
 import { $Boolean } from './boolean';
 import { $Number } from './number';
+import { $String } from './string';
 
 export class IteratorValue {
     public value: $Any;
@@ -66,20 +67,34 @@ export class $Iterator extends $Any {
 
     public static next(thiz: $Any, args: $Any[], interpreter: Interpreter): $Any {
         const it = thiz as $Iterator;
+
+        // already iterated, return completed iterator
+        if (it.iter.done.value) {
+            return it;
+        }
+
         if (it.value.isList()) {
             $Iterator.listNext(thiz);
             return it;
         }
+
         if (it.value.isDictionary()) {
             $Iterator.dictionaryNext(thiz);
             return it;
         }
+
+        if (it.value.isString()) {
+            $Iterator.stringNext(thiz);
+            return it;
+        }
+
         if (it.value.isObject()) {
             (thiz.value.get(interpreter.strings.next) as $Callable).call(thiz.value, [(thiz as $Iterator)], interpreter);
             return it;
         }
 
-        //default
+        // default
+        interpreter.error(`${DataType[it.value.type].toLowerCase()} with value ${it.value} is not an iterable`);
         it.complete();
         return it;
     }
@@ -89,7 +104,7 @@ export class $Iterator extends $Any {
         const list = it.value as $List;
         const index = it.iter.index;
 
-        // emtpy list
+        // list is empty, no iteration required
         if (!list.value.length) {
             it.complete();
             return it;
@@ -103,27 +118,56 @@ export class $Iterator extends $Any {
             return it;
         }
 
-        // already iterated
-        if (it.iter.done.value) {
-            return it;
-        }
-
         // no more values to iterate
         if (index.value >= list.value.length - 1) {
             it.complete();
             return it;
         }
 
+        // normal iteration
         const newIndex = index.value + 1;
         it.iter.index = new $Number(newIndex);
         it.iter.value = list.value[newIndex];
         return it;
     }
 
+    public static stringNext(thiz: $Any) {
+        const it = thiz as $Iterator;
+        const str = it.value as $String;
+        const index = it.iter.index;
+
+        // string is empty
+        if (!str.value.length) {
+            it.complete();
+            return it;
+        }
+
+        // first value
+        if (it.iter.inner === null) {
+            it.iter.inner = true;
+            it.iter.index = new $Number(0);
+            it.iter.value = new $String(str.value.charAt(0));
+            return it;
+        }
+
+        // no more values to iterate
+        if (index.value >= str.value.length - 1) {
+            it.complete();
+            return it;
+        }
+
+        // normal iteration
+        const newIndex = index.value + 1;
+        it.iter.index = new $Number(newIndex);
+        it.iter.value = new $String(str.value.charAt(newIndex));
+        return it;
+    }
+
     public static dictionaryNext(thiz: $Any): $Any {
         const it = thiz as $Iterator;
         const dict = it.value as $Dictionary;
-        // empty list
+
+        // empty dictionary
         if (!dict.value.size) {
             it.complete();
             return it;
@@ -134,6 +178,7 @@ export class $Iterator extends $Any {
             it.iter.inner = dict.value.keys();
         }
 
+        // normal iteration
         const current = it.iter.inner.next();
         it.iter.value = current.value;
 
@@ -141,6 +186,7 @@ export class $Iterator extends $Any {
         if (current.done) {
             it.complete();
         }
+
         return it;
     }
 
