@@ -217,7 +217,8 @@ export class $Iterator extends $Any {
 
         // normal iteration
         const current = it.iter.inner.next();
-        it.iter.value = current.value;
+        it.iter.value = it.value.get(new $Any(current.value));
+        it.iter.index = new $String(current.value);
 
         // no more values to iterate
         if (current.done) {

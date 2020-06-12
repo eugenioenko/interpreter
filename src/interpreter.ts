@@ -148,18 +148,9 @@ export class Interpreter implements
     }
 
     private spreadAnyIntoList(value: $Any, values: $Any[]): void {
-        if (value.isList()) {
-            for (const val of value.value) {
-                values.push(val);
-            }
-        } else if (value.isString()) {
-            for (const char of value.value.split('')) {
-                values.push(new $String(char));
-            }
-        } else if (value.isDictionary) {
-            value.value.forEach((val: $Any) => {
-                values.push(val);
-            });
+        const it = new $Iterator(value);
+        while(!($Iterator.next(it, [], this) as $Iterator).iter.done.value) {
+            values.push(it.iter.value);
         }
     }
 
@@ -498,18 +489,9 @@ export class Interpreter implements
         for (const property of expr.properties) {
             if (property instanceof Expr.Spread) {
                 const value = this.evaluate(property.value);
-                if (value.isList()) {
-                    value.value.forEach( (v: $Any, i: number) => {
-                        dict.set(new $Number(i), v);
-                    });
-                } else if (value.isString()) {
-                    value.value.split('').forEach( (v: string, i: number) => {
-                        dict.set(new $Number(i), new $String(v));
-                    });
-                } else if (value.isDictionary()) {
-                    value.value.forEach((v: $Any, k: any) => {
-                        dict.set(new $Any(k), v);
-                    });
+                const it = new $Iterator(value);
+                while(!($Iterator.next(it, [], this) as $Iterator).iter.done.value) {
+                    dict.set(it.iter.index, it.iter.value);
                 }
             } else {
                 const key  = this.evaluate((property as Expr.Set).key);
