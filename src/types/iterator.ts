@@ -6,6 +6,7 @@ import { $Null } from './null';
 import { $Callable } from './function';
 import { $List } from './list';
 import { $Boolean } from './boolean';
+import { $Number } from './number';
 
 export class IteratorValue {
     public value: $Any;
@@ -66,16 +67,83 @@ export class $Iterator extends $Any {
     public static next(thiz: $Any, args: $Any[], interpreter: Interpreter): $Any {
         const it = thiz as $Iterator;
         if (it.value.isList()) {
-            $List.next(thiz);
+            $Iterator.listNext(thiz);
+            return it;
         }
         if (it.value.isDictionary()) {
-            $Dictionary.next(thiz);
+            $Iterator.dictionaryNext(thiz);
+            return it;
         }
         if (it.value.isObject()) {
             (thiz.value.get(interpreter.strings.next) as $Callable).call(thiz.value, [(thiz as $Iterator)], interpreter);
+            return it;
+        }
+
+        //default
+        it.complete();
+        return it;
+    }
+
+    public static listNext(thiz: $Any) {
+        const it = thiz as $Iterator;
+        const list = it.value as $List;
+        const index = it.iter.index;
+
+        // emtpy list
+        if (!list.value.length) {
+            it.complete();
+            return it;
+        }
+
+        // first value
+        if (it.iter.inner === null) {
+            it.iter.inner = true;
+            it.iter.index = new $Number(0);
+            it.iter.value = list.value[0];
+            return it;
+        }
+
+        // already iterated
+        if (it.iter.done.value) {
+            return it;
+        }
+
+        // no more values to iterate
+        if (index.value >= list.value.length - 1) {
+            it.complete();
+            return it;
+        }
+
+        const newIndex = index.value + 1;
+        it.iter.index = new $Number(newIndex);
+        it.iter.value = list.value[newIndex];
+        return it;
+    }
+
+    public static dictionaryNext(thiz: $Any): $Any {
+        const it = thiz as $Iterator;
+        const dict = it.value as $Dictionary;
+        // empty list
+        if (!dict.value.size) {
+            it.complete();
+            return it;
+        }
+
+        // first value
+        if (it.iter.inner === null) {
+            it.iter.inner = dict.value.keys();
+        }
+
+        const current = it.iter.inner.next();
+        it.iter.value = current.value;
+
+        // no more values to iterate
+        if (current.done) {
+            it.complete();
         }
         return it;
     }
+
 
     public static first(thiz: $Any, args: $Any[], interpreter: Interpreter): $Any {
         if ((thiz as $Iterator).value.value.isList()) {
