@@ -490,6 +490,15 @@ Can be used in call expressions, list and dictionary expressions;
    var range = [...1..100]; // expands the range into values
 
 ```
+### <=>
+Spaceship operator is used for comparing two expressions. It returns: -1, 0 or 1 left expression is less than, equal to, or greater than right expression:
+> `expression` *`<=>`* `expression` `;`
+
+```
+    print 2 <=> 1; // prints 1
+    print 2 <=> 2; // prints 0
+    print 1 <=> 2; // prints -1
+```
 
 
 ## contents, compiling, installing, cli
