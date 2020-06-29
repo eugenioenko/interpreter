@@ -61,6 +61,20 @@ export class $List extends $Any {
         return thiz;
     }
 
+    public static sort(thiz: $Any, args: $Any[], interpreter: Interpreter): $Any {
+        const list = thiz.value as $Any[];
+        if (args.length) {
+            list.sort((a, b) =>
+                (args[0] as $Function).call(thiz, [a, b], interpreter).value
+            );
+        } else {
+            list.sort((a, b) =>
+               a.value - b.value
+            );
+        }
+        return thiz;
+    }
+
     public static map(thiz: $Any, args: $Any[], interpreter: Interpreter): $Any {
         for (let i = 0; i < thiz.value.length; ++i) {
             thiz.value[i] = (args[0] as $Function).call(thiz, [new $Any(thiz.value[i]), new $Number(i), thiz], interpreter);
@@ -71,6 +85,7 @@ export class $List extends $Any {
     public static runtime =  new Map([
         ['concat', fromJavaScriptMethod('concat', -1, DataType.List)],
         ['each', new $Callable('each', 1, $List.each)],
+        ['sort', new $Callable('sort', -1, $List.sort)],
         ['includes', fromJavaScriptMethod('includes', 1, DataType.Boolean)],
         ['indexOf', fromJavaScriptMethod('indexOf', 1, DataType.Number)],
         ['join', fromJavaScriptMethod('join', 1, DataType.String)],
