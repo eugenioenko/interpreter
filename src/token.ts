@@ -49,6 +49,7 @@ export enum TokenType {
     StarEqual,
     DotDot,
     DotDotDot,
+    LessEqualGreater,
 
     // Literals
     Identifier,
