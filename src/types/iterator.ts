@@ -63,7 +63,7 @@ export class $Iterator extends $Any {
     }
 
     public toString(): string {
-        return `<${DataType[this.value.value.type]} iterator>`;
+        return `<${DataType[this.value.type]} iterator>`;
     }
 
     public static next(thiz: $Any, args: $Any[], interpreter: Interpreter): $Any {

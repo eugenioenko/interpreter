@@ -194,8 +194,13 @@ export class Interpreter implements
     }
 
     public visitBinaryExpr(expr: Expr.Binary): $Any {
+        if (expr.left instanceof Expr.Spread && expr.right instanceof Expr.Spread) {
+            return this.spreadComparission(expr.left.value, expr.right.value);
+        }
+
         const left = this.evaluate(expr.left);
         const right = this.evaluate(expr.right);
+
         switch (expr.operator.type) {
             case TokenType.Minus:
             case TokenType.MinusEqual:
@@ -244,6 +249,26 @@ export class Interpreter implements
                 this.error('Unknown binary operator ' + expr.operator);
                 return new $Null(); // unreachable
         }
+    }
+
+    private spreadComparission(left: Expr.Expr, right: Expr.Expr): $Any {
+        const lit = new $Iterator(this.evaluate(left));
+        const rit = new $Iterator(this.evaluate(right));
+        while (true) {
+            ($Iterator.next(lit, [], this) as $Iterator);
+            ($Iterator.next(rit, [], this) as $Iterator);
+            if (lit.iter.done.value || rit.iter.done.value) {
+                // one of the iterators completed
+                break;
+            }
+            if (lit.iter.value.value !== rit.iter.value.value) {
+               return new $Boolean(false);
+            }
+        }
+        if (lit.iter.done.value && rit.iter.done.value) {
+            return new $Boolean(true);
+        }
+        return new $Boolean(false);
     }
 
     public visitLogicalExpr(expr: Expr.Logical): $Any {
@@ -645,7 +670,7 @@ export class Interpreter implements
     }
 
     public visitSpreadExpr(expr: Expr.Spread): $Any {
-        this.error(`unexpected spread '...' operator at line ${expr.line}`);
+        // this.error(`unexpected spread '...' operator at line ${expr.line}`);
         return new $Null();
     }
 

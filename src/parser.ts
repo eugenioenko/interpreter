@@ -700,7 +700,7 @@ export class Parser {
             return new Expr.Void(expr, this.previous().line);
         }
         if (this.match(TokenType.DotDotDot)) {
-            const expr: Expr.Expr = this.expression();
+            const expr: Expr.Expr = this.range();
             return new Expr.Spread(expr, this.previous().line);
         }
 

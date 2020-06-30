@@ -1,4 +1,7 @@
-export const DemoSourceCode =
+export const DemoSourceCode = `
+    print ...1..10 === ...1..10;
+`;
+export const DemoSourceCodes =
 `
 // slicing strings
 print "one two three four"[4:7:1]; // prints two
