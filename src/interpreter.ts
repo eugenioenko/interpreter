@@ -195,7 +195,7 @@ export class Interpreter implements
 
     public visitBinaryExpr(expr: Expr.Binary): $Any {
         if (expr.left instanceof Expr.Spread && expr.right instanceof Expr.Spread) {
-            return this.spreadComparission(expr.left.value, expr.right.value);
+            return this.spreadBinaryExpr(expr.left.value, expr.right.value, expr.operator);
         }
 
         const left = this.evaluate(expr.left);
@@ -258,8 +258,8 @@ export class Interpreter implements
                 return new $Null(); // unreachable
         }
     }
-
-    private spreadComparission(left: Expr.Expr, right: Expr.Expr): $Any {
+    /*
+    private spreadBinaryComparission(left: Expr.Expr, right: Expr.Expr): $Any {
         const lit = new $Iterator(this.evaluate(left));
         const rit = new $Iterator(this.evaluate(right));
         while (true) {
@@ -277,6 +277,29 @@ export class Interpreter implements
             return new $Boolean(true);
         }
         return new $Boolean(false);
+    } */
+
+    private spreadBinaryExpr(left: Expr.Expr, right: Expr.Expr, operator: Token): $Any {
+        const lit = new $Iterator(this.evaluate(left));
+        const rit = new $Iterator(this.evaluate(right));
+        const result: $Any[] = [];
+        while (true) {
+            ($Iterator.next(lit, [], this) as $Iterator);
+            ($Iterator.next(rit, [], this) as $Iterator);
+            if (lit.iter.done.value || rit.iter.done.value) {
+                // one of the iterators completed
+                break;
+            }
+            const binary = new Expr.Binary(
+                new Expr.Literal(lit.iter.value, left.line),
+                operator,
+                new Expr.Literal(rit.iter.value, right.line),
+                operator.line
+            );
+            result.push(this.evaluate(binary))
+
+        }
+        return new $List(result);
     }
 
     public visitLogicalExpr(expr: Expr.Logical): $Any {

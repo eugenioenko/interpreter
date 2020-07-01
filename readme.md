@@ -474,22 +474,24 @@ If start is bigger than end, step will be -1
 ```
 
 ### ...
-Spread operator allows strings, lists and dictionaries to be expanded into elements where a list or key-value pair separated by comma is expected.
+Spread operator allows strings, lists and dictionaries to be expanded into elements where a list or key-value pair separated by comma is expected. It also can be used to perform binary operations on expanded elements.
 > `...` *`expression`* `;`
 
-Can be used in call expressions, list and dictionary expressions;
+Can be used in call expressions, list and dictionary and binary expressions;
 > `[` `...` *`expression`* `]` `;`
 > `{` `...` *`expression`* `}` `;`
 > `myFunc(` `...` *`expression`* `)` `;`
-
+> `...` *`expression`* `operator` `...` *`expression`* `;`
 ```
    var dict1 = {one: 'first', two: 'second'};
    var dict2 = {...dict1}; // expands each key-value pair of dict1 into dict2
    var list1 = [...dict1]; // expands the values of the dict1 into the list, keys are ignored
    var dict3 = {...list1}; // expands the values of the list1 into the dict, keys are the index of the value in the list
    var range = [...1..100]; // expands the range into values
-
+   print ...[1,2,3] == ...[1,2,3]; // prints [true, true, true], performs comparision on each element of the list
+   print (..."abc" + ..."abc").join(''); // prints "aabbcc"
 ```
+
 ### <=>
 Spaceship operator is used for comparing two expressions. It returns: -1, 0 or 1 left expression is less than, equal to, or greater than right expression:
 > `expression` *`<=>`* `expression` `;`

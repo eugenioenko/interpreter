@@ -1,18 +1,25 @@
-export const DemoSourceCode = `
-    print ...1..10 === ...1..10;
-`;
-export const DemoSourceCodes =
+export const DemoSourceCode =
 `
 // slicing strings
 print "one two three four"[4:7:1]; // prints two
-print "hello world"[6::1].size(); // 5
 print "hello world"[::-1]; //prints dlrow olleh
+
+// range operator on list contstruction
 print [0:10:3]; // prints a list [0,3,6,9]
+print [1..5]; // prints [1,2,3,4,5]
+
+// spread operator
+print {...[1,2,3]}; // prints {0: 1; 1: 2; 2: 3}
+print ...1..3 == ...1..3; // prints [true,true,true];
+print ..."abz" <=> ..."ayc"; // prints [0,-1,1]
+
+
 // functions
-function sayHello(text) {
+function BasicFunction(text) {
     print text;
 }
-sayHello('hello');
+BasicFunction('BasicFunctionArgument');
+
 // classes
 class Person {
     constructor(name) {
@@ -34,6 +41,7 @@ class Student extends Person {
 }
 var student = new Student('John', 3);
 student.hello();
+
 // Recursive function
 function factorialize(n) {
     if (n < 0) {
@@ -50,25 +58,11 @@ print 'factor of 11: ' + factorialize(11);
 @factor(n) =>
     n < 0 ? -1 : (n == 0 ? 1 : (n * factorialize(n - 1)));
 print 'factor of 11: ' +factor(11);
+
 // nested function returns function
 @add(a) => @(b) => @(c) => a + b + c;
 print add(100)(20)(3);
-function sub(a) {
-    return function (b) {
-        return function (c) {
-            return a - b - c;
-        };
-    };
-}
-print sub(100)(10)(1);
-// while loop and ternary operator
-var i = 0;
-var counts = '';
-while (i <= 10) {
-    counts += i % 2 ? 'odd ' : 'even ';
-    i = i + 1;
-}
-print counts;
+
 // literals
 var literal = {
     firstname: "John",
@@ -79,15 +73,10 @@ var literal = {
     }
 };
 print literal.records.prev;
+
 // safe navigator operator ?.
 print literal.safeNavigator?.propertyDoesNotExist;
-var x = [1, 20, 300];
-var y = [100, x[1]];
-print y[0];
-y.push(x);
-y.newProperty = "anything";
-print y.join(',');
-var z = y.join('-');
+
 // new scope test
 {
     var a = {a: 'one'};
@@ -102,6 +91,7 @@ var z = y.join('-');
     var c = a + b;
     print c; // prints {d: 'three', e: 'four'}
 }
+
 // typeof, is, instanceof operator
 print typeof Person;
 print typeof student;
@@ -111,7 +101,6 @@ print 'student is Person: ' + (student is Person);
 print 'student is Student: ' + (student is Student);
 print 'student instanceof Person: ' + (student instanceof Person);
 print typeof '' + 'string';
-
 
 // iterators
 var it = iter(['one', 'two', 'three']);
