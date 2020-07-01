@@ -284,8 +284,8 @@ export class Interpreter implements
         const rit = new $Iterator(this.evaluate(right));
         const result: $Any[] = [];
         while (true) {
-            ($Iterator.next(lit, [], this) as $Iterator);
-            ($Iterator.next(rit, [], this) as $Iterator);
+            $Iterator.next(lit, [], this);
+            $Iterator.next(rit, [], this);
             if (lit.iter.done.value || rit.iter.done.value) {
                 // one of the iterators completed
                 break;
@@ -296,7 +296,7 @@ export class Interpreter implements
                 new Expr.Literal(rit.iter.value, right.line),
                 operator.line
             );
-            result.push(this.evaluate(binary))
+            result.push(this.evaluate(binary));
 
         }
         return new $List(result);
