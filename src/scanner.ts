@@ -194,13 +194,13 @@ export class Scanner {
             case '%': this.addToken(this.match('=') ? TokenType.PercentEqual : TokenType.Percent, null); break;
             case '|': this.addToken(this.match('|') ? TokenType.Or : TokenType.Pipe, null); break;
             case '&': this.addToken(this.match('&') ? TokenType.And : TokenType.Ampersand, null); break;
-            case '<': this.addToken(this.match('=') ? TokenType.LessEqual : TokenType.Less, null); break;
             case '>': this.addToken(this.match('=') ? TokenType.GreaterEqual : TokenType.Greater, null); break;
             case '!': this.addToken(this.match('=') ? TokenType.BangEqual : TokenType.Bang, null); break;
             case '?': this.addToken(this.match('?') ? TokenType.QuestionQuestion : this.match('.') ? TokenType.QuestionDot : TokenType.Question, null); break;
             case '=': this.addToken(this.match('=') ? TokenType.EqualEqual : this.match('>') ? TokenType.Arrow : TokenType.Equal, null); break;
             case '+': this.addToken(this.match('+') ? TokenType.PlusPlus : this.match('=') ? TokenType.PlusEqual : TokenType.Plus, null); break;
             case '-': this.addToken(this.match('-') ? TokenType.MinusMinus : this.match('>') ? TokenType.Return : this.match('=') ? TokenType.MinusEqual : TokenType.Minus, null); break;
+            case '<': this.addToken(this.match('=') ? this.match('>') ? TokenType.LessEqualGreater : TokenType.LessEqual : TokenType.Less, null); break;
             case '.':
                 if (this.match('.')) {
                     if (this.match('.')) {

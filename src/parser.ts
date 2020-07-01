@@ -471,7 +471,7 @@ export class Parser {
     private equality(): Expr.Expr {
         let expr  = this.instanceof();
         while (this.match(
-            TokenType.BangEqual, TokenType.EqualEqual)
+            TokenType.BangEqual, TokenType.EqualEqual, TokenType.LessEqualGreater)
         ) {
             const operator: Token = this.previous();
             const right: Expr.Expr = this.instanceof();
