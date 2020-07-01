@@ -78,7 +78,7 @@ export const Runtime = {
             }
             return new $RegExp(new RegExp(values[0], values[1]));
         })],
-        ['iter', new $Callable('iter', 1, (thiz: $Any, args: $Any[]): $Any => {
+        ['$', new $Callable('$', 1, (thiz: $Any, args: $Any[]): $Any => {
             return new $Iterator(args[0]);
         })]
     ])

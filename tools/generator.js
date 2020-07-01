@@ -5,6 +5,7 @@ const ExpressionAST = {
     Base: ['paren: Token'],
     Binary: ['left: Expr', 'operator: Token', 'right: Expr'],
     Call: ['callee: Expr', 'paren: Token', 'args: Expr[]', 'thiz: $Any'],
+    Char: ['value: Expr'],
     Dictionary: ['properties: Expr[]'],
     Get: ['entity: Expr', 'key: Expr', 'type: TokenType'],
     Grouping: ['expression: Expr'],

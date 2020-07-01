@@ -700,6 +700,11 @@ export class Interpreter implements
         return new $Null();
     }
 
+    public visitCharExpr(expr: Expr.Char): $Any {
+        const value = this.evaluate(expr.value);
+        return new $String(String.fromCharCode(value.value));
+    }
+
     public visitSpreadExpr(expr: Expr.Spread): $Any {
         // this.error(`unexpected spread '...' operator at line ${expr.line}`);
         return new $Null();

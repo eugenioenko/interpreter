@@ -703,6 +703,9 @@ export class Parser {
             const expr: Expr.Expr = this.range();
             return new Expr.Spread(expr, this.previous().line);
         }
+        if (this.match(TokenType.Hash)) {
+            return new Expr.Char(this.call(), this.previous().line);
+        }
 
         throw this.error(this.peek(), `Expected expression, unexpected token "${this.peek().lexeme}"`);
         // unreacheable code

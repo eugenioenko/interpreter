@@ -189,6 +189,7 @@ export class Scanner {
             case '^': this.addToken(TokenType.Caret, null); break;
             case ':': this.addToken(TokenType.Colon, null); break;
             case '$': this.addToken(TokenType.Dollar, null); break;
+            case '#': this.addToken(TokenType.Hash, null); break;
             case '@': this.addToken(TokenType.Function, '@'); break;
             case '*': this.addToken(this.match('=') ? TokenType.StarEqual : TokenType.Star, null); break;
             case '%': this.addToken(this.match('=') ? TokenType.PercentEqual : TokenType.Percent, null); break;
