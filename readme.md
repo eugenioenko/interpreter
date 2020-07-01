@@ -501,7 +501,13 @@ Spaceship operator is used for comparing two expressions. It returns: -1, 0 or 1
     print 2 <=> 2; // prints 0
     print 1 <=> 2; // prints -1
 ```
+### #
+The char code operator '#' returns the character with the char code of the value of the expression
+> *`#`* `expression` `;`
 
+```
+    print #64; // prints '@'
+```
 
 ## contents, compiling, installing, cli
 The package consist of a tokenizer/scanner, a parser and an interpreter.
