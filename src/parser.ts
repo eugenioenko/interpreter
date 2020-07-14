@@ -625,23 +625,24 @@ export class Parser {
         let key: Expr.Expr = null;
         let end: Expr.Expr = null;
         let step: Expr.Expr = new Expr.Literal(new $Number(1), operator.line);
+        let isRange = false;
 
         if (!this.check(TokenType.Colon)) {
             key = this.expression();
         }
-
-        // range get expression
         if (this.match(TokenType.Colon) && !this.check(TokenType.Colon)) {
+            isRange = true;
             end = this.expression();
-            if (this.match(TokenType.Colon) && !this.check(TokenType.RightBracket)) {
-                step = this.expression();
-            }
-            this.consume(TokenType.RightBracket, `Expected "]" after an index`);
+        }
+        if (this.match(TokenType.Colon) && !this.check(TokenType.RightBracket)) {
+            isRange = true;
+            step = this.expression();
+        }
+        this.consume(TokenType.RightBracket, `Expected "]" after an index`);
+        if (isRange) {
             const range = new Expr.Range(key, end, step, operator.line);
             return new Expr.Get(expr, range, operator.type, operator.line);
         }
-        // index get expression
-        this.consume(TokenType.RightBracket, `Expected "]" after an index`);
         return new Expr.Get(expr, key, operator.type, operator.line);
     }
 
