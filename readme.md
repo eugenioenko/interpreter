@@ -1,13 +1,13 @@
 
 ##  @script (at-script)[![Build Status](https://travis-ci.org/eugenioenko/interpreter.svg?branch=master)](https://travis-ci.org/eugenioenko/interpreter)
-This is a work in progress of an interpreter writen in typescript of a scripting language somewhat similar to javascript.
+This is a work in progress of an interpreter writen in typescript of a scripting language somewhat similar to javascript which borrows some ideas from python.
 
 ### > [Try it out in playground!](https://eugenioenko.github.io/interpreter/)
 
 ## statements
 AtScript code consist of a list of statements which will be executed by AtScript interpreter.
 
-Multiple statements can occur on a single line but they have to be separated by a semicolon.
+Multiple statements can occure on a single line but they have to be separated by a semicolon.
 
 Expression, Var, Print and Return statements require a semicolon `;` at the end as delimiter;
 
@@ -29,6 +29,7 @@ AtScript interpreter at its current stage recognizes the following statements:
 - while
 - do while
 - for
+- foreach
 
 #### Other
 - expression: expression statement
