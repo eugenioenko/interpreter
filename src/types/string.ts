@@ -6,6 +6,7 @@ import { $Number } from './number';
 import { DataType } from './type.enum';
 import { Interpreter } from '../interpreter';
 import { $Range } from './range';
+import { $List } from './list';
 
 export class $String extends $Any {
     public value: string;
@@ -55,11 +56,16 @@ export class $String extends $Any {
         return new $String(thiz.value.replace(args[0].value, args[1].value));
     }
 
+    public static split(thiz: $Any, args: $Any[], interpeter: Interpreter): $Any {
+        const splits = thiz.value.split(args[0].value).map((str:string) => new $String(str));
+        return new $List(splits);
+    }
+
     public static  runtime =  new Map([
         ['toUpper',  fromJavaScriptMethod('toUpperCase', 0, DataType.String)],
         ['toLower', fromJavaScriptMethod('toLowerCase', 0, DataType.String)],
         ['size', new $Callable('size', 0,  (thiz: $Any, args: $Any[]): $Any => new $Number(thiz.value.length))],
-        ['split',  fromJavaScriptMethod('split', 1, DataType.List)],
+        ['split', new $Callable('split', 1, $String.split)],
         ['concat', fromJavaScriptMethod('concat', 1, DataType.String)],
         ['includes', fromJavaScriptMethod('includes', 1, DataType.Boolean)],
         ['indexOf', fromJavaScriptMethod('indexOf', 1, DataType.Number)],
