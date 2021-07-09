@@ -1,7 +1,7 @@
 import { DataType } from './types/type.enum';
 import { $Null } from './types/null';
 import { $Any } from './types/any';
-import { $Callable } from './types/function';
+import { $Callable, $Function } from './types/function';
 import { $Boolean } from './types/boolean';
 import { $List } from './types/list';
 import { $Number } from './types/number';
@@ -80,6 +80,21 @@ export const Runtime = {
         })],
         ['iter', new $Callable('iter', 1, (thiz: $Any, args: $Any[]): $Any => {
             return new $Iterator(args[0]);
-        })]
+        })],
+        ['delay', new $Callable('delay', 2, (thiz: $Any, args: $Any[], interpreter): $Any => {
+            setTimeout(() => {
+                (args[0] as $Function).call(thiz, [], interpreter);
+            }, args[1].value);
+            return new $Null();
+        })],
+
+        ['fetch', new $Callable('fetch', 2, (thiz: $Any, args: $Any[], interpreter): $Any => {
+            fetch(args[0].value)
+                .then(response => response.text())
+                .then(json => {
+                    (args[1] as $Function).call(thiz, [new $String(json)], interpreter);
+                });
+            return new $Null();
+        })],
     ])
 };

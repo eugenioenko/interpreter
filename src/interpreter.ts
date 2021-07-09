@@ -40,6 +40,8 @@ export class Interpreter implements
         this.global.set('console', new $Dictionary(Runtime.Console));
         this.global.set('re', Runtime.Utils.get('re'));
         this.global.set('iter', Runtime.Utils.get('iter'));
+        this.global.set('delay', Runtime.Utils.get('delay'));
+        this.global.set('fetch', Runtime.Utils.get('fetch'));
         this.parser.errorLevel = 0;
     }
 
