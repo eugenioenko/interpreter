@@ -127,4 +127,9 @@ foreach (item with key in ['one', 'two', 'three']) {
 
 // loggin into js console
 echo ('execution finished');
+
+// fetching data. Currently unparsed text
+fetch ('https://jsonplaceholder.typicode.com/todos/1', @(res) {
+    echo(res);
+});
 `;
