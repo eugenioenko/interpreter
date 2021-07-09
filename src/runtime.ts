@@ -90,8 +90,8 @@ export const Runtime = {
 
         ['fetch', new $Callable('fetch', 2, (thiz: $Any, args: $Any[], interpreter): $Any => {
             fetch(args[0].value)
-                .then(response => response.text())
-                .then(json => {
+                .then((response) => response.text())
+                .then((json) => {
                     (args[1] as $Function).call(thiz, [new $String(json)], interpreter);
                 });
             return new $Null();
