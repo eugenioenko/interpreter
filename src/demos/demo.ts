@@ -77,6 +77,9 @@ print literal.records.prev;
 // safe navigator operator ?.
 print literal.safeNavigator?.propertyDoesNotExist;
 
+// delete operator
+delete literal.firstname;
+
 // new scope test
 {
     var a = {a: 'one'};

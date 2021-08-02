@@ -17,6 +17,7 @@ export interface ExprVisitor<R> {
     visitBinaryExpr(expr: Binary): R;
     visitCallExpr(expr: Call): R;
     visitCharExpr(expr: Char): R;
+    visitDeleteExpr(expr: Delete): R;
     visitDictionaryExpr(expr: Dictionary): R;
     visitGetExpr(expr: Get): R;
     visitGroupingExpr(expr: Grouping): R;
@@ -143,6 +144,24 @@ export class Char extends Expr {
 
     public toString(): string {
         return 'Expr.Char';
+    }
+}
+
+export class Delete extends Expr {
+    public value: Expr;
+
+    constructor(value: Expr, line: number) {
+        super();
+        this.value = value;
+        this.line = line;
+    }
+
+    public accept<R>(visitor: ExprVisitor<R>): R {
+        return visitor.visitDeleteExpr(this);
+    }
+
+    public toString(): string {
+        return 'Expr.Delete';
     }
 }
 

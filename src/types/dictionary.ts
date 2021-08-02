@@ -8,6 +8,7 @@ import { $Number } from './number';
 import { $String } from './string';
 import { DataType } from './type.enum';
 import { $Iterator } from './iterator';
+import { $Boolean } from './boolean';
 
 export class $Dictionary extends $Any {
     public value: Map<any, $Any>;
@@ -29,6 +30,11 @@ export class $Dictionary extends $Any {
     public set(key: $Any, value: $Any): $Any {
         this.value.set(key.value, value);
         return value;
+    }
+
+    public delete(key: $Any): $Any {
+        const result = this.value.delete(key.value);
+        return new $Boolean(result);
     }
 
     public toString(): string {
