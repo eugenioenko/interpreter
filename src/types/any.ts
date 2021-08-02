@@ -108,6 +108,11 @@ export class $Any {
         throw new Error("Error in Any setter");
     }
 
+    public delete(key: $Any): $Any {
+        conzole.error(`${this} does not support operator`);
+        throw new Error("Error in Any delete");
+    }
+
     public toString(): string {
         return this.value.toString();
     }

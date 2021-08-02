@@ -713,4 +713,18 @@ export class Interpreter implements
         return new $Null();
     }
 
+    public visitDeleteExpr(expr: Expr.Delete): $Any {
+        if (!(expr.value instanceof Expr.Get)) {
+            const value = this.evaluate(expr.value);
+            const type = DataType[value.type].toLowerCase();
+            this.error(`Can't delete on type ${type} with value '${value}'. Not a Dictionary, Class or Entity`);
+            return new $Null();
+        }
+
+        const getExpr = expr.value as Expr.Get;
+        const entity = this.evaluate(getExpr.entity);
+        const key = this.evaluate(getExpr.key);
+        return entity.delete(key);
+    }
+
 }
