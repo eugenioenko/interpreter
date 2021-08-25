@@ -392,10 +392,12 @@ export class Interpreter implements
     }
 
     public visitWhileStmt(stmt: Stmt.While): $Any {
+        const currentScope = this.scope;
         while (this.evaluate(stmt.condition).isTruthy()) {
             try {
                 this.execute(stmt.loop);
             } catch (e) {
+                this.scope = currentScope;
                 if (e instanceof $Any && e.type === DataType.Break) {
                     break;
                 } else if (e instanceof $Any && e.type === DataType.Continue) {
@@ -409,10 +411,12 @@ export class Interpreter implements
     }
 
     public visitDoWhileStmt(stmt: Stmt.DoWhile): $Any {
+        const currentScope = this.scope;
         do {
             try {
                 this.execute(stmt.loop);
             } catch (e) {
+                this.scope = currentScope;
                 if (e instanceof $Any && e.type === DataType.Break) {
                     break;
                 } else if (e instanceof $Any && e.type === DataType.Continue) {
