@@ -1,13 +1,13 @@
 
 ##  @script (at-script)[![Build Status](https://travis-ci.org/eugenioenko/interpreter.svg?branch=master)](https://travis-ci.org/eugenioenko/interpreter)
-This is a work in progress of an interpreter writen in typescript of a scripting language somewhat similar to javascript which borrows some ideas from python.
+This is a work in progress of an interpreter written in typescript of a scripting language somewhat similar to javascript which borrows some ideas from python.
 
 ### > [Try it out in playground!](https://eugenioenko.github.io/interpreter/)
 
 ## statements
 AtScript code consist of a list of statements which will be executed by AtScript interpreter.
 
-Multiple statements can occure on a single line but they have to be separated by a semicolon.
+Multiple statements can occur on a single line but they have to be separated by a semicolon.
 
 Expression, Var, Print and Return statements require a semicolon `;` at the end as delimiter;
 
@@ -78,7 +78,7 @@ The **if** statement executes a statement if the specified condition is evaluate
 - *`statement`*: can be any statement except declaration statements like (var, function and class)
 
 ### Multiple if, else if, else
-**if** statements can be chained together to achive complex control flow
+**if** statements can be chained together to achieve complex control flow
 
 > `if` `(` *`condition`* `)` `{` <br>
     *`statements`* `;` <br>
@@ -236,9 +236,9 @@ AtScript implements the following data types:
 
 ### List / Array
 To create an array use '[]' as a value;
-- Accesing with a number index returns the array values.
-- Accesing with a range index returns a slice of the array.
-- You can concat two arays by using '+' operator.
+- Accessing with a number index returns the array values.
+- Accessing with a range index returns a slice of the array.
+- You can concat two arrays by using '+' operator.
 ```
     var x = [1, 20, 300];
     var y = [100, x[1]];
@@ -257,7 +257,7 @@ To create an array use '[]' as a value;
 - *.indexOf(value)*: returns the index of the value inside the list
 - *.lastIndexOf(value)*: returns the last index of the value inside the list
 - *.join(separator)*: returns a string representation of the list with value separated by separator
-- *.map(@(value, index, list){})*: remaps the values of the list by executing mapping funciton passing value, index and list as argument
+- *.map(@(value, index, list){})*: remaps the values of the list by executing mapping function passing value, index and list as argument
 - *.pop()*: removes last element from the list and returns it
 - *.push(value)*: adds an element at the end of the list
 - *.shift(value)*: adds an element at the start of the list
@@ -267,12 +267,12 @@ To create an array use '[]' as a value;
 
 #### Range:
 list[start : end : step];
-Similar to python step provides the dirrection of the slice. Start provides from where to slice and end provides the end index of the slice
+Similar to python step provides the direction of the slice. Start provides from where to slice and end provides the end index of the slice
 
 ### String
-- Accesing with a number index returns the string value.
-- Accesing with a range index returns a slice of the string.
-- Accesing with a string index returns the object property. (only for get, setting a property in string won't modify the property, similarly to javascript)
+- Accessing with a number index returns the string value.
+- Accessing with a range index returns a slice of the string.
+- Accessing with a string index returns the object property. (only for get, setting a property in string won't modify the property, similarly to javascript)
 ```
 var s = "hello world";
 print s[1]; // prints 'e'
@@ -283,8 +283,8 @@ var d = ("hello" + " world").size();
 ### Implemented methods:
 - *.concat()*: concatenates two strings together
 - *.includes(value)*: true if string contains value
-- *.indexOf(value)*: returns first index of the occurence of value in the string
-- *.lastIndexOf(value)*: returns last index of the occurence of value in the string
+- *.indexOf(value)*: returns first index of the occurrence of value in the string
+- *.lastIndexOf(value)*: returns last index of the occurrence of value in the string
 - *.replace(needle, replacer)*: replaces the needle in the string with replacer
 - *.search(value)*
 - *.size()*: returns size of the string
@@ -293,7 +293,7 @@ var d = ("hello" + " world").size();
 - *.substring(start, end)*: returns a substring
 - *.toLower()*: returns new string converted to lower case
 - *.toUpper()*: returns new string converted to upper case
-- *.trim()*: removes trailing whitespaces
+- *.trim()*: removes trailing white spaces
 
 
 ### Dictionary / Table
@@ -315,9 +315,9 @@ print dictionary['method']('hello', 'world'); // prints 'helloworld';
 #### Implemented methods:
 - *.size()*: returns size of the dictionary
 - *.each(@(value, index, dictionary){})*: executes callback passing value, index and dictionary as argument
-- *.map(@(value, index, dictionary){})*: remaps the values of the dictionary by executing mapping funciton passing value, index and dictionary as argument
+- *.map(@(value, index, dictionary){})*: remaps the values of the dictionary by executing mapping function passing value, index and dictionary as argument
 - *.indexOf(value)*: returns the key of the value inside the dictionary
-- *.merge(dictionary)*: merges two dictionaries together and returns the new dicitonary
+- *.merge(dictionary)*: merges two dictionaries together and returns the new dictionary
 - *.clear()*: removes all key value pairs from dictionary
 - *.has(key)*: true if dictionary contains key
 
@@ -331,7 +331,7 @@ print c; // prints {a: 'one', b: 'two'}
 
 ### utility statements
 ```
-    print variable; // prints in the interperter console.
+    print variable; // prints in the interpreter console.
 ```
 
 ## Operators
@@ -423,7 +423,7 @@ As side effect, it will also return false if the object is not an object.
 
     var entity = new Child();
 
-    print entity instanceof Object;    // true: all objects derrive from internal Object Class
+    print entity instanceof Object;    // true: all objects derive from internal Object Class
     print entity instanceof Child;     // true: entity is a direct instance of Child
     print entity instanceof Parent;    // true: entity is an indirect instance of Parent. Child class inherits from Parent class
     print entity instanceof Unrelated; // false: entity is not an instance of Unrelated
@@ -489,7 +489,7 @@ Can be used in call expressions, list and dictionary and binary expressions;
    var list1 = [...dict1]; // expands the values of the dict1 into the list, keys are ignored
    var dict3 = {...list1}; // expands the values of the list1 into the dict, keys are the index of the value in the list
    var range = [...1..100]; // expands the range into values
-   print ...[1,2,3] == ...[1,2,3]; // prints [true, true, true], performs comparision on each element of the list
+   print ...[1,2,3] == ...[1,2,3]; // prints [true, true, true], performs comparison on each element of the list
    print (..."abc" + ..."abc").join(''); // prints "aabbcc"
 ```
 
@@ -526,9 +526,9 @@ An interactive cli is available
 ### > [Try it out in playground!](https://eugenioenko.github.io/interpreter/)
 
 ## collaboration
-This project is designed with fun and discovery in mind. Typescript transpiles to javascript making this interpreter be almost a js like language interpreter running on js.
+This project is designed with fun and discovery in mind. Typescript transpile to javascript making this interpreter be almost a js like language interpreter running on js.
 
-If you want to have some fun with it, implement an interesting feature,  tried it out and noticed an anoying bug,  or just have a question: please contact me and I'll answer asap. Pull requests are very welcome.
+If you want to have some fun with it, implement an interesting feature,  tried it out and noticed an annoying bug,  or just have a question: please contact me and I'll answer asap. Pull requests are very welcome.
 
 ### thanks and kudos
 to @munificent for publishing the book on [lox interpreter](http://www.craftinginterpreters.com/)
