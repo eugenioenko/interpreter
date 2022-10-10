@@ -1,10 +1,9 @@
-export const DemoSourceCode =
-`
+export const DemoSourceCode = `
 // slicing strings
 print "one two three four"[4:7:1]; // prints two
 print "hello world"[::-1]; //prints dlrow olleh
 
-// range operator on list contstruction
+// range operator on list construction
 print [0:10:3]; // prints a list [0,3,6,9]
 print [1..5]; // prints [1,2,3,4,5]
 
@@ -111,6 +110,13 @@ while (!it.next().done) {
 // foreach statement
 foreach (item with key in ['one', 'two', 'three']) {
     print item;
+}
+
+// foreach statement with none
+foreach (item  in []) {
+    print item;
+} none {
+    print "no items";
 }
 
 // spread operator

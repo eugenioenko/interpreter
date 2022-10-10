@@ -333,7 +333,11 @@ export class Parser {
         this.consume(TokenType.RightParen, `Expected close parenthesis ")" after a "foreach" initialization`);
 
         const loop: Stmt.Stmt = this.statement();
-        return new Stmt.Foreach(name, key, iterable, loop, keyword.line);
+        let none: Stmt.Stmt | null = null;
+        if (this.match(TokenType.None)) {
+            none = this.statement();
+        }
+        return new Stmt.Foreach(name, key, iterable, loop, none, keyword.line);
     }
 
     private doWhileStatement(): Stmt.Stmt {

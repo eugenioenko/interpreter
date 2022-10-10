@@ -76,6 +76,7 @@ export enum TokenType {
     Instanceof,
     Is,
     New,
+    None,
     Null,
     Or,
     Print,
@@ -85,7 +86,7 @@ export enum TokenType {
     Var,
     Void,
     While,
-    With
+    With,
 }
 
 export class Token {
@@ -96,7 +97,13 @@ export class Token {
     public literal: any;
     public lexeme: string;
 
-    constructor(type: TokenType, lexeme: string, literal: any, line: number, col: number) {
+    constructor(
+        type: TokenType,
+        lexeme: string,
+        literal: any,
+        line: number,
+        col: number
+    ) {
         this.name = TokenType[type];
         this.type = type;
         this.lexeme = lexeme;
@@ -108,5 +115,4 @@ export class Token {
     public toString() {
         return `[(${this.line}):"${this.lexeme}"]`;
     }
-
 }

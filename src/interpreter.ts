@@ -428,7 +428,9 @@ export class Interpreter implements
     public visitForeachStmt(stmt: Stmt.Foreach): $Any {
         const it = new $Iterator(this.evaluate(stmt.iterable));
         const restoreScope = this.scope;
+        let hasItems = false;
         while (!($Iterator.next(it, [], this) as $Iterator).iter.done.value) {
+            hasItems = true;
             const foreachScope = new Scope(this.scope);
             foreachScope.set(stmt.name.lexeme, it.iter.value);
             if (stmt.key) {
@@ -446,6 +448,9 @@ export class Interpreter implements
                     throw e;
                 }
             }
+        }
+        if (!hasItems && stmt.none) {
+            this.execute(stmt.none);
         }
         return new $Void('foreach');
     }
