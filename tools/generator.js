@@ -41,7 +41,7 @@ const StatementAST = {
     Continue: ['keyword: Token'],
     DoWhile: ['loop: Stmt', 'condition: Expr'],
     Expression : ['expression: Expr'],
-    Foreach: ['name: Token', 'key: Token', 'iterable: Expr', 'loop: Stmt'],
+    Foreach: ['name: Token', 'key: Token', 'iterable: Expr', 'loop: Stmt', 'none: Stmt'],
     Func: ['name: Token', 'params: Token[]', 'body: Stmt[]'],
     If: ['condition: Expr', 'thenStmt: Stmt', 'elseStmt: Stmt'],
     Print : ['expression: Expr'],

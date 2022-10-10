@@ -146,13 +146,15 @@ export class Foreach extends Stmt {
     public key: Token;
     public iterable: Expr;
     public loop: Stmt;
+    public none: Stmt;
 
-    constructor(name: Token, key: Token, iterable: Expr, loop: Stmt, line: number) {
+    constructor(name: Token, key: Token, iterable: Expr, loop: Stmt, none: Stmt, line: number) {
         super();
         this.name = name;
         this.key = key;
         this.iterable = iterable;
         this.loop = loop;
+        this.none = none;
         this.line = line;
     }
 
