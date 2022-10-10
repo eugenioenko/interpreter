@@ -34,6 +34,11 @@ export class $Object extends $Any {
         return value;
     }
 
+    public delete(key: $Any): $Any {
+        const result = this.value.delete(key.value);
+        return new $Boolean(result);
+    }
+
     public toString(): string {
         return `<${this.name} object>`;
     }

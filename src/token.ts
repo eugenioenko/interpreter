@@ -64,6 +64,7 @@ export enum TokenType {
     Base,
     Class,
     Continue,
+    Delete,
     Do,
     Else,
     Extends,

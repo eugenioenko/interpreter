@@ -558,6 +558,15 @@ export class Parser {
             const value: Expr.Expr = this.typeof();
             return new Expr.Typeof(value, operator.line);
         }
+        return this.delete();
+    }
+
+    private delete(): Expr.Expr {
+        if (this.match(TokenType.Delete)) {
+            const operator: Token = this.previous();
+            const value: Expr.Expr = this.delete();
+            return new Expr.Delete(value, operator.line);
+        }
         return this.range();
     }
 

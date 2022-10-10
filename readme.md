@@ -361,6 +361,17 @@ It can be used as a shorthand of an "if" statement.
     this.method() ? trueBlock() : falseBlock();
 ```
 
+### `delete`
+"delete*" operator  removes a key from a dictionary, a class or an entity
+
+> `delete`  *`get expression`* `;`
+
+```
+    var obj = { property: 'value' };
+    delete obj.property;
+    print obj;
+```
+
 ### `typeof`
 "typeof*" operator outputs the data type of a given expression in string format;
 

@@ -392,10 +392,12 @@ export class Interpreter implements
     }
 
     public visitWhileStmt(stmt: Stmt.While): $Any {
+        const currentScope = this.scope;
         while (this.evaluate(stmt.condition).isTruthy()) {
             try {
                 this.execute(stmt.loop);
             } catch (e) {
+                this.scope = currentScope;
                 if (e instanceof $Any && e.type === DataType.Break) {
                     break;
                 } else if (e instanceof $Any && e.type === DataType.Continue) {
@@ -409,10 +411,12 @@ export class Interpreter implements
     }
 
     public visitDoWhileStmt(stmt: Stmt.DoWhile): $Any {
+        const currentScope = this.scope;
         do {
             try {
                 this.execute(stmt.loop);
             } catch (e) {
+                this.scope = currentScope;
                 if (e instanceof $Any && e.type === DataType.Break) {
                     break;
                 } else if (e instanceof $Any && e.type === DataType.Continue) {
@@ -716,6 +720,20 @@ export class Interpreter implements
     public visitSpreadExpr(expr: Expr.Spread): $Any {
         // this.error(`unexpected spread '...' operator at line ${expr.line}`);
         return new $Null();
+    }
+
+    public visitDeleteExpr(expr: Expr.Delete): $Any {
+        if (!(expr.value instanceof Expr.Get)) {
+            const value = this.evaluate(expr.value);
+            const type = DataType[value.type].toLowerCase();
+            this.error(`Can't delete on type ${type} with value '${value}'. Not a Dictionary, Class or Entity`);
+            return new $Null();
+        }
+
+        const getExpr = expr.value as Expr.Get;
+        const entity = this.evaluate(getExpr.entity);
+        const key = this.evaluate(getExpr.key);
+        return entity.delete(key);
     }
 
 }
