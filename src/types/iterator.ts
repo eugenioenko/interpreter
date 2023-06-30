@@ -1,14 +1,14 @@
-import { DataType } from './type.enum';
-import { $Any } from './any';
-import { Interpreter } from '../interpreter';
-import { $Dictionary } from './dictionary';
-import { $Null } from './null';
-import { $Callable } from './function';
-import { $List } from './list';
-import { $Boolean } from './boolean';
-import { $Number } from './number';
-import { $String } from './string';
-import { $Range, RangeValue } from './range';
+import { DataType } from "./type.enum";
+import { $Any } from "./any";
+import { Interpreter } from "../interpreter";
+import { $Dictionary } from "./dictionary";
+import { $Null } from "./null";
+import { $Callable } from "./function";
+import { $List } from "./list";
+import { $Boolean } from "./boolean";
+import { $Number } from "./number";
+import { $String } from "./string";
+import { $Range, RangeValue } from "./range";
 
 export class IteratorValue {
     public value: $Any;
@@ -30,17 +30,22 @@ export class $Iterator extends $Any {
 
     constructor(value: $Any) {
         super(value, DataType.RegExp);
-        this.iter = new IteratorValue(new $Null(), new $Null(), new $Boolean(false), null);
+        this.iter = new IteratorValue(
+            new $Null(),
+            new $Null(),
+            new $Boolean(false),
+            null
+        );
     }
 
     public get(key: $Any): $Any {
-        if (key.value === 'key' || key.value === 'index') {
+        if (key.value === "key" || key.value === "index") {
             return this.iter.index;
         }
-        if (key.value === 'done') {
+        if (key.value === "done") {
             return this.iter.done;
         }
-        if (key.value === 'value') {
+        if (key.value === "value") {
             return this.iter.value;
         }
         if ($Iterator.runtime.has(key.value)) {
@@ -56,8 +61,8 @@ export class $Iterator extends $Any {
     }
 
     public set(key: $Any, value: $Any): $Any {
-        if (typeof this.iter[key.value] !== 'undefined') {
-            this.iter[key.value] = value;
+        if (typeof this.iter[key.value as never] !== "undefined") {
+            (this.iter[key.value as never] as $Any) = value;
         }
         return value;
     }
@@ -66,7 +71,11 @@ export class $Iterator extends $Any {
         return `<${DataType[this.value.type]} iterator>`;
     }
 
-    public static next(thiz: $Any, args: $Any[], interpreter: Interpreter): $Any {
+    public static next(
+        thiz: $Any,
+        args: $Any[],
+        interpreter: Interpreter
+    ): $Any {
         const it = thiz as $Iterator;
 
         // already iterated, return completed iterator
@@ -94,18 +103,26 @@ export class $Iterator extends $Any {
             return it;
         }
 
-        if(it.value.isRange()) {
+        if (it.value.isRange()) {
             $Iterator.rangeNext(thiz);
             return it;
         }
 
         if (it.value.isObject()) {
-            (thiz.value.get(interpreter.strings.next) as $Callable).call(thiz.value, [(thiz as $Iterator)], interpreter);
+            (thiz.value.get(interpreter.strings.next) as $Callable).call(
+                thiz.value,
+                [thiz as $Iterator],
+                interpreter
+            );
             return it;
         }
 
         // default
-        interpreter.error(`${DataType[it.value.type].toLowerCase()} with value ${it.value} is not an iterable`);
+        interpreter.error(
+            `${DataType[it.value.type].toLowerCase()} with value ${
+                it.value
+            } is not an iterable`
+        );
         it.complete();
         return it;
     }
@@ -223,20 +240,19 @@ export class $Iterator extends $Any {
 
         // first value
         if (it.iter.inner === null) {
-            it.iter.inner =  true;
+            it.iter.inner = true;
             it.iter.index = new $Number(0);
             it.iter.value = new $Number(value.start);
             return it;
         }
 
-
         if (value.step > 0) {
-            if(it.iter.value.value >= value.end) {
+            if (it.iter.value.value >= value.end) {
                 it.complete();
                 return it;
             }
         } else {
-            if(it.iter.value.value <= value.end) {
+            if (it.iter.value.value <= value.end) {
                 it.complete();
                 return it;
             }
@@ -278,20 +294,24 @@ export class $Iterator extends $Any {
         return it;
     }
 
-
-    public static first(thiz: $Any, args: $Any[], interpreter: Interpreter): $Any {
+    public static first(
+        thiz: $Any,
+        args: $Any[],
+        interpreter: Interpreter
+    ): $Any {
         if ((thiz as $Iterator).value.value.isList()) {
-            return new $Dictionary(new Map([
-                ['key', 0],
-                ['value', thiz.value.value[0]]
-            ]));
+            return new $Dictionary(
+                new Map([
+                    ["key", 0],
+                    ["value", thiz.value.value[0]],
+                ])
+            );
         }
         return new $Null();
     }
 
     public static runtime = new Map([
-        ['first', new $Callable('first', 0, $Iterator.first)],
-        ['next', new $Callable('next', 0, $Iterator.next)]
+        ["first", new $Callable("first", 0, $Iterator.first)],
+        ["next", new $Callable("next", 0, $Iterator.next)],
     ]);
-
 }

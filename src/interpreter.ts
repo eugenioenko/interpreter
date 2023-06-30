@@ -1,69 +1,69 @@
-import * as Expr from './types/expression';
-import * as Stmt from './types/statement';
-import { Console } from './console';
-import { Scope } from './scope';
-import { TokenType, Token } from './token';
-import { Runtime } from './runtime';
-import { $Any } from './types/any';
-import { $Boolean } from './types/boolean';
-import { $Class } from './types/class';
-import { $Dictionary } from './types/dictionary';
-import { $Function } from './types/function';
-import { $List } from './types/list';
-import { $Null } from './types/null';
-import { $Number } from './types/number';
-import { $Object } from './types/object';
-import { $Range, RangeValue } from './types/range';
-import { $String } from './types/string';
-import { $Void } from './types/void';
-import { DataType } from './types/type.enum';
-import { capitalize } from './utils';
-import { Scanner } from './scanner';
-import { Parser } from './parser';
-import { $Iterator } from './types/iterator';
+import * as Expr from "./types/expression";
+import * as Stmt from "./types/statement";
+import { Console } from "./console";
+import { Scope } from "./scope";
+import { TokenType, Token } from "./token";
+import { Runtime } from "./runtime";
+import { $Any } from "./types/any";
+import { $Boolean } from "./types/boolean";
+import { $Class } from "./types/class";
+import { $Dictionary } from "./types/dictionary";
+import { $Function } from "./types/function";
+import { $List } from "./types/list";
+import { $Null } from "./types/null";
+import { $Number } from "./types/number";
+import { $Object } from "./types/object";
+import { $Range, RangeValue } from "./types/range";
+import { $String } from "./types/string";
+import { $Void } from "./types/void";
+import { DataType } from "./types/type.enum";
+import { capitalize } from "./utils";
+import { Scanner } from "./scanner";
+import { Parser } from "./parser";
+import { $Iterator } from "./types/iterator";
 declare var conzole: Console;
 
-export class Interpreter implements
-    Expr.ExprVisitor<$Any>,
-    Stmt.StmtVisitor<$Any> {
+export class Interpreter
+    implements Expr.ExprVisitor<$Any>, Stmt.StmtVisitor<$Any>
+{
     public global = new Scope();
     public scope = this.global;
     public errors: string[] = [];
     private scanner = new Scanner();
     private parser = new Parser();
     public strings = {
-        next: new $String('next')
+        next: new $String("next"),
     };
 
-    constructor( ) {
-        this.global.set('math', new $Dictionary(Runtime.Math));
-        this.global.set('console', new $Dictionary(Runtime.Console));
-        this.global.set('echo', Runtime.Console.get('log'));
-        this.global.set('re', Runtime.Utils.get('re'));
-        this.global.set('iter', Runtime.Utils.get('iter'));
-        this.global.set('delay', Runtime.Utils.get('delay'));
-        this.global.set('fetch', Runtime.Utils.get('fetch'));
+    constructor() {
+        this.global.set("math", new $Dictionary(Runtime.Math));
+        this.global.set("console", new $Dictionary(Runtime.Console));
+        this.global.set("echo", Runtime.Console.get("log"));
+        this.global.set("re", Runtime.Utils.get("re"));
+        this.global.set("iter", Runtime.Utils.get("iter"));
+        this.global.set("delay", Runtime.Utils.get("delay"));
+        this.global.set("fetch", Runtime.Utils.get("fetch"));
         this.parser.errorLevel = 0;
     }
 
     private evaluate(expr: Expr.Expr): $Any {
-        return expr.result = expr.accept(this);
+        return (expr.result = expr.accept(this));
     }
 
     private execute(stmt: Stmt.Stmt): $Any {
-        return stmt.result = stmt.accept(this);
+        return (stmt.result = stmt.accept(this));
     }
 
     public eval(stmt: Stmt.Stmt): any {
         try {
-            return  {
+            return {
                 error: false,
                 value: stmt.accept(this).toString(),
             };
-        } catch (e) {
+        } catch (e: any) {
             return {
                 error: true,
-                value: e.message
+                value: e.message,
             };
         }
     }
@@ -73,11 +73,11 @@ export class Interpreter implements
         for (const statement of statements) {
             try {
                 this.execute(statement);
-            } catch (e) {
+            } catch (e: any) {
                 conzole.error(e.message);
                 this.errors.push(e.message);
                 if (this.errors.length > 100) {
-                    this.errors.push('Runtime Error limit exceeded');
+                    this.errors.push("Runtime Error limit exceeded");
                     return statements;
                 }
             }
@@ -129,7 +129,8 @@ export class Interpreter implements
                 const value = this.evaluate(expression.value);
                 this.spreadAnyIntoList(value, values);
             } else if (expression instanceof Expr.Range) {
-                const range: RangeValue = (this.evaluate(expression) as $Range).value;
+                const range: RangeValue = (this.evaluate(expression) as $Range)
+                    .value;
                 range.step = range.step ? range.step : 1;
                 if (range.step > 0 && range.start <= range.end) {
                     for (let i = range.start; i <= range.end; i += range.step) {
@@ -140,7 +141,9 @@ export class Interpreter implements
                         values.push(new $Number(i));
                     }
                 } else {
-                    this.error(`Invalid range expression at line ${expression.line} with range value of [${range.start}:${range.end}:${range.step}]`);
+                    this.error(
+                        `Invalid range expression at line ${expression.line} with range value of [${range.start}:${range.end}:${range.step}]`
+                    );
                 }
             } else {
                 const value = this.evaluate(expression);
@@ -167,7 +170,7 @@ export class Interpreter implements
         if (this.parser.errors.length) {
             this.error(`Template string  error: ${this.parser.errors[0]}`);
         }
-        let result = '';
+        let result = "";
         for (const statement of statements) {
             result += this.execute(statement).toString();
         }
@@ -175,12 +178,15 @@ export class Interpreter implements
     }
 
     public visitTemplateExpr(expr: Expr.Template): $Any {
-        const result = expr.value.replace(/\$\{([\s\S]+?)\}/g, (m, placeholder) => {
-            if (placeholder[placeholder.length] !== ';') {
-                placeholder += ';';
+        const result = expr.value.replace(
+            /\$\{([\s\S]+?)\}/g,
+            (m, placeholder) => {
+                if (placeholder[placeholder.length] !== ";") {
+                    placeholder += ";";
+                }
+                return this.templateParse(placeholder);
             }
-            return this.templateParse(placeholder);
-        });
+        );
         return new $String(result);
     }
 
@@ -197,8 +203,15 @@ export class Interpreter implements
     }
 
     public visitBinaryExpr(expr: Expr.Binary): $Any {
-        if (expr.left instanceof Expr.Spread && expr.right instanceof Expr.Spread) {
-            return this.spreadBinaryExpr(expr.left.value, expr.right.value, expr.operator);
+        if (
+            expr.left instanceof Expr.Spread &&
+            expr.right instanceof Expr.Spread
+        ) {
+            return this.spreadBinaryExpr(
+                expr.left.value,
+                expr.right.value,
+                expr.operator
+            );
         }
 
         const left = this.evaluate(expr.left);
@@ -229,7 +242,9 @@ export class Interpreter implements
                     return new $List(left.value.concat(right.value));
                 }
                 if (left.isDictionary() && right.isDictionary()) {
-                    return new $Dictionary(new Map([...left.value, ...right.value]));
+                    return new $Dictionary(
+                        new Map([...left.value, ...right.value])
+                    );
                 }
                 return new $String(left.toString() + right.toString());
             case TokenType.Pipe:
@@ -257,7 +272,7 @@ export class Interpreter implements
                     return new $Number(0);
                 }
             default:
-                this.error('Unknown binary operator ' + expr.operator);
+                this.error("Unknown binary operator " + expr.operator);
                 return new $Null(); // unreachable
         }
     }
@@ -282,7 +297,11 @@ export class Interpreter implements
         return new $Boolean(false);
     } */
 
-    private spreadBinaryExpr(left: Expr.Expr, right: Expr.Expr, operator: Token): $Any {
+    private spreadBinaryExpr(
+        left: Expr.Expr,
+        right: Expr.Expr,
+        operator: Token
+    ): $Any {
         const lit = new $Iterator(this.evaluate(left));
         const rit = new $Iterator(this.evaluate(right));
         const result: $Any[] = [];
@@ -300,7 +319,6 @@ export class Interpreter implements
                 operator.line
             );
             result.push(this.evaluate(binary));
-
         }
         return new $List(result);
     }
@@ -322,7 +340,9 @@ export class Interpreter implements
     }
 
     public visitTernaryExpr(expr: Expr.Ternary): $Any {
-        return this.evaluate(expr.condition).isTruthy() ? this.evaluate(expr.thenExpr) : this.evaluate(expr.elseExpr);
+        return this.evaluate(expr.condition).isTruthy()
+            ? this.evaluate(expr.thenExpr)
+            : this.evaluate(expr.elseExpr);
     }
 
     public visitNullCoalescingExpr(expr: Expr.NullCoalescing): $Any {
@@ -351,16 +371,32 @@ export class Interpreter implements
             case TokenType.PlusPlus:
             case TokenType.MinusMinus:
                 if (!right.isNumber()) {
-                    this.error(`Invalid right-hand side expression in prefix operation:  "${DataType[right.type]} ${right} is not a number`);
+                    this.error(
+                        `Invalid right-hand side expression in prefix operation:  "${
+                            DataType[right.type]
+                        } ${right} is not a number`
+                    );
                 }
-                const newValue = Number(right.value) + (expr.operator.type === TokenType.PlusPlus ? 1 : -1);
+                const newValue =
+                    Number(right.value) +
+                    (expr.operator.type === TokenType.PlusPlus ? 1 : -1);
                 if (expr.right instanceof Expr.Variable) {
-                    this.scope.assign(expr.right.name.lexeme, new $Number(newValue));
+                    this.scope.assign(
+                        expr.right.name.lexeme,
+                        new $Number(newValue)
+                    );
                 } else if (expr.right instanceof Expr.Get) {
-                    const assing = new Expr.Set(expr.right.entity, expr.right.key, new Expr.Literal(new $Number(newValue), expr.line), expr.line);
+                    const assing = new Expr.Set(
+                        expr.right.entity,
+                        expr.right.key,
+                        new Expr.Literal(new $Number(newValue), expr.line),
+                        expr.line
+                    );
                     this.evaluate(assing);
                 } else {
-                    this.error(`Invalid right-hand side expression in prefix operation:  ${expr.right}`);
+                    this.error(
+                        `Invalid right-hand side expression in prefix operation:  ${expr.right}`
+                    );
                 }
                 return new $Number(newValue);
             default:
@@ -376,7 +412,7 @@ export class Interpreter implements
             statement.result = this.execute(statement);
         }
         this.scope = currentScope;
-        return new $Void('block');
+        return new $Void("block");
     }
 
     public visitBlockStmt(stmt: Stmt.Block): $Any {
@@ -396,7 +432,7 @@ export class Interpreter implements
         while (this.evaluate(stmt.condition).isTruthy()) {
             try {
                 this.execute(stmt.loop);
-            } catch (e) {
+            } catch (e: any) {
                 this.scope = currentScope;
                 if (e instanceof $Any && e.type === DataType.Break) {
                     break;
@@ -407,7 +443,7 @@ export class Interpreter implements
                 }
             }
         }
-        return new $Void('while');
+        return new $Void("while");
     }
 
     public visitDoWhileStmt(stmt: Stmt.DoWhile): $Any {
@@ -415,7 +451,7 @@ export class Interpreter implements
         do {
             try {
                 this.execute(stmt.loop);
-            } catch (e) {
+            } catch (e: any) {
                 this.scope = currentScope;
                 if (e instanceof $Any && e.type === DataType.Break) {
                     break;
@@ -426,7 +462,7 @@ export class Interpreter implements
                 }
             }
         } while (this.evaluate(stmt.condition).isTruthy());
-        return new $Void('dowhile');
+        return new $Void("dowhile");
     }
 
     public visitForeachStmt(stmt: Stmt.Foreach): $Any {
@@ -442,7 +478,7 @@ export class Interpreter implements
             }
             try {
                 this.executeBlock([stmt.loop], foreachScope);
-            } catch (e) {
+            } catch (e: any) {
                 this.scope = restoreScope;
                 if (e instanceof $Any && e.type === DataType.Break) {
                     break;
@@ -456,7 +492,7 @@ export class Interpreter implements
         if (!hasItems && stmt.none) {
             this.execute(stmt.none);
         }
-        return new $Void('foreach');
+        return new $Void("foreach");
     }
 
     public visitCallExpr(expr: Expr.Call): $Any {
@@ -470,7 +506,7 @@ export class Interpreter implements
         let thiz: any = null;
         if (expr.callee instanceof Expr.Get) {
             if (expr.callee.entity instanceof Expr.Base) {
-                thiz = this.scope.get('this', expr.paren);
+                thiz = this.scope.get("this", expr.paren);
             } else {
                 thiz = this.evaluate(expr.callee.entity);
             }
@@ -492,7 +528,9 @@ export class Interpreter implements
         // pass arguments to function
         const func = callee as $Function;
         if (args.length !== func.arity && func.arity !== -1) {
-            conzole.warn(`Warning at (${expr.paren.line}): ${callee} mismatched argument count; \n Expected ${func.arity} but got ${args.length} `);
+            conzole.warn(
+                `Warning at (${expr.paren.line}): ${callee} mismatched argument count; \n Expected ${func.arity} but got ${args.length} `
+            );
             if (args.length < func.arity) {
                 for (let i = args.length; i <= func.arity; ++i) {
                     args.push(new $Null());
@@ -513,24 +551,28 @@ export class Interpreter implements
         const clazz: $Class = (thiz as $Object).conztructor as $Class;
         const parent = clazz.parent;
         if (parent.isNull()) {
-            this.error("Class " + clazz + " has not been extended and has no base");
+            this.error(
+                "Class " + clazz + " has not been extended and has no base"
+            );
         }
 
         return parent;
     }
 
     public visitNewExpr(expr: Expr.New): $Any {
-        const newCall = (expr.clazz as Expr.Call);
+        const newCall = expr.clazz as Expr.Call;
         // internal class definition instance
         const clazz: $Class = this.evaluate(newCall.callee) as $Class;
 
         if (!clazz.isClass()) {
-            this.error(`'${clazz}' is not a class. 'new' statement must be used with classes.`);
+            this.error(
+                `'${clazz}' is not a class. 'new' statement must be used with classes.`
+            );
         }
         // new object
         const entity = new $Object(new Map(), clazz);
         // constructor method of the class
-        const conztructor = clazz.get(new $String('constructor')) as $Function;
+        const conztructor = clazz.get(new $String("constructor")) as $Function;
         if (conztructor.isFunction()) {
             /*
             const args: $Any[] = [];
@@ -539,13 +581,18 @@ export class Interpreter implements
             }
             conztructor.call(this, entity, args);
             */
-           this.evaluate(
-               new Expr.Call(
-                   new Expr.Get(new Expr.Literal(entity, expr.line), new Expr.Key(conztructor.declaration.name, expr.line), TokenType.Dot, expr.line),
-                   conztructor.declaration.name,
-                   newCall.args,
-                   entity,
-                   expr.line
+            this.evaluate(
+                new Expr.Call(
+                    new Expr.Get(
+                        new Expr.Literal(entity, expr.line),
+                        new Expr.Key(conztructor.declaration.name, expr.line),
+                        TokenType.Dot,
+                        expr.line
+                    ),
+                    conztructor.declaration.name,
+                    newCall.args,
+                    entity,
+                    expr.line
                 )
             );
         }
@@ -558,11 +605,13 @@ export class Interpreter implements
             if (property instanceof Expr.Spread) {
                 const value = this.evaluate(property.value);
                 const it = new $Iterator(value);
-                while (!($Iterator.next(it, [], this) as $Iterator).iter.done.value) {
+                while (
+                    !($Iterator.next(it, [], this) as $Iterator).iter.done.value
+                ) {
                     dict.set(it.iter.index, it.iter.value);
                 }
             } else {
-                const key  = this.evaluate((property as Expr.Set).key);
+                const key = this.evaluate((property as Expr.Set).key);
                 const value = this.evaluate((property as Expr.Set).value);
                 dict.set(key, value);
             }
@@ -641,7 +690,11 @@ export class Interpreter implements
     public visitRangeExpr(expr: Expr.Range): $Any {
         const start = expr.start ? this.evaluate(expr.start).value : null;
         const end = expr.end ? this.evaluate(expr.end).value : null;
-        const step = expr.step ? this.evaluate(expr.step).value : (start <= end ? 1 : -1);
+        const step = expr.step
+            ? this.evaluate(expr.step).value
+            : start <= end
+            ? 1
+            : -1;
         return new $Range(new RangeValue(start, end, step));
     }
 
@@ -652,17 +705,17 @@ export class Interpreter implements
 
     public visitIsExpr(expr: Expr.InstanceOf): $Any {
         const left = this.evaluate(expr.left);
-        const right = DataType[capitalize(expr.right.lexeme)];
+        const right = DataType[capitalize(expr.right.lexeme) as never];
         // is direct instance of class
         if (left.isObject() && (left as $Object).name === expr.right.lexeme) {
             return new $Boolean(true);
         }
         // is not a type
-        if (typeof right === 'undefined' || isNaN(right)) {
+        if (typeof right === "undefined" || isNaN(right as never)) {
             return new $Boolean(false);
         }
         // is a type
-        return new $Boolean(left.type === right);
+        return new $Boolean((left.type as unknown) === (right as unknown));
     }
 
     public visitInstanceOfExpr(expr: Expr.InstanceOf): $Any {
@@ -673,7 +726,7 @@ export class Interpreter implements
         const className = expr.right.lexeme;
 
         // All instances derive from Object
-        if (className.toLowerCase() === 'object') {
+        if (className.toLowerCase() === "object") {
             return new $Boolean(true);
         }
         const instance = left as $Object;
@@ -688,7 +741,6 @@ export class Interpreter implements
             }
         }
         return new $Boolean(false);
-
     }
 
     public visitVoidExpr(expr: Expr.Void): $Any {
@@ -703,12 +755,16 @@ export class Interpreter implements
             return new $Boolean(entity.value.has(key.value));
         }
         if (entity.isList()) {
-            return new $Boolean(typeof entity.value[key.value] !== 'undefined');
+            return new $Boolean(typeof entity.value[key.value] !== "undefined");
         }
         if (entity.isString()) {
             return new $Boolean(entity.value.includes(key.value));
         }
-        this.error(`Operator "in" can't be used on type ${DataType[entity.type]} with value "${entity}"`);
+        this.error(
+            `Operator "in" can't be used on type ${
+                DataType[entity.type]
+            } with value "${entity}"`
+        );
         return new $Null();
     }
 
@@ -726,7 +782,9 @@ export class Interpreter implements
         if (!(expr.value instanceof Expr.Get)) {
             const value = this.evaluate(expr.value);
             const type = DataType[value.type].toLowerCase();
-            this.error(`Can't delete on type ${type} with value '${value}'. Not a Dictionary, Class or Entity`);
+            this.error(
+                `Can't delete on type ${type} with value '${value}'. Not a Dictionary, Class or Entity`
+            );
             return new $Null();
         }
 
@@ -735,5 +793,4 @@ export class Interpreter implements
         const key = this.evaluate(getExpr.key);
         return entity.delete(key);
     }
-
 }
