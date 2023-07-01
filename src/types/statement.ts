@@ -18,6 +18,7 @@ export interface StmtVisitor<R> {
     visitContinueStmt(stmt: Continue): R;
     visitDoWhileStmt(stmt: DoWhile): R;
     visitExpressionStmt(stmt: Expression): R;
+    visitForStmt(stmt: For): R;
     visitForeachStmt(stmt: Foreach): R;
     visitFuncStmt(stmt: Func): R;
     visitIfStmt(stmt: If): R;
@@ -138,6 +139,30 @@ export class Expression extends Stmt {
 
     public toString(): string {
         return 'Stmt.Expression';
+    }
+}
+
+export class For extends Stmt {
+    public initializer: Stmt;
+    public condition: Expr;
+    public increment: Expr;
+    public loop: Stmt;
+
+    constructor(initializer: Stmt, condition: Expr, increment: Expr, loop: Stmt, line: number) {
+        super();
+        this.initializer = initializer;
+        this.condition = condition;
+        this.increment = increment;
+        this.loop = loop;
+        this.line = line;
+    }
+
+    public accept<R>(visitor: StmtVisitor<R>): R {
+        return visitor.visitForStmt(this);
+    }
+
+    public toString(): string {
+        return 'Stmt.For';
     }
 }
 
