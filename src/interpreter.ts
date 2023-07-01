@@ -470,13 +470,13 @@ export class Interpreter
 
     public visitForStmt(stmt: Stmt.For): $Any {
         const restoreScope = this.scope;
-        this.scope = new Scope(this.scope);
+        const outerScope = new Scope(this.scope);
+        this.scope = outerScope;
         this.execute(stmt.initializer);
         while (this.evaluate(stmt.condition).isTruthy()) {
-            const forScope = this.scope.clone();
+            this.scope = this.scope.clone();
             try {
-                this.executeBlock([stmt.loop], forScope);
-                this.evaluate(stmt.increment);
+                this.execute(stmt.loop);
             } catch (e: any) {
                 if (e instanceof $Any && e.type === DataType.Break) {
                     break;
@@ -485,6 +485,9 @@ export class Interpreter
                 } else {
                     throw e;
                 }
+            } finally {
+                this.scope = outerScope;
+                this.evaluate(stmt.increment);
             }
         }
         this.scope = restoreScope;
