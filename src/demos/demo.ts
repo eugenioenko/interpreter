@@ -141,4 +141,19 @@ echo ('execution finished');
 fetch ('https://jsonplaceholder.typicode.com/todos/1', @(res) {
     echo(res);
 });
+
+
+function testForStatementClosure() {
+    var logs = [];
+    for (var i = 0; i < 3; ++i) {
+      logs[i] = @() {
+         print i;
+      };
+    }
+    for (var i = 0; i < 3; ++i) {
+      logs[i]();
+    }
+}
+// prints 0 1 2 and not 2 2 2
+testForStatementClosure();
 `;
