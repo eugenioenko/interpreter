@@ -368,20 +368,13 @@ export class Parser {
             `Expected semicolon ";" after a "for" stement increment expression`
         );
         let body: Stmt.Stmt = this.statement();
-        if (increment !== null) {
-            body = new Stmt.Block(
-                [body, new Stmt.Expression(increment, keyword.line)],
-                keyword.line
-            );
-        }
-        if (condition === null) {
-            condition = new Expr.Literal(new $Boolean(true), keyword.line);
-        }
-        body = new Stmt.While(condition, body, keyword.line);
-        if (initializer !== null) {
-            body = new Stmt.Block([initializer, body], keyword.line);
-        }
-        return body;
+        return new Stmt.For(
+            initializer,
+            condition,
+            increment,
+            body,
+            keyword.line
+        );
     }
 
     private foreachStatement(): Stmt.Stmt {
