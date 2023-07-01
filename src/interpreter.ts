@@ -425,15 +425,16 @@ export class Interpreter
         } else if (stmt.elseStmt !== null) {
             return this.execute(stmt.elseStmt);
         }
+        return new $Null();
     }
 
     public visitWhileStmt(stmt: Stmt.While): $Any {
-        const currentScope = this.scope;
+        const restoreScope = this.scope;
         while (this.evaluate(stmt.condition).isTruthy()) {
             try {
                 this.execute(stmt.loop);
             } catch (e: any) {
-                this.scope = currentScope;
+                this.scope = restoreScope;
                 if (e instanceof $Any && e.type === DataType.Break) {
                     break;
                 } else if (e instanceof $Any && e.type === DataType.Continue) {
@@ -443,16 +444,17 @@ export class Interpreter
                 }
             }
         }
+        this.scope = restoreScope;
         return new $Void("while");
     }
 
     public visitDoWhileStmt(stmt: Stmt.DoWhile): $Any {
-        const currentScope = this.scope;
+        const restoreScope = this.scope;
         do {
             try {
                 this.execute(stmt.loop);
             } catch (e: any) {
-                this.scope = currentScope;
+                this.scope = restoreScope;
                 if (e instanceof $Any && e.type === DataType.Break) {
                     break;
                 } else if (e instanceof $Any && e.type === DataType.Continue) {
@@ -462,7 +464,34 @@ export class Interpreter
                 }
             }
         } while (this.evaluate(stmt.condition).isTruthy());
+        this.scope = restoreScope;
         return new $Void("dowhile");
+    }
+
+    public visitForStmt(stmt: Stmt.For): $Any {
+        const restoreScope = this.scope;
+        const outerScope = new Scope(this.scope);
+        this.scope = outerScope;
+        this.execute(stmt.initializer);
+        while (this.evaluate(stmt.condition).isTruthy()) {
+            this.scope = this.scope.clone();
+            try {
+                this.execute(stmt.loop);
+            } catch (e: any) {
+                if (e instanceof $Any && e.type === DataType.Break) {
+                    break;
+                } else if (e instanceof $Any && e.type === DataType.Continue) {
+                    continue;
+                } else {
+                    throw e;
+                }
+            } finally {
+                this.scope = outerScope;
+                this.evaluate(stmt.increment);
+            }
+        }
+        this.scope = restoreScope;
+        return new $Void("for");
     }
 
     public visitForeachStmt(stmt: Stmt.Foreach): $Any {
@@ -492,6 +521,7 @@ export class Interpreter
         if (!hasItems && stmt.none) {
             this.execute(stmt.none);
         }
+        this.scope = restoreScope;
         return new $Void("foreach");
     }
 

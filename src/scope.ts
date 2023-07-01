@@ -1,11 +1,9 @@
-import { Token } from './token';
-import { Console } from './console';
-import { $Any } from './types/any';
-import { $Null } from './types/null';
-declare var conzole: Console;
+import { Token } from "./token";
+import { Console } from "./console";
+import { $Any } from "./types/any";
+import { $Null } from "./types/null";
 
 export class Scope {
-
     private values: Map<string, any>;
     private parent: Scope;
 
@@ -16,6 +14,12 @@ export class Scope {
 
     private error(message: string): void {
         throw new Error(`Runtime Error => ${message}`);
+    }
+
+    public clone(): Scope {
+        const clone = new Scope(this.parent);
+        clone.values = new Map(this.values);
+        return clone;
     }
 
     public set(name: string, value: $Any) {
@@ -45,16 +49,17 @@ export class Scope {
         if (this.values.has(key)) {
             return this.values.get(key);
         }
-        if (this.parent !== null ) {
+        if (this.parent !== null) {
             return this.parent.get(key);
         }
 
         if (token) {
-            this.error(` at (${token.line}:${token.col}) => "${token.lexeme}" is not defined`);
+            this.error(
+                ` at (${token.line}:${token.col}) => "${token.lexeme}" is not defined`
+            );
         } else {
             this.error(`"${key}" is not defined`);
         }
         return new $Null();
     }
-
 }
