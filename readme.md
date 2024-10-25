@@ -536,6 +536,9 @@ An interactive cli is available
 
 ### > [Try it out in playground!](https://eugenioenko.github.io/interpreter/)
 
+## Testing 
+At-script employs Jasmine for unit testing to ensure code reliability and maintainability. The tests are organized in the /specs folder, allowing for easy navigation and management of test cases. However, the current test coverage needs improvement, and additional tests are encouraged to enhance the robustness of the framework.
+
 ## collaboration
 This project is designed with fun and discovery in mind. Typescript transpile to javascript making this interpreter be almost a js like language interpreter running on js.
 
