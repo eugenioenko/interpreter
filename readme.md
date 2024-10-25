@@ -1,5 +1,5 @@
 
-##  @script (at-script)[![Build Status](https://travis-ci.org/eugenioenko/interpreter.svg?branch=master)](https://travis-ci.org/eugenioenko/interpreter)
+##  @script (at-script)
 This is a work in progress of an interpreter written in typescript of a scripting language somewhat similar to javascript which borrows some ideas from python.
 
 ### > [Try it out in playground!](https://eugenioenko.github.io/interpreter/)
